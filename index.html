@@ -81,7 +81,7 @@
 </head>
 <body class="h-screen w-screen flex flex-col justify-between overflow-hidden">
 
-    <!-- 背景音樂：Two_Coins_Left.mp3 -->
+    <!-- 背景音樂：Two_Coins_Left.mp3 (需求2：修復音訊路徑還原遊戲過程音樂) -->
     <audio id="bgm" loop preload="auto" src="Two_Coins_Left.mp3"></audio>
 
     <!-- 頂部 Header -->
@@ -127,7 +127,7 @@
                             </div>
                         </div>
 
-                        <!-- 需求6：當未有人員加入時顯示分數計算規則，人員加入後即隱藏 -->
+                        <!-- 未有人員加入時顯示分數計算規則 -->
                         <div id="score-rules-box" class="mt-3 p-3 bg-amber-50/90 border border-amber-200 rounded-xl text-amber-900 text-sm shadow-sm flex-shrink-0">
                             <div class="font-bold border-b border-amber-200 pb-1 mb-1.5 flex items-center gap-1.5 text-amber-800">
                                 <i class="fa-solid fa-circle-info"></i> 分數計算規則
@@ -173,7 +173,6 @@
                                     <option value="7.0">極速</option>
                                 </select>
                             </div>
-                            <!-- 需求4：AI參賽人數選項改為 0、1、2 -->
                             <div class="flex flex-col gap-1">
                                 <label for="select-ai-count" class="text-xs text-amber-900 font-bold">AI參賽人數</label>
                                 <select id="select-ai-count" class="bg-white text-slate-700 font-bold p-1.5 rounded-xl border border-amber-300 outline-none focus:border-emerald-500 cursor-pointer shadow-sm text-xs">
@@ -186,7 +185,6 @@
                     </div>
 
                     <div id="lobby-start-box" class="w-full pt-1 flex-shrink-0">
-                        <!-- 需求3：QR碼頁面的進入遊戲按鍵更名為「開始遊戲」 -->
                         <button id="btn-start-game" class="hidden w-full py-3.5 text-2xl font-black text-amber-950 bg-gradient-to-r from-amber-300 via-emerald-300 to-teal-300 rounded-2xl shadow-lg hover:brightness-105 active:scale-95 transition-all animate-bounce border-2 border-white">
                             🎮 開始遊戲
                         </button>
@@ -200,7 +198,6 @@
         <div id="view-player-mobile" class="hidden fixed inset-0 z-50 bg-gradient-to-b from-sky-100 via-amber-50 to-emerald-100 p-4 flex-col justify-between overflow-hidden">
             <div id="mobile-top-bar" class="text-center space-y-1 flex-shrink-0 pt-2">
                 <span class="text-4xl">🌸</span>
-                <!-- 需求2：手機端抬頭顯示更名為「答題器」 -->
                 <h2 class="text-2xl font-black text-emerald-800">答題器</h2>
                 <p id="player-mobile-name" class="text-amber-700 font-bold text-base">正在連線大螢幕...</p>
                 <div id="mobile-avatar-display" class="hidden text-6xl py-2 animate-bounce">
@@ -240,18 +237,14 @@
 
                 <!-- 指尖觸控操控面板 (Touchpad) -->
                 <div id="touchpad-area" class="w-full h-52 bg-gradient-to-b from-slate-800 to-slate-900 rounded-2xl border-2 border-slate-700 relative overflow-hidden shadow-inner flex flex-col items-center justify-center touch-none select-none cursor-grab active:cursor-grabbing">
-                    <!-- 背景網格裝飾紋理 -->
                     <div class="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:16px_16px] opacity-40 pointer-events-none"></div>
-                    <!-- 十字輔助線 -->
                     <div class="absolute w-full h-0.5 bg-slate-700/60 pointer-events-none"></div>
                     <div class="absolute h-full w-0.5 bg-slate-700/60 pointer-events-none"></div>
                     
-                    <!-- 指尖操控軌跡動態反饋視覺 -->
                     <div id="touch-pointer" class="w-12 h-12 bg-emerald-500/80 border-2 border-emerald-300 rounded-full transition-transform duration-75 absolute shadow-lg shadow-emerald-500/50 flex items-center justify-center pointer-events-none" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
                         <div class="w-3 h-3 bg-white rounded-full"></div>
                     </div>
 
-                    <!-- 引導提示文字 -->
                     <div id="touchpad-hint" class="text-slate-400 font-bold text-sm pointer-events-none z-10 flex flex-col items-center gap-1">
                         <i class="fa-solid fa-hand-pointer text-2xl text-emerald-400 animate-bounce"></i>
                         <span>指尖在此滑動操控上下左右</span>
@@ -298,7 +291,7 @@
                         <span id="game-total-players-badge" class="text-base bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full border border-emerald-300">0 人</span>
                     </h3>
                     
-                    <!-- 需求5：團體賽團隊總分對抗條 -->
+                    <!-- 團體賽團隊總分對抗條 -->
                     <div id="team-score-summary" class="hidden mb-3 p-2.5 bg-gradient-to-r from-rose-50 via-slate-50 to-sky-50 rounded-2xl border border-slate-200 shadow-sm flex-shrink-0">
                         <div class="flex justify-between items-center text-xs font-black mb-1">
                             <span class="text-rose-600">🚩 紅隊：<span id="red-team-total-score">0</span>分</span>
@@ -313,7 +306,7 @@
                     <div id="players-dashboard" class="flex flex-col space-y-2.5 overflow-y-auto flex-grow pr-1"></div>
                 </div>
 
-                <!-- 下半部：美化音樂播放控制卡片（排行榜下方） -->
+                <!-- 下半部：音樂播放控制卡片 -->
                 <div class="mt-3 pt-3 border-t-2 border-amber-200/80 flex-shrink-0 bg-amber-50/70 rounded-2xl p-3 border border-amber-200 shadow-inner">
                     <div class="flex items-center justify-between mb-2">
                         <div class="flex items-center gap-2 truncate">
@@ -323,13 +316,11 @@
                         <span id="music-status-text" class="text-[10px] bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded-md font-bold whitespace-nowrap">1.0x</span>
                     </div>
 
-                    <!-- 原生 HTML Audio 音樂播放控制器（配合主題顏色設定） -->
                     <audio id="audioPlayerInGame" controls class="w-full h-8 mb-2 rounded-lg outline-none opacity-90 hover:opacity-100 transition-opacity">
                         <source src="Two_Coins_Left.mp3" type="audio/mpeg">
                         您的瀏覽器不支援音樂播放。
                     </audio>
 
-                    <!-- 播放速度控制按鈕組 -->
                     <div class="grid grid-cols-3 gap-1.5">
                         <button class="music-speed-btn py-1 px-1 rounded-lg text-xs font-black shadow-sm" onclick="setMusicSpeed(0.5, this)">50%</button>
                         <button class="music-speed-btn active py-1 px-1 rounded-lg text-xs font-black shadow-sm" onclick="setMusicSpeed(1.0, this)">100%</button>
@@ -361,7 +352,7 @@
                     🏆 最終頒獎典禮 🏆
                 </h2>
 
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 flex-grow overflow-hidden my-2">
+                <div id="result-main-grid" class="grid grid-cols-1 md:grid-cols-12 gap-6 flex-grow overflow-hidden my-2">
                     
                     <div class="md:col-span-3 bg-white/80 rounded-2xl p-4 border border-amber-200 flex flex-col justify-between overflow-hidden shadow-sm">
                         <div class="flex justify-between items-center mb-3 border-b border-amber-200 pb-2 flex-shrink-0">
@@ -372,7 +363,7 @@
                     </div>
 
                     <div class="md:col-span-6 bg-gradient-to-b from-amber-100/60 to-rose-100/60 border-2 border-amber-300 rounded-2xl p-6 flex flex-col items-center justify-center text-center overflow-hidden shadow-inner">
-                        <div class="w-full flex flex-col items-center">
+                        <div class="w-full flex flex-col items-center h-full justify-center">
                             <span id="top3-badge-title" class="text-amber-800 font-black tracking-widest text-base mb-3 bg-white/80 px-4 py-1 rounded-full border border-amber-300">✨ TOP 3 WINNERS ✨</span>
                             <div id="top3-container" class="w-full flex flex-col items-center space-y-4 my-auto"></div>
                         </div>
@@ -452,10 +443,9 @@
         let myPlayerId = null;
         let myAvatar = '🐱';
 
-        // 需求5：參賽方式與隊伍狀態 ('individual' | 'team')
         let gameMode = 'individual';
 
-        // 控制參數 (傾斜與靈敏度)
+        // 控制參數
         let zeroGamma = 0; 
         let zeroBeta = 0;  
         let isOrientationBound = false;
@@ -466,8 +456,8 @@
         let foodDropSpeed = 3.5;
         let spawnedFoodCount = 0;
         let activeFoods = [];
-        let scorePopups = []; // 儲存躍動得分特效 (+2 / -1)
-        let explosionParticles = []; // 儲存爆炸特效粒子
+        let scorePopups = []; 
+        let explosionParticles = []; 
         let isGameRunning = false;
 
         // Canvas 設定
@@ -488,7 +478,22 @@
             return audioCtx;
         }
 
-        // 音樂播放器速度調整功能 (同步支援隱藏的主要 bgm 與畫面上的音訊卡片)
+        // 需求2：音樂播放與連動修正
+        function playMainBgm() {
+            const bgm = document.getElementById('bgm');
+            const inGameAudio = document.getElementById('audioPlayerInGame');
+            getAudioContext();
+            
+            if (bgm) {
+                bgm.currentTime = 0;
+                bgm.play().catch(e => console.warn("BGM play error:", e));
+            }
+            if (inGameAudio) {
+                inGameAudio.currentTime = 0;
+                inGameAudio.play().catch(e => console.warn("InGame audio play error:", e));
+            }
+        }
+
         function setMusicSpeed(speedRate, buttonEl) {
             const bgm = document.getElementById('bgm');
             const inGameAudio = document.getElementById('audioPlayerInGame');
@@ -501,13 +506,11 @@
                 statusText.textContent = `${speedRate}x`;
             }
 
-            // 按鈕切換高亮樣式
             const buttons = document.querySelectorAll('.music-speed-btn');
             buttons.forEach(btn => btn.classList.remove('active'));
             if (buttonEl) buttonEl.classList.add('active');
         }
 
-        // 單音調播放器（供問答遊戲頒獎音樂使用）
         function playSingleNote(freq, duration, type = 'square', gainValue = 0.12) {
             try {
                 const ctx = getAudioContext();
@@ -527,7 +530,6 @@
             }
         }
 
-        // 停止背景音樂循環
         function stopBgm() {
             currentBgmType = null;
             if (bgmTimeoutId) {
@@ -536,7 +538,6 @@
             }
         }
 
-        // 播放瑪利歐勝利音樂（問答遊戲頒獎音效）
         function playMarioVictoryFanfare() {
             getAudioContext();
             stopBgm();
@@ -570,18 +571,16 @@
             playNext();
         }
 
-        // 播放吃到正確食物的清脆躍動音效
         function playScoreSound() {
             try {
                 const ctx = getAudioContext();
                 const now = ctx.currentTime;
-                
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
 
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(523.25, now); // C5
-                osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.15); // C6
+                osc.frequency.setValueAtTime(523.25, now); 
+                osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.15); 
 
                 gain.gain.setValueAtTime(0.3, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
@@ -596,13 +595,11 @@
             }
         }
 
-        // 播放吃到不可放入食物時的爆炸音效
         function playExplosionSound() {
             try {
                 const ctx = getAudioContext();
                 const now = ctx.currentTime;
 
-                // 雜訊緩衝區產生低沈爆破音
                 const bufferSize = ctx.sampleRate * 0.3; 
                 const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
                 const data = buffer.getChannelData(0);
@@ -633,7 +630,6 @@
             }
         }
 
-        // 播放煙火爆炸聲效
         function playFireworkBoomSound() {
             try {
                 const ctx = getAudioContext();
@@ -659,7 +655,6 @@
             }
         }
 
-        // 產生爆炸粒子特效
         function createExplosion(x, y) {
             const colors = ['#f43f5e', '#f97316', '#eab308', '#ef4444', '#ffffff'];
             for (let i = 0; i < 25; i++) {
@@ -678,13 +673,12 @@
             }
         }
 
-        // 解鎖瀏覽器音訊限制
         function unlockAudio() {
             getAudioContext();
             const bgm = document.getElementById('bgm');
             if (bgm && bgm.paused) {
                 bgm.play().then(() => {
-                    bgm.pause(); // 預先點擊觸發以解鎖音訊權限
+                    bgm.pause(); 
                     bgm.currentTime = 0;
                 }).catch(() => {});
             }
@@ -693,7 +687,6 @@
         }
 
         window.onload = () => {
-            // 全域解鎖瀏覽器音訊
             window.addEventListener('click', unlockAudio);
             window.addEventListener('touchstart', unlockAudio);
 
@@ -1026,9 +1019,7 @@
                 });
             }
 
-            // 需求5：團體賽隨機分隊（紅隊/白隊），若人數不同補 1 名 AI 給少的那隊
             if (gameMode === 'team') {
-                // 隨機洗牌玩家順序以公平分隊
                 const shuffled = [...players].sort(() => Math.random() - 0.5);
                 const half = Math.ceil(shuffled.length / 2);
                 
@@ -1056,7 +1047,6 @@
                     });
                 }
 
-                // 設定帶旗子的顯示名稱
                 players.forEach(p => {
                     const flag = p.team === 'red' ? '🚩' : '🏳️';
                     p.displayName = `${flag} ${p.name}`;
@@ -1069,20 +1059,9 @@
             }
 
             renderLobbyPlayers();
-
-            // 按開始遊戲後播放 Two_Coins_Left.mp3
-            const bgm = document.getElementById('bgm');
-            getAudioContext();
-            if (bgm) {
-                bgm.currentTime = 0;
-                const playPromise = bgm.play();
-                if (playPromise !== undefined) {
-                    playPromise.catch(e => {
-                        console.warn("Autoplay was blocked by browser. Retrying on user interaction...", e);
-                    });
-                }
-            }
-
+            
+            // 需求2：開賽播放音樂
+            playMainBgm();
             startGame();
         }
 
@@ -1092,7 +1071,6 @@
             container.innerHTML = '';
             document.getElementById('player-count-badge').innerText = `${players.length} 人`;
 
-            // 需求6：未有人員加入時顯示規則，有人員加入後即消失
             if (players.length > 0) {
                 if (rulesBox) rulesBox.classList.add('hidden');
             } else {
@@ -1163,15 +1141,13 @@
                 const pool = isGood ? validFoodPool : invalidFoodPool;
                 const foodItem = pool[Math.floor(Math.random() * pool.length)];
 
-                // 隨機某個食物加快 20%-100%
                 let speedBoostLevel = 0;
                 let speedMultiplier = 1.0;
-                if (Math.random() < 0.35) { // 約 35% 機率觸發加速食物
+                if (Math.random() < 0.35) { 
                     speedBoostLevel = Math.floor(Math.random() * 5) + 1;
                     speedMultiplier = 1 + (speedBoostLevel * 0.2);
                 }
 
-                // 每加快 20%，分數加倍計算
                 let finalScore = foodItem.score;
                 if (speedBoostLevel > 0) {
                     finalScore = foodItem.score * Math.pow(2, speedBoostLevel);
@@ -1199,10 +1175,44 @@
             }
         }
 
+        // 需求4：參賽者圖示碰撞物理反彈處理 (彈開 50% 圖示大小位移)
+        function handlePlayerCollisions() {
+            const avatarSize = 52; // 圖示像素大小
+            const minDist = avatarSize; // 碰撞判斷距離
+            const pushOffsetNormalized = (avatarSize * 0.5) / canvas.width; // 50% 圖示大小轉換為 Canvas 相對寬度比例
+
+            for (let i = 0; i < players.length; i++) {
+                for (let j = i + 1; j < players.length; j++) {
+                    const p1 = players[i];
+                    const p2 = players[j];
+
+                    const p1x = p1.x * canvas.width;
+                    const p1y = p1.y * canvas.height;
+                    const p2x = p2.x * canvas.width;
+                    const p2y = p2.y * canvas.height;
+
+                    const dx = p2x - p1x;
+                    const dy = p2y - p1y;
+                    const dist = Math.hypot(dx, dy);
+
+                    if (dist < minDist && dist > 0) {
+                        const nx = dx / dist; // 碰撞方向向量
+
+                        // 將兩邊向相反方向彈開 50% 的圖示尺寸距離 (即向左右/兩側位移)
+                        p1.x = Math.max(0.05, Math.min(0.95, p1.x - nx * pushOffsetNormalized * 0.5));
+                        p2.x = Math.max(0.05, Math.min(0.95, p2.x + nx * pushOffsetNormalized * 0.5));
+                    }
+                }
+            }
+        }
+
         function gameLoop() {
             if (!isGameRunning) return;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 執行參賽者圖示互相碰撞彈開檢查
+            handlePlayerCollisions();
 
             // 更新 AI 位置
             players.filter(p => p.isAI).forEach(ai => {
@@ -1224,18 +1234,18 @@
                 const drawX = food.x * canvas.width;
                 const drawY = food.y * canvas.height;
 
-                // 若為加速食物，畫出火花裝飾
                 if (food.speedBoostLevel > 0) {
                     ctx.font = '18px sans-serif';
                     ctx.textAlign = 'center';
                     ctx.fillText('⚡', drawX - 25, drawY - 15);
                 }
 
-                // 繪製食物圖示與名稱
+                // 繪製物資圖示
                 ctx.font = '43px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.fillText(food.icon, drawX, drawY);
 
+                // 繪製物資名稱 (需求3：移除名稱下方的得分數字顯示)
                 ctx.font = 'bold 14px "Noto Sans TC"';
                 ctx.fillStyle = food.score > 0 ? '#15803d' : '#e11d48';
                 ctx.fillText(food.name, drawX, drawY + 24);
@@ -1251,7 +1261,6 @@
                         p.score += food.score;
 
                         if (food.score > 0) {
-                            // 正確食物音效與躍動文字效果
                             playScoreSound();
                             scorePopups.push({
                                 text: `+${food.score}`,
@@ -1262,7 +1271,6 @@
                                 color: food.speedBoostLevel > 0 ? '#ea580c' : '#f59e0b'
                             });
                         } else {
-                            // 不能放進去的食物：觸發爆炸特效與音效
                             playExplosionSound();
                             createExplosion(drawX, drawY);
                             scorePopups.push({
@@ -1284,7 +1292,7 @@
                 }
             }
 
-            // 繪製與更新爆炸粒子特效
+            // 繪製爆炸粒子
             for (let i = explosionParticles.length - 1; i >= 0; i--) {
                 const p = explosionParticles[i];
                 p.x += p.vx;
@@ -1304,7 +1312,7 @@
                 }
             }
 
-            // 繪製得分飄浮特效
+            // 繪製得分飄浮文字
             for (let i = scorePopups.length - 1; i >= 0; i--) {
                 const pop = scorePopups[i];
                 pop.y -= 1.5;
@@ -1346,7 +1354,6 @@
 
             renderPlayersDashboard();
 
-            // 檢查遊戲結束條件
             if (spawnedFoodCount >= totalFoodToSpawn && activeFoods.length === 0) {
                 isGameRunning = false;
                 setTimeout(showFinalResult, 1500);
@@ -1361,7 +1368,6 @@
 
             document.getElementById('game-total-players-badge').innerText = `${players.length} 人`;
 
-            // 更新團體戰總分與條狀圖
             if (gameMode === 'team') {
                 const redScore = players.filter(p => p.team === 'red').reduce((sum, p) => sum + p.score, 0);
                 const whiteScore = players.filter(p => p.team === 'white').reduce((sum, p) => sum + p.score, 0);
@@ -1417,18 +1423,12 @@
             });
         }
 
+        // 需求1：團體頒獎典禮（以團體榮譽與兩隊 MVP 顯示）
         function showFinalResult() {
-            // 暫停主背景音樂「Two_Coins_Left.mp3」並播放頒獎音樂
             const bgm = document.getElementById('bgm');
             const inGameAudio = document.getElementById('audioPlayerInGame');
-            if (bgm) {
-                bgm.pause();
-                bgm.currentTime = 0;
-            }
-            if (inGameAudio) {
-                inGameAudio.pause();
-                inGameAudio.currentTime = 0;
-            }
+            if (bgm) { bgm.pause(); bgm.currentTime = 0; }
+            if (inGameAudio) { inGameAudio.pause(); inGameAudio.currentTime = 0; }
             playMarioVictoryFanfare();
 
             document.getElementById('view-game').classList.add('hidden');
@@ -1438,45 +1438,59 @@
 
             let winningTeam = 'draw';
             if (gameMode === 'team') {
-                const redScore = players.filter(p => p.team === 'red').reduce((sum, p) => sum + p.score, 0);
-                const whiteScore = players.filter(p => p.team === 'white').reduce((sum, p) => sum + p.score, 0);
+                const redPlayers = players.filter(p => p.team === 'red').sort((a,b) => b.score - a.score);
+                const whitePlayers = players.filter(p => p.team === 'white').sort((a,b) => b.score - a.score);
+
+                const redScore = redPlayers.reduce((sum, p) => sum + p.score, 0);
+                const whiteScore = whitePlayers.reduce((sum, p) => sum + p.score, 0);
+
                 if (redScore > whiteScore) winningTeam = 'red';
                 else if (whiteScore > redScore) winningTeam = 'white';
 
-                document.getElementById('result-title').innerText = winningTeam === 'draw' ? '🏆 團體賽：兩隊不相上下 均分勝負！ 🏆' : (winningTeam === 'red' ? '🏆 恭喜【🚩 紅隊】榮獲團體總冠軍！ 🏆' : '🏆 恭喜【🏳️ 白隊】榮獲團體總冠軍！ 🏆');
-                document.getElementById('top3-badge-title').innerText = '✨ 團隊MVP個人得分榜 ✨';
-            } else {
-                document.getElementById('result-title').innerText = '🏆 最終頒獎典禮 🏆';
-                document.getElementById('top3-badge-title').innerText = '✨ TOP 3 WINNERS ✨';
-            }
+                document.getElementById('result-title').innerText = winningTeam === 'draw' ? '🏆 團體賽：兩隊同分 平手！ 🏆' : (winningTeam === 'red' ? '🏆 恭喜【🚩 紅隊】贏得團隊總冠軍！ 🏆' : '🏆 恭喜【🏳️ 白隊】贏得團隊總冠軍！ 🏆');
+                document.getElementById('top3-badge-title').innerText = '🌟 兩隊 MVP 王座 🌟';
 
-            players.forEach(p => {
-                if (p.conn) {
-                    const rank = allSortedPlayers.findIndex(s => s.id === p.id) + 1;
-                    p.conn.send({
-                        type: 'FINAL_RESULT',
-                        rank: rank,
-                        score: p.score,
-                        totalPlayers: allSortedPlayers.length,
-                        team: p.team,
-                        winningTeam: winningTeam
-                    });
-                }
-            });
-
-            if (gameMode === 'team') {
-                const redPlayers = allSortedPlayers.filter(p => p.team === 'red');
-                const whitePlayers = allSortedPlayers.filter(p => p.team === 'white');
-
+                // 團體賽：左側顯示紅隊成員，右側顯示白隊成員
                 document.getElementById('result-left-title').innerText = '🚩 紅隊成員榜';
                 document.getElementById('result-right-title').innerText = '🏳️ 白隊成員榜';
-
                 document.getElementById('result-left-count').innerText = `${redPlayers.length} 人`;
                 document.getElementById('result-right-count').innerText = `${whitePlayers.length} 人`;
 
                 renderParticipantList('result-left-list', redPlayers, 1);
                 renderParticipantList('result-right-list', whitePlayers, 1);
+
+                // 中央顯示兩隊各自的 MVP
+                const top3Container = document.getElementById('top3-container');
+                top3Container.innerHTML = '';
+
+                const redMVP = redPlayers[0] || { name: '無', avatar: '🚩', score: 0, displayName: '紅隊MVP' };
+                const whiteMVP = whitePlayers[0] || { name: '無', avatar: '🏳️', score: 0, displayName: '白隊MVP' };
+
+                const mvpCardsHtml = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                        <!-- 紅隊 MVP 卡片 -->
+                        <div class="p-4 rounded-2xl border-2 border-rose-300 bg-rose-50/90 flex flex-col items-center shadow-md">
+                            <span class="text-xs font-black text-white bg-rose-500 px-3 py-1 rounded-full border border-rose-200 mb-2">🚩 紅隊最高分 MVP</span>
+                            <div class="text-5xl my-1">${redMVP.avatar}</div>
+                            <div class="text-xl font-black text-slate-800 text-center truncate w-full">${redMVP.displayName || redMVP.name}</div>
+                            <div class="text-lg font-black text-amber-600 mt-1">${redMVP.score} 分</div>
+                        </div>
+                        <!-- 白隊 MVP 卡片 -->
+                        <div class="p-4 rounded-2xl border-2 border-sky-300 bg-sky-50/90 flex flex-col items-center shadow-md">
+                            <span class="text-xs font-black text-white bg-sky-500 px-3 py-1 rounded-full border border-sky-200 mb-2">🏳️ 白隊最高分 MVP</span>
+                            <div class="text-5xl my-1">${whiteMVP.avatar}</div>
+                            <div class="text-xl font-black text-slate-800 text-center truncate w-full">${whiteMVP.displayName || whiteMVP.name}</div>
+                            <div class="text-lg font-black text-amber-600 mt-1">${whiteMVP.score} 分</div>
+                        </div>
+                    </div>
+                `;
+                top3Container.innerHTML = mvpCardsHtml;
+
             } else {
+                // 個人賽畫面渲染
+                document.getElementById('result-title').innerText = '🏆 最終頒獎典禮 🏆';
+                document.getElementById('top3-badge-title').innerText = '✨ TOP 3 WINNERS ✨';
+
                 document.getElementById('result-left-title').innerText = '全場排名 (左)';
                 document.getElementById('result-right-title').innerText = '全場排名 (右)';
 
@@ -1489,43 +1503,58 @@
 
                 renderParticipantList('result-left-list', leftPlayers, 1);
                 renderParticipantList('result-right-list', rightPlayers, halfIndex + 1);
+
+                const top3Container = document.getElementById('top3-container');
+                top3Container.innerHTML = '';
+
+                const top3 = allSortedPlayers.slice(0, 3);
+                const medals = ['🥇 第一名 冠軍', '🥈 第二名 亞軍', '🥉 第三名 季軍'];
+                const colors = ['border-amber-400 bg-amber-100/80 shadow-md', 'border-slate-300 bg-slate-100/80', 'border-orange-300 bg-orange-100/80'];
+
+                top3.forEach((p, idx) => {
+                    const card = document.createElement('div');
+                    const displayName = p.displayName || p.name;
+                    
+                    if (idx === 0) {
+                        card.className = `w-full max-w-md p-4 rounded-3xl border-4 ${colors[idx]} flex flex-col items-center justify-center my-1`;
+                        card.innerHTML = `
+                            <span class="text-xs font-black text-amber-900 bg-amber-200 px-4 py-1 rounded-full border border-amber-400 mb-1">👑 個人總冠軍 👑</span>
+                            <div class="text-5xl my-1">${p.avatar}</div>
+                            <div class="text-2xl font-black text-slate-800 tracking-wide text-center">${displayName}</div>
+                            <div class="text-xl font-black text-amber-600 mt-1">${p.score} 分</div>
+                        `;
+                    } else {
+                        card.className = `w-full max-w-md p-3 rounded-2xl border-2 ${colors[idx]} flex justify-between items-center px-6`;
+                        card.innerHTML = `
+                            <div class="flex items-center gap-3">
+                                <span class="text-3xl">${p.avatar}</span>
+                                <div class="text-left">
+                                    <span class="text-[10px] font-bold text-slate-500">${medals[idx]}</span>
+                                    <div class="text-lg font-black text-slate-800">${displayName}</div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-lg font-black text-amber-600">${p.score} 分</div>
+                            </div>
+                        `;
+                    }
+                    top3Container.appendChild(card);
+                });
             }
 
-            const top3Container = document.getElementById('top3-container');
-            top3Container.innerHTML = '';
-
-            const top3 = allSortedPlayers.slice(0, 3);
-            const medals = ['🥇 第一名 冠軍', '🥈 第二名 亞軍', '🥉 第三名 季軍'];
-            const colors = ['border-amber-400 bg-amber-100/80 shadow-md', 'border-slate-300 bg-slate-100/80', 'border-orange-300 bg-orange-100/80'];
-
-            top3.forEach((p, idx) => {
-                const card = document.createElement('div');
-                const displayName = p.displayName || p.name;
-                
-                if (idx === 0) {
-                    card.className = `w-full max-w-md p-5 rounded-3xl border-4 ${colors[idx]} flex flex-col items-center justify-center my-1`;
-                    card.innerHTML = `
-                        <span class="text-sm font-black text-amber-900 bg-amber-200 px-4 py-1 rounded-full border border-amber-400 mb-1">👑 MVP 冠軍王座 👑</span>
-                        <div class="text-6xl my-1">${p.avatar}</div>
-                        <div class="text-3xl font-black text-slate-800 tracking-wide text-center">${displayName}</div>
-                        <div class="text-2xl font-black text-amber-600 mt-2">${p.score} 分</div>
-                    `;
-                } else {
-                    card.className = `w-full max-w-md p-4 rounded-2xl border-2 ${colors[idx]} flex justify-between items-center px-6`;
-                    card.innerHTML = `
-                        <div class="flex items-center gap-4">
-                            <span class="text-4xl">${p.avatar}</span>
-                            <div class="text-left">
-                                <span class="text-xs font-bold text-slate-500">${medals[idx]}</span>
-                                <div class="text-2xl font-black text-slate-800">${displayName}</div>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-xl font-black text-amber-600">${p.score} 分</div>
-                        </div>
-                    `;
+            // 發送手機端結算通知
+            players.forEach(p => {
+                if (p.conn) {
+                    const rank = allSortedPlayers.findIndex(s => s.id === p.id) + 1;
+                    p.conn.send({
+                        type: 'FINAL_RESULT',
+                        rank: rank,
+                        score: p.score,
+                        totalPlayers: allSortedPlayers.length,
+                        team: p.team,
+                        winningTeam: winningTeam
+                    });
                 }
-                top3Container.appendChild(card);
             });
 
             launch8SecFireworks();
