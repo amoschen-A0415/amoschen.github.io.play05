@@ -551,6 +551,7 @@
             loop();
         }
 
+        // 還原並完整補全最終獲勝音樂（Mario Victory Fanfare）
         function playMarioVictoryFanfare() {
             initAudio();
             stopBgm();
@@ -558,21 +559,26 @@
 
             const N = {
                 G3: 196.00, C4: 261.63, E4: 329.63, G4: 392.00,
-                C5: 523.25, E5: 659.25, G5: 783.99, A5b: 830.61, B5b: 932.33
+                C5: 523.25, E5: 659.25, G5: 783.99, A5b: 830.61, B5b: 932.33,
+                D5: 587.33, F5: 698.46, C6: 1046.50
             };
 
             const fanfare = [
-                { f: N.G3, d: 0.2 }, { f: N.C4, d: 0.2 }, { f: N.E4, d: 0.2 },
-                { f: N.G4, d: 0.2 }, { f: N.C5, d: 0.2 }, { f: N.E5, d: 0.2 },
-                { f: N.G5, d: 0.6 }, { f: N.E5, d: 0.6 },
-                { f: N.C5, d: 0.25 }, { f: N.E5, d: 0.25 }, { f: N.G5, d: 0.25 }
+                { f: N.G3, d: 0.18 }, { f: N.C4, d: 0.18 }, { f: N.E4, d: 0.18 },
+                { f: N.G4, d: 0.18 }, { f: N.C5, d: 0.18 }, { f: N.E5, d: 0.18 },
+                { f: N.G5, d: 0.5 }, { f: N.E5, d: 0.5 },
+                
+                { f: N.A5b, d: 0.2 }, { f: N.C5, d: 0.2 }, { f: N.E5, d: 0.2 }, { f: N.A5b, d: 0.5 },
+                { f: N.B5b, d: 0.2 }, { f: N.D5, d: 0.2 }, { f: N.F5, d: 0.2 }, { f: N.B5b, d: 0.5 },
+                
+                { f: N.C5, d: 0.2 }, { f: N.E5, d: 0.2 }, { f: N.G5, d: 0.2 }, { f: N.C6, d: 1.8 }
             ];
 
             let i = 0;
             function playNext() {
                 if (i >= fanfare.length || currentBgmType !== 'victory') return;
                 const note = fanfare[i];
-                playSingleNote(note.f, note.d, 'square', 0.22);
+                playSingleNote(note.f, note.d, 'square', 0.25);
                 i++;
                 bgmTimeoutId = setTimeout(playNext, note.d * 1000);
             }
@@ -957,7 +963,6 @@
                 const redList = players.filter(p => p.team === 'red');
                 const whiteList = players.filter(p => p.team === 'white');
 
-                // 若兩隊人數不相等，替少的那隊補上 1 名 AI
                 if (redList.length !== whiteList.length) {
                     const targetTeam = redList.length < whiteList.length ? 'red' : 'white';
                     const teamLabel = targetTeam === 'red' ? '紅隊' : '白隊';
@@ -1243,19 +1248,15 @@
                 }
             }
 
-            // 新計分邏輯
             players.forEach(p => {
                 if (p.isQualified) {
                     if (p.choice === correctAns) {
-                        // 1. 答對基礎分
                         let point = 20;
 
-                        // 2. 順序加分 (第1個答對+10, 第2個+9...第10個+1)
                         if (p.answerOrder >= 1 && p.answerOrder <= 10) {
                             point += (11 - p.answerOrder);
                         }
 
-                        // 3. 連勝加分 (連勝1題+1, 連勝2題+2...)
                         p.streak = (p.streak || 0) + 1;
                         point += p.streak;
 
@@ -1379,6 +1380,7 @@
             document.getElementById('view-game').classList.add('hidden');
             document.getElementById('view-result').classList.remove('hidden');
 
+            // 觸發還原後的獲勝音樂
             playMarioVictoryFanfare();
 
             const allSortedPlayers = [...players].sort((a, b) => b.score - a.score);
