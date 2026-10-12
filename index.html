@@ -82,7 +82,7 @@
         <div id="view-lobby" class="w-full max-w-[96vw] h-full max-h-[90vh] bg-slate-900/80 border-2 border-slate-700/80 rounded-2xl p-4 md:p-6 shadow-2xl backdrop-blur-xl relative flex flex-col justify-between overflow-hidden">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center h-full">
                 
-                <!-- 左側：QR Code (使用問答遊戲版本的乾淨渲染機制) -->
+                <!-- 左側：QR Code -->
                 <div class="md:col-span-6 lg:col-span-7 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-slate-700/80 pr-0 md:pr-6 pb-2 md:pb-0 text-center h-full overflow-hidden">
                     <div class="p-5 bg-gradient-to-br from-cyan-400 via-purple-500 to-pink-500 rounded-3xl shadow-[0_0_70px_rgba(0,243,255,0.5)] my-auto transition-transform hover:scale-[1.02] duration-300">
                         <div id="qrcode" class="bg-white p-4 rounded-2xl border-2 border-white flex items-center justify-center shadow-inner"></div>
@@ -92,64 +92,73 @@
                 <!-- 右側：玩家名單 & 設定選項 & 開始按鈕 -->
                 <div class="md:col-span-6 lg:col-span-5 flex flex-col justify-between h-full overflow-hidden pl-0 md:pl-2">
                     <div class="flex-grow flex flex-col overflow-hidden">
-                        <h2 class="text-2xl md:text-3xl font-bold text-neon-purple mb-4 flex items-center justify-between flex-shrink-0">
+                        <h2 class="text-2xl md:text-3xl font-bold text-neon-purple mb-3 flex items-center justify-between flex-shrink-0">
                             <span class="flex items-center gap-2"><i class="fa-solid fa-users"></i> 已加入人員名單</span>
                             <span id="player-count-badge" class="text-xl bg-purple-900/80 text-purple-300 px-4 py-1.5 rounded-full font-black border border-purple-500/50">0 人</span>
                         </h2>
 
-                        <div id="player-list-lobby" class="grid grid-cols-2 lg:grid-cols-3 gap-2.5 overflow-hidden flex-grow content-start">
-                            <div class="col-span-full text-slate-500 text-center py-12 font-bold border border-dashed border-slate-800 rounded-xl text-lg">
+                        <!-- 人員列表區塊 -->
+                        <div id="player-list-lobby" class="grid grid-cols-2 lg:grid-cols-3 gap-2.5 overflow-y-auto max-h-[220px] flex-grow content-start pr-1 mb-2">
+                            <div class="col-span-full text-slate-500 text-center py-8 font-bold border border-dashed border-slate-800 rounded-xl text-lg">
                                 尚無玩家連線，請掃描左側 QR Code 加入...
+                            </div>
+                        </div>
+
+                        <!-- 尚未有人員加入時顯示的 2 大規則提示 -->
+                        <div id="lobby-rules-box" class="w-full bg-slate-950/80 border border-slate-800/80 rounded-2xl p-3 text-xs md:text-sm text-slate-300 space-y-2 mb-2">
+                            <div class="font-extrabold text-neon-yellow flex items-center gap-1.5 border-b border-slate-800 pb-1">
+                                <i class="fa-solid fa-scroll"></i> 遊戲核心規則說明
+                            </div>
+                            <div class="space-y-1 text-slate-400">
+                                <p><strong class="text-neon-blue">1. 分數計算規則：</strong> 答對基本分 20 分。搶答排名加分（第1名+10分、第2名+9分，遞減至第10名+1分）。連續答對加分（連勝1題+1分、連勝2題+2分，無上限）。</p>
+                                <p><strong class="text-neon-green">2. 答題秒數規則：</strong> 當題目出現後，第一個答案回傳時（不論正確與否），即啟動倒數計時！初賽倒數 5 秒，決賽倒數 3 秒。</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- 遊戲參數設定區塊 -->
-                    <div class="w-full pt-4 flex-shrink-0 bg-slate-950/60 border border-slate-800 rounded-2xl p-4 my-2">
-                        <h3 class="text-neon-blue font-bold text-base mb-2 flex items-center gap-2">
+                    <div class="w-full flex-shrink-0 bg-slate-950/60 border border-slate-800 rounded-2xl p-3 my-1">
+                        <h3 class="text-neon-blue font-bold text-sm mb-2 flex items-center gap-2">
                             <i class="fa-solid fa-sliders"></i> 遊戲模式設定
                         </h3>
-                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
                             <div class="flex flex-col gap-1">
-                                <label for="select-game-mode" class="text-xs text-slate-400 font-bold">參賽模式</label>
-                                <select id="select-game-mode" class="bg-slate-800 text-white font-bold p-2 rounded-xl border border-slate-700 outline-none focus:border-neon-purple cursor-pointer">
+                                <label for="select-game-mode" class="text-xs text-slate-400 font-bold">參賽方式</label>
+                                <select id="select-game-mode" class="bg-slate-800 text-white font-bold p-2 rounded-xl border border-slate-700 outline-none focus:border-neon-purple cursor-pointer text-sm">
                                     <option value="solo" selected>個人賽</option>
                                     <option value="team">團體賽</option>
                                 </select>
                             </div>
                             <div class="flex flex-col gap-1">
                                 <label for="select-stage1-count" class="text-xs text-slate-400 font-bold">初賽題數</label>
-                                <select id="select-stage1-count" class="bg-slate-800 text-white font-bold p-2 rounded-xl border border-slate-700 outline-none focus:border-neon-purple cursor-pointer">
+                                <select id="select-stage1-count" class="bg-slate-800 text-white font-bold p-2 rounded-xl border border-slate-700 outline-none focus:border-neon-purple cursor-pointer text-sm">
                                     <option value="5" selected>5 題</option>
                                     <option value="10">10 題</option>
                                     <option value="15">15 題</option>
                                     <option value="20">20 題</option>
-                                    <option value="25">25 題</option>
                                 </select>
                             </div>
                             <div class="flex flex-col gap-1">
                                 <label for="select-stage2-count" class="text-xs text-slate-400 font-bold">決賽題數</label>
-                                <select id="select-stage2-count" class="bg-slate-800 text-white font-bold p-2 rounded-xl border border-slate-700 outline-none focus:border-neon-purple cursor-pointer">
+                                <select id="select-stage2-count" class="bg-slate-800 text-white font-bold p-2 rounded-xl border border-slate-700 outline-none focus:border-neon-purple cursor-pointer text-sm">
                                     <option value="3" selected>3 題</option>
                                     <option value="5">5 題</option>
                                     <option value="7">7 題</option>
-                                    <option value="9">9 題</option>
-                                    <option value="11">11 題</option>
                                 </select>
                             </div>
                             <div class="flex flex-col gap-1">
                                 <label for="select-ai-count" class="text-xs text-slate-400 font-bold">AI參賽人數</label>
-                                <select id="select-ai-count" class="bg-slate-800 text-white font-bold p-2 rounded-xl border border-slate-700 outline-none focus:border-neon-purple cursor-pointer">
-                                    <option value="0" selected>0 名</option>
-                                    <option value="1">1 名</option>
-                                    <option value="2">2 名</option>
+                                <select id="select-ai-count" class="bg-slate-800 text-white font-bold p-2 rounded-xl border border-slate-700 outline-none focus:border-neon-purple cursor-pointer text-sm">
+                                    <option value="0" selected>0 人</option>
+                                    <option value="1">1 人</option>
+                                    <option value="2">2 人</option>
                                 </select>
                             </div>
                         </div>
                     </div>
 
-                    <div id="lobby-start-box" class="w-full pt-2 flex-shrink-0">
-                        <button id="btn-start-game" class="hidden w-full py-4 text-3xl font-black text-slate-950 bg-gradient-to-r from-neon-green to-neon-yellow rounded-2xl shadow-[0_0_30px_rgba(0,255,102,0.5)] hover:brightness-110 active:scale-95 transition-all animate-bounce border-2 border-white/40">
+                    <div id="lobby-start-box" class="w-full pt-1 flex-shrink-0">
+                        <button id="btn-start-game" class="w-full py-3.5 text-2xl font-black text-slate-950 bg-gradient-to-r from-neon-green to-neon-yellow rounded-2xl shadow-[0_0_30px_rgba(0,255,102,0.5)] hover:brightness-110 active:scale-95 transition-all border-2 border-white/40">
                             🎮 開始遊戲
                         </button>
                     </div>
@@ -158,11 +167,11 @@
             </div>
         </div>
 
-        <!-- 手機端 - 玩家控制器/觀戰投票畫面 -->
+        <!-- 手機端 - 玩家控制器/答題器 -->
         <div id="view-player-mobile" class="hidden fixed inset-0 z-50 bg-slate-950 p-4 flex-col justify-between overflow-hidden">
             <div id="mobile-top-bar" class="text-center space-y-1 flex-shrink-0">
                 <span class="text-3xl">🍞</span>
-                <h2 class="text-xl font-black text-neon-blue">安得烈答題控制器</h2>
+                <h2 class="text-2xl font-black text-neon-blue">答題器</h2>
                 <p id="player-mobile-name" class="text-neon-yellow font-bold text-base">正在連線大螢幕...</p>
                 <div id="mobile-team-badge" class="hidden text-sm font-extrabold px-3 py-1 rounded-full w-max mx-auto border shadow"></div>
                 <div id="mobile-question-banner" class="hidden bg-slate-900 border border-slate-700 py-1.5 px-4 rounded-xl text-neon-green font-extrabold text-lg shadow-inner mt-2">
@@ -174,24 +183,12 @@
                 <input type="text" id="mobile-name-input" maxlength="8" placeholder="請輸入您的暱稱..." 
                     class="w-full bg-slate-800 border-2 border-slate-700 p-4 rounded-xl text-center text-white text-xl font-bold focus:border-neon-purple outline-none">
                 
-                <div id="mobile-team-select-box" class="hidden space-y-2">
-                    <label class="text-xs font-bold text-slate-400 block text-center">選擇所屬隊伍</label>
-                    <div class="grid grid-cols-2 gap-3">
-                        <button type="button" id="btn-select-red" onclick="selectTeam('red')" class="py-3 rounded-xl font-black text-white border-2 border-rose-500 bg-rose-950/80 hover:bg-rose-900 transition text-lg flex items-center justify-center gap-2">
-                            🔴 紅隊
-                        </button>
-                        <button type="button" id="btn-select-white" onclick="selectTeam('white')" class="py-3 rounded-xl font-black text-slate-900 border-2 border-slate-200 bg-slate-100 hover:bg-white transition text-lg flex items-center justify-center gap-2">
-                            ⚪ 白隊
-                        </button>
-                    </div>
-                </div>
-
                 <button id="btn-mobile-join" class="w-full py-4 bg-gradient-to-r from-neon-blue to-neon-purple text-black font-black text-xl rounded-xl shadow-lg">
                     確認參賽
                 </button>
             </div>
 
-            <!-- 答題器 -->
+            <!-- 答題器按鈕 -->
             <div id="mobile-answers-grid" class="hidden grid-cols-2 gap-4 w-full h-full max-h-[60vh] my-auto items-stretch p-1">
                 <button id="mobile-btn-0" onclick="mobileSubmitAnswer(0)" class="mobile-answer-btn w-full h-full bg-blue-600 active:bg-blue-700 rounded-2xl text-5xl font-black text-white shadow-xl transition-all duration-150 flex items-center justify-center border-2 border-blue-400/30">A</button>
                 <button id="mobile-btn-1" onclick="mobileSubmitAnswer(1)" class="mobile-answer-btn w-full h-full bg-emerald-600 active:bg-emerald-700 rounded-2xl text-5xl font-black text-white shadow-xl transition-all duration-150 flex items-center justify-center border-2 border-emerald-400/30">B</button>
@@ -224,7 +221,7 @@
                 </div>
 
                 <div id="mobile-team-result" class="hidden flex-col items-center space-y-2 w-full my-2 bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
-                    <div class="text-3xl font-black" id="mobile-team-winner-text">🔴 紅隊 獲勝！</div>
+                    <div class="text-3xl font-black" id="mobile-team-winner-text">🚩 紅隊 獲勝！</div>
                     <div class="text-lg font-bold text-slate-300">
                         隊伍總分：<span id="mobile-team-total-score" class="text-neon-yellow font-black">0</span> 分
                     </div>
@@ -268,19 +265,19 @@
                     <!-- 團體賽得分看板 -->
                     <div id="team-scoreboard" class="hidden grid-cols-2 gap-2 mb-3 flex-shrink-0">
                         <div class="bg-rose-950/80 border border-rose-500/50 p-2 rounded-xl text-center">
-                            <span class="text-xs font-bold text-rose-300 block">🔴 紅隊總分</span>
+                            <span class="text-xs font-bold text-rose-300 block">🚩 紅隊總分</span>
                             <span id="team-red-score-display" class="text-2xl font-black text-white">0</span>
                         </div>
                         <div class="bg-slate-800/80 border border-slate-300/50 p-2 rounded-xl text-center">
-                            <span class="text-xs font-bold text-slate-300 block">⚪ 白隊總分</span>
+                            <span class="text-xs font-bold text-slate-300 block">🏳️ 白隊總分</span>
                             <span id="team-white-score-display" class="text-2xl font-black text-white">0</span>
                         </div>
                     </div>
 
-                    <div id="players-dashboard" class="flex flex-col space-y-2.5 overflow-hidden flex-grow"></div>
+                    <div id="players-dashboard" class="flex flex-col space-y-2.5 overflow-y-auto flex-grow pr-1"></div>
                 </div>
                 <div class="mt-2 pt-2 border-t border-slate-800 text-right flex-shrink-0">
-                    <span id="round-status-hint" class="text-neon-green font-bold text-base">作答進行中...</span>
+                    <span id="round-status-hint" class="text-neon-green font-bold text-base">等待第一個答案送出...</span>
                 </div>
             </div>
 
@@ -293,7 +290,7 @@
 
                     <div class="flex justify-between items-center mb-3">
                         <span id="question-number" class="text-neon-blue font-black text-2xl md:text-3xl tracking-wider">QUESTION 01/10</span>
-                        <span id="timer-text" class="text-3xl md:text-4xl font-black text-neon-yellow">⏱️ 8s</span>
+                        <span id="timer-text" class="text-3xl md:text-4xl font-black text-neon-yellow">⏱️ 準備作答</span>
                     </div>
 
                     <div class="w-full overflow-hidden py-2 mb-4">
@@ -317,16 +314,14 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-6 flex-grow overflow-hidden my-2">
                     
-                    <!-- 左側參賽者列表 -->
                     <div class="md:col-span-3 bg-slate-950/60 rounded-2xl p-4 border border-slate-800 flex flex-col justify-between overflow-hidden">
                         <div class="flex justify-between items-center mb-3 border-b border-slate-800 pb-2 flex-shrink-0">
                             <span class="font-black text-2xl md:text-3xl text-cyan-300">參賽者/分數</span>
                             <span id="intermission-left-count" class="text-xs bg-slate-800 text-neon-blue px-2.5 py-1 rounded-full font-bold">0 人</span>
                         </div>
-                        <div id="intermission-left-list" class="space-y-2 overflow-hidden pr-1 flex-grow"></div>
+                        <div id="intermission-left-list" class="space-y-2 overflow-y-auto pr-1 flex-grow"></div>
                     </div>
 
-                    <!-- 中間決賽選手展現區 -->
                     <div class="md:col-span-6 bg-purple-950/30 border-2 border-neon-purple/50 rounded-2xl p-6 flex flex-col items-center justify-start text-center overflow-hidden shadow-inner">
                         <div class="w-full overflow-hidden flex flex-col items-center">
                             <span class="text-neon-yellow text-base font-black tracking-widest">STAGE 2 QUALIFIERS</span>
@@ -335,17 +330,15 @@
                         </div>
                     </div>
 
-                    <!-- 右側參賽者列表 & 進入決賽按鈕 -->
                     <div class="md:col-span-3 flex flex-col justify-between gap-3 overflow-hidden">
                         <div class="bg-slate-950/60 rounded-2xl p-4 border border-slate-800 flex flex-col justify-between overflow-hidden flex-grow">
                             <div class="flex justify-between items-center mb-3 border-b border-slate-800 pb-2 flex-shrink-0">
                                 <span class="font-black text-2xl md:text-3xl text-cyan-300">參賽者/分數</span>
                                 <span id="intermission-right-count" class="text-xs bg-slate-800 text-neon-blue px-2.5 py-1 rounded-full font-bold">0 人</span>
                             </div>
-                            <div id="intermission-right-list" class="space-y-2 overflow-hidden pr-1 flex-grow"></div>
+                            <div id="intermission-right-list" class="space-y-2 overflow-y-auto pr-1 flex-grow"></div>
                         </div>
 
-                        <!-- 進入決賽按鈕 -->
                         <div class="w-full flex-shrink-0">
                             <button id="btn-start-stage2" class="w-full py-4 text-2xl md:text-3xl font-black text-slate-950 bg-gradient-to-r from-neon-green to-neon-yellow rounded-2xl shadow-[0_0_30px_rgba(0,255,102,0.5)] hover:brightness-110 active:scale-95 transition-all border-2 border-white/40">
                                 ⚔️ 進入決賽
@@ -373,7 +366,7 @@
                             <span class="font-black text-xl md:text-2xl text-amber-300">全場排名 (左)</span>
                             <span id="result-left-count" class="text-xs bg-slate-800 text-neon-yellow px-2.5 py-1 rounded-full font-bold">0 人</span>
                         </div>
-                        <div id="result-left-list" class="space-y-2 overflow-hidden pr-1 flex-grow"></div>
+                        <div id="result-left-list" class="space-y-2 overflow-y-auto pr-1 flex-grow"></div>
                     </div>
 
                     <div class="md:col-span-6 bg-amber-950/20 border-2 border-amber-500/40 rounded-2xl p-6 flex flex-col items-center justify-center text-center overflow-hidden shadow-inner">
@@ -388,7 +381,7 @@
                             <span class="font-black text-xl md:text-2xl text-amber-300">全場排名 (右)</span>
                             <span id="result-right-count" class="text-xs bg-slate-800 text-neon-yellow px-2.5 py-1 rounded-full font-bold">0 人</span>
                         </div>
-                        <div id="result-right-list" class="space-y-2 overflow-hidden pr-1 flex-grow"></div>
+                        <div id="result-right-list" class="space-y-2 overflow-y-auto pr-1 flex-grow"></div>
                     </div>
 
                 </div>
@@ -450,21 +443,19 @@
         let hostConn = null;
         let players = [];
         let myPlayerId = null;
-        let mySelectedTeam = 'red';
         let gameMode = 'solo';
         let currentQuestionIndex = 0;
         let stage = 1;
         let stage1Count = 5;
         let stage2Count = 3;
-        let stage1Time = 8;
-        let stage2Time = 4;
-        let revealTime = 1;
         let stage2AdvancingCount = 2;
         let timerInterval = null;
         let aiTimeouts = [];
         let isTransitioning = false;
-        let timeLeft = 8;
-        let maxTime = 8;
+        let timerStarted = false;
+        let timeLeft = 0;
+        let maxTime = 5;
+        let answerOrderCounter = 0;
         let hasSubmittedCurrentAnswer = false;
         let hasVotedStage2 = false;
 
@@ -518,19 +509,14 @@
 
             const N = { 
                 G4: 392.00, Bb4: 466.16, C5: 523.25, Db5: 554.37, D5: 587.33, 
-                F4: 349.23, FSharp4: 369.99, G3: 196.00, Bb3: 233.08, C4: 261.63
+                F4: 349.23, FSharp4: 369.99
             };
             const bpm = 168;
             const beat = 60 / bpm;
 
             const sequence = [
                 { f: N.G4, d: 0.75 }, { f: N.G4, d: 0.75 }, { f: N.Bb4, d: 0.5 }, { f: N.C5, d: 0.5 },
-                { f: N.G4, d: 0.75 }, { f: N.G4, d: 0.75 }, { f: N.F4, d: 0.5 }, { f: N.FSharp4, d: 0.5 },
-                { f: N.G4, d: 0.75 }, { f: N.G4, d: 0.75 }, { f: N.Bb4, d: 0.5 }, { f: N.C5, d: 0.5 },
-                { f: N.G4, d: 0.75 }, { f: N.G4, d: 0.75 }, { f: N.F4, d: 0.5 }, { f: N.FSharp4, d: 0.5 },
-                
-                { f: N.G4, d: 1.5 }, { f: N.Bb4, d: 1.0 }, { f: N.C5, d: 0.5 }, { f: N.Db5, d: 0.5 }, { f: N.C5, d: 0.5 },
-                { f: N.G4, d: 1.5 }, { f: N.F4, d: 1.0 }, { f: N.FSharp4, d: 0.5 }, { f: N.G4, d: 1.0 }
+                { f: N.G4, d: 0.75 }, { f: N.G4, d: 0.75 }, { f: N.F4, d: 0.5 }, { f: N.FSharp4, d: 0.5 }
             ];
 
             let step = 0;
@@ -572,19 +558,14 @@
 
             const N = {
                 G3: 196.00, C4: 261.63, E4: 329.63, G4: 392.00,
-                C5: 523.25, E5: 659.25, G5: 783.99, A5: 880.00, B5: 987.77,
-                A5b: 830.61, B5b: 932.33
+                C5: 523.25, E5: 659.25, G5: 783.99, A5b: 830.61, B5b: 932.33
             };
 
             const fanfare = [
                 { f: N.G3, d: 0.2 }, { f: N.C4, d: 0.2 }, { f: N.E4, d: 0.2 },
                 { f: N.G4, d: 0.2 }, { f: N.C5, d: 0.2 }, { f: N.E5, d: 0.2 },
                 { f: N.G5, d: 0.6 }, { f: N.E5, d: 0.6 },
-                
-                { f: N.A5b, d: 0.25 }, { f: N.C5, d: 0.25 }, { f: N.E5, d: 0.25 }, { f: N.A5b, d: 0.6 },
-                { f: N.B5b, d: 0.25 }, { f: N.D5 || 587.33, d: 0.25 }, { f: N.F5 || 698.46, d: 0.25 }, { f: N.B5b, d: 0.6 },
-                
-                { f: N.C5, d: 0.25 }, { f: N.E5, d: 0.25 }, { f: N.G5, d: 0.25 }, { f: N.C6 || 1046.50, d: 2.5 }
+                { f: N.C5, d: 0.25 }, { f: N.E5, d: 0.25 }, { f: N.G5, d: 0.25 }
             ];
 
             let i = 0;
@@ -606,7 +587,6 @@
             }
         }
 
-        /* 替換為問答遊戲之 PeerJS 與 QR Code 初始化程式碼 */
         function initHostPeer() {
             peer = new Peer();
             
@@ -614,7 +594,6 @@
                 const joinUrl = `${window.location.href.split('?')[0]}?host=${id}`;
                 document.getElementById("qrcode").innerHTML = "";
                 
-                // QR碼尺寸 480x480
                 new QRCode(document.getElementById("qrcode"), {
                     text: joinUrl,
                     width: 480,
@@ -626,16 +605,9 @@
                 conn.on('open', () => {
                     conn.on('data', (data) => {
                         if (data.type === 'JOIN') {
-                            addPlayer(data.name, conn, data.playerId, data.team);
+                            addPlayer(data.name, conn, data.playerId);
                         } else if (data.type === 'SUBMIT_ANSWER') {
-                            const target = players.find(p => p.id === data.playerId);
-                            if (target && !target.answered && target.isQualified) {
-                                target.answered = true;
-                                target.choice = data.choice;
-                                target.answerTimeLeft = timeLeft;
-                                renderPlayersDashboard();
-                                checkAllAnswered();
-                            }
+                            handleAnswerSubmission(data.playerId, data.choice);
                         } else if (data.type === 'VOTE_PLAYER') {
                             const target = players.find(p => p.id === data.targetId);
                             if (target) {
@@ -653,17 +625,21 @@
             });
         }
 
-        function selectTeam(team) {
-            mySelectedTeam = team;
-            const btnRed = document.getElementById('btn-select-red');
-            const btnWhite = document.getElementById('btn-select-white');
+        function handleAnswerSubmission(playerId, choice) {
+            const target = players.find(p => p.id === playerId);
+            if (target && !target.answered && target.isQualified && !isTransitioning) {
+                target.answered = true;
+                target.choice = choice;
+                
+                answerOrderCounter++;
+                target.answerOrder = answerOrderCounter;
 
-            if (team === 'red') {
-                btnRed.classList.add('ring-4', 'ring-rose-400', 'scale-105');
-                btnWhite.classList.remove('ring-4', 'ring-slate-300', 'scale-105');
-            } else {
-                btnWhite.classList.add('ring-4', 'ring-slate-300', 'scale-105');
-                btnRed.classList.remove('ring-4', 'ring-rose-400', 'scale-105');
+                if (!timerStarted) {
+                    startCountdownTimer();
+                }
+
+                renderPlayersDashboard();
+                checkAllAnswered();
             }
         }
 
@@ -678,13 +654,19 @@
                 });
 
                 hostConn.on('data', (data) => {
-                    if (data.type === 'INIT_MODE') {
-                        if (data.mode === 'team') {
-                            document.getElementById('mobile-team-select-box').classList.remove('hidden');
-                            selectTeam('red');
-                        }
-                    } else if (data.type === 'GAME_START') {
+                    if (data.type === 'GAME_START') {
                         document.getElementById('mobile-status-text').innerText = '🎮 遊戲開始，請看大螢幕準備作答！';
+                        if (data.team) {
+                            const badge = document.getElementById('mobile-team-badge');
+                            if (data.team === 'red') {
+                                badge.innerText = '🔴 紅旗隊伍';
+                                badge.className = 'text-xs font-extrabold px-3 py-1 rounded-full w-max mx-auto border bg-rose-950 text-rose-300 border-rose-500 shadow mt-1';
+                            } else {
+                                badge.innerText = '⚪ 白旗隊伍';
+                                badge.className = 'text-xs font-extrabold px-3 py-1 rounded-full w-max mx-auto border bg-slate-800 text-slate-200 border-slate-300 shadow mt-1';
+                            }
+                            badge.classList.remove('hidden');
+                        }
                         resetMobileButtons();
                     } else if (data.type === 'NEXT_QUESTION') {
                         document.getElementById('mobile-vote-section').classList.add('hidden');
@@ -708,7 +690,7 @@
                         if (!data.isQualified) {
                             showMobileVoteSection(data.qualifiedPlayers);
                         } else {
-                            document.getElementById('mobile-status-text').innerText = '🏆 恭喜晉級決賽！請準備進行決賽戰術挑戰！';
+                            document.getElementById('mobile-status-text').innerText = '🏆 恭喜晉級決賽！請準備進行決賽挑戰！';
                         }
                     } else if (data.type === 'FINAL_RESULT') {
                         showMobileFinalResult(data);
@@ -779,7 +761,7 @@
                     winnerTextEl.className = 'text-3xl font-black text-neon-yellow';
                     iconEl.innerText = '🤝';
                 } else {
-                    const teamName = data.winningTeam === 'red' ? '🔴 紅隊' : '⚪ 白隊';
+                    const teamName = data.winningTeam === 'red' ? '🔴 紅旗隊' : '⚪ 白旗隊';
                     winnerTextEl.innerText = `${teamName} 榮獲勝利！`;
                     winnerTextEl.className = data.winningTeam === 'red' ? 'text-3xl font-black text-rose-400' : 'text-3xl font-black text-slate-100';
                     iconEl.innerText = isMyTeamWinner ? '🏆' : '👏';
@@ -831,22 +813,10 @@
                 hostConn.send({ 
                     type: 'JOIN', 
                     name: name, 
-                    playerId: myPlayerId,
-                    team: mySelectedTeam 
+                    playerId: myPlayerId
                 });
 
                 document.getElementById('player-mobile-name').innerText = `玩家：${name}`;
-                
-                const badge = document.getElementById('mobile-team-badge');
-                if (mySelectedTeam === 'red') {
-                    badge.innerText = '🔴 紅隊成員';
-                    badge.className = 'text-xs font-extrabold px-3 py-1 rounded-full w-max mx-auto border bg-rose-950 text-rose-300 border-rose-500 shadow mt-1';
-                } else {
-                    badge.innerText = '⚪ 白隊成員';
-                    badge.className = 'text-xs font-extrabold px-3 py-1 rounded-full w-max mx-auto border bg-slate-800 text-slate-200 border-slate-300 shadow mt-1';
-                }
-                badge.classList.remove('hidden');
-
                 document.getElementById('mobile-join-form').classList.add('hidden');
                 document.getElementById('mobile-answers-grid').classList.remove('hidden');
                 document.getElementById('mobile-answers-grid').classList.add('grid');
@@ -874,7 +844,7 @@
             }
         }
 
-        function addPlayer(name, conn, playerId, teamChoice) {
+        function addPlayer(name, conn, playerId) {
             if (players.some(p => p.id === playerId)) return;
 
             const p = {
@@ -882,36 +852,57 @@
                 name: name,
                 displayName: name,
                 conn: conn,
-                team: teamChoice || 'red',
+                team: null,
                 isAI: false,
                 aiType: null,
                 score: 0,
                 streak: 0,
                 answered: false,
                 choice: null,
-                answerTimeLeft: 0,
+                answerOrder: 0,
                 isQualified: true,
                 votes: 0
             };
             players.push(p);
             
-            if (conn) {
-                conn.send({ type: 'INIT_MODE', mode: gameMode });
-            }
-
             renderLobbyPlayers();
-
-            if (players.length >= 1) {
-                document.getElementById('btn-start-game').classList.remove('hidden');
-            }
         }
 
-        document.getElementById('select-game-mode').addEventListener('change', (e) => {
-            gameMode = e.target.value;
-            players.forEach(p => {
-                if (p.conn) p.conn.send({ type: 'INIT_MODE', mode: gameMode });
-            });
-        });
+        function renderLobbyPlayers() {
+            const container = document.getElementById('player-list-lobby');
+            const rulesBox = document.getElementById('lobby-rules-box');
+            
+            container.innerHTML = '';
+            document.getElementById('player-count-badge').innerText = `${players.length} 人`;
+
+            if (players.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-slate-500 text-center py-8 font-bold border border-dashed border-slate-800 rounded-xl text-lg">
+                        尚無玩家連線，請掃描左側 QR Code 加入...
+                    </div>
+                `;
+                if (rulesBox) rulesBox.classList.remove('hidden');
+            } else {
+                if (rulesBox) rulesBox.classList.add('hidden');
+                players.forEach(p => {
+                    const item = document.createElement('div');
+                    item.className = 'flex justify-between items-center bg-slate-800 p-2.5 rounded-xl border border-slate-700 text-sm';
+
+                    item.innerHTML = `
+                        <div class="flex items-center gap-2 truncate">
+                            <span class="text-xl">${p.isAI ? '🤖' : '📱'}</span>
+                            <span class="font-bold text-white truncate">${p.displayName || p.name}</span>
+                        </div>
+                        <div class="flex items-center flex-shrink-0">
+                            <span class="text-[10px] ${p.isAI ? 'bg-purple-900/80 text-purple-300' : 'bg-cyan-900/80 text-cyan-300'} px-2 py-0.5 rounded font-bold">
+                                ${p.isAI ? 'AI' : '連線'}
+                            </span>
+                        </div>
+                    `;
+                    container.appendChild(item);
+                });
+            }
+        }
 
         document.getElementById('btn-start-game').addEventListener('click', () => {
             initAudio();
@@ -929,155 +920,77 @@
             const aiToAddCount = parseInt(document.getElementById('select-ai-count').value, 10);
             gameMode = document.getElementById('select-game-mode').value;
 
-            const totalQuestions = stage1Count + stage2Count;
-            const andrewProbability = totalQuestions * 0.01;
-
+            // 補充 AI 參賽者
             if (aiToAddCount > 0) {
-                const availableTypes = ['andrew', 'tom', 'mario', 'random'];
-                
+                const aiNames = ['🤖 安得烈小羅', '🤖 特工阿湯哥', '🍄 瑪莉歐'];
                 for (let i = 0; i < aiToAddCount; i++) {
-                    let aiSpec = {};
-                    let isAndrew = (Math.random() < andrewProbability) && availableTypes.includes('andrew');
-                    
-                    if (isAndrew) {
-                        const acc = getRandomInt(90, 100);
-                        aiSpec = {
-                            baseName: '安得烈小羅',
-                            fullName: `安得烈小羅(${acc}%)`,
-                            type: 'andrew',
-                            minAcc: acc / 100,
-                            maxAcc: acc / 100,
-                            accPercent: acc
-                        };
-                        availableTypes.splice(availableTypes.indexOf('andrew'), 1);
-                    } else {
-                        let nonAndrewTypes = availableTypes.filter(t => t !== 'andrew');
-                        if (nonAndrewTypes.length === 0) break;
-
-                        let chosenType = nonAndrewTypes[Math.floor(Math.random() * nonAndrewTypes.length)];
-                        availableTypes.splice(availableTypes.indexOf(chosenType), 1);
-
-                        if (chosenType === 'tom') {
-                            const acc = getRandomInt(50, 80);
-                            aiSpec = {
-                                baseName: '🤖 特工阿湯哥',
-                                fullName: `🤖 特工阿湯哥(${acc}%)`,
-                                type: 'tom',
-                                minAcc: acc / 100,
-                                maxAcc: acc / 100,
-                                accPercent: acc
-                            };
-                        } else if (chosenType === 'mario') {
-                            const acc = getRandomInt(40, 70);
-                            aiSpec = {
-                                baseName: '🍄 瑪莉歐',
-                                fullName: `🍄 瑪莉歐(${acc}%)`,
-                                type: 'mario',
-                                minAcc: acc / 100,
-                                maxAcc: acc / 100,
-                                accPercent: acc
-                            };
-                        } else {
-                            const randomNames = [
-                                '廖太太', '三寶媽', '閃電葛葛', '晶晶阿姨', 
-                                '小光光', '巧克力阿北', '小白白', '阿青青'
-                            ];
-                            const pickedName = randomNames[Math.floor(Math.random() * randomNames.length)];
-                            const acc = getRandomInt(10, 90);
-                            aiSpec = {
-                                baseName: pickedName,
-                                fullName: `${pickedName}(${acc}%)`,
-                                type: 'random',
-                                minAcc: acc / 100,
-                                maxAcc: acc / 100,
-                                accPercent: acc
-                            };
-                        }
-                    }
-
+                    const pickedName = aiNames[i % aiNames.length];
+                    const acc = getRandomInt(50, 90);
                     players.push({
                         id: 'ai_' + Date.now() + '_' + i,
-                        name: aiSpec.fullName,
-                        displayName: aiSpec.baseName,
+                        name: `${pickedName}(${acc}%)`,
+                        displayName: pickedName,
                         conn: null,
-                        team: i % 2 === 0 ? 'red' : 'white',
+                        team: null,
                         isAI: true,
-                        aiType: aiSpec.type,
-                        aiSpec: aiSpec,
+                        aiSpec: { minAcc: acc/100, maxAcc: acc/100 },
                         score: 0,
                         streak: 0,
                         answered: false,
                         choice: null,
-                        answerTimeLeft: 0,
+                        answerOrder: 0,
                         isQualified: true,
                         votes: 0
                     });
                 }
             }
 
+            // 團體賽隨機分隊 & 自動補整 AI 隊員
             if (gameMode === 'team') {
-                let redCount = players.filter(p => p.team === 'red').length;
-                let whiteCount = players.filter(p => p.team === 'white').length;
+                let shuffled = shuffleArray(players);
+                let half = Math.floor(shuffled.length / 2);
                 
-                players.forEach(p => {
-                    if (!p.team) {
-                        if (redCount <= whiteCount) {
-                            p.team = 'red';
-                            redCount++;
-                        } else {
-                            p.team = 'white';
-                            whiteCount++;
-                        }
-                    }
+                shuffled.forEach((p, idx) => {
+                    p.team = idx < half ? 'red' : 'white';
                 });
+
+                const redList = players.filter(p => p.team === 'red');
+                const whiteList = players.filter(p => p.team === 'white');
+
+                // 若兩隊人數不相等，替少的那隊補上 1 名 AI
+                if (redList.length !== whiteList.length) {
+                    const targetTeam = redList.length < whiteList.length ? 'red' : 'white';
+                    const teamLabel = targetTeam === 'red' ? '紅隊' : '白隊';
+                    const acc = getRandomInt(60, 85);
+                    players.push({
+                        id: 'ai_balance_' + Date.now(),
+                        name: `🤖 補位助手(${teamLabel})`,
+                        displayName: `🤖 補位助手`,
+                        conn: null,
+                        team: targetTeam,
+                        isAI: true,
+                        aiSpec: { minAcc: acc/100, maxAcc: acc/100 },
+                        score: 0,
+                        streak: 0,
+                        answered: false,
+                        choice: null,
+                        answerOrder: 0,
+                        isQualified: true,
+                        votes: 0
+                    });
+                }
             }
 
-            renderLobbyPlayers();
             setupRulesByPlayerCount(players.length);
             startGame();
         }
 
         function setupRulesByPlayerCount(totalPlayers) {
-            if (totalPlayers <= 10) {
-                stage1Time = 8; stage2Time = 4; stage2AdvancingCount = 2;
-            } else if (totalPlayers <= 20) {
-                stage1Time = 7; stage2Time = 3; stage2AdvancingCount = 5;
-            } else {
-                stage1Time = 6; stage2Time = 3; stage2AdvancingCount = 7;
-            }
+            if (totalPlayers <= 10) stage2AdvancingCount = 2;
+            else if (totalPlayers <= 20) stage2AdvancingCount = 5;
+            else stage2AdvancingCount = 7;
+
             quizDatabase = shuffleArray(fullQuizDatabase).slice(0, stage1Count + stage2Count);
-        }
-
-        function renderLobbyPlayers() {
-            const container = document.getElementById('player-list-lobby');
-            container.innerHTML = '';
-            document.getElementById('player-count-badge').innerText = `${players.length} 人`;
-
-            players.forEach(p => {
-                const item = document.createElement('div');
-                item.className = 'flex justify-between items-center bg-slate-800 p-2.5 rounded-xl border border-slate-700 text-sm';
-                
-                let teamTag = '';
-                if (gameMode === 'team') {
-                    teamTag = p.team === 'red' 
-                        ? '<span class="text-[10px] bg-rose-950 text-rose-300 border border-rose-500/50 px-1.5 py-0.5 rounded font-bold mr-1">紅隊</span>' 
-                        : '<span class="text-[10px] bg-slate-700 text-slate-200 border border-slate-400/50 px-1.5 py-0.5 rounded font-bold mr-1">白隊</span>';
-                }
-
-                item.innerHTML = `
-                    <div class="flex items-center gap-2 truncate">
-                        <span class="text-xl">${p.isAI ? '🤖' : '📱'}</span>
-                        <span class="font-bold text-white truncate">${p.displayName || p.name}</span>
-                    </div>
-                    <div class="flex items-center flex-shrink-0">
-                        ${teamTag}
-                        <span class="text-[10px] ${p.isAI ? 'bg-purple-900/80 text-purple-300' : 'bg-cyan-900/80 text-cyan-300'} px-2 py-0.5 rounded font-bold">
-                            ${p.isAI ? 'AI' : '連線'}
-                        </span>
-                    </div>
-                `;
-                container.appendChild(item);
-            });
         }
 
         function startGame() {
@@ -1094,7 +1007,9 @@
                 scoreboard.classList.add('grid');
             }
 
-            players.forEach(p => { if (p.conn) p.conn.send({ type: 'GAME_START' }); });
+            players.forEach(p => { 
+                if (p.conn) p.conn.send({ type: 'GAME_START', team: p.team }); 
+            });
 
             currentQuestionIndex = 0;
             stage = 1;
@@ -1110,6 +1025,8 @@
         function startQuestionFlow(index) {
             clearAllTimers();
             isTransitioning = true;
+            timerStarted = false;
+
             document.getElementById('splash-question-number').innerText = `第 ${index + 1} 題`;
             document.getElementById('view-question-splash').classList.remove('hidden');
 
@@ -1121,8 +1038,10 @@
 
         function loadQuestion(index) {
             isTransitioning = false;
-            const originalQData = quizDatabase[index];
+            timerStarted = false;
+            answerOrderCounter = 0;
 
+            const originalQData = quizDatabase[index];
             const correctAnswerText = originalQData.options[originalQData.answer];
             const shuffledOptions = shuffleArray(originalQData.options);
             const newAnswerIndex = shuffledOptions.indexOf(correctAnswerText);
@@ -1135,18 +1054,16 @@
             quizDatabase[index] = qData;
 
             if (index < stage1Count) {
-                stage = 1; maxTime = stage1Time;
+                stage = 1; maxTime = 5;
                 if (currentBgmType !== 'stage1') playMissionImpossibleBgm();
             } else {
-                stage = 2; maxTime = stage2Time;
+                stage = 2; maxTime = 3;
                 if (currentBgmType !== 'stage2') playMarioCastleBgm();
             }
 
-            timeLeft = maxTime;
-
             players.forEach(p => {
                 p.choice = null;
-                p.answerTimeLeft = 0;
+                p.answerOrder = 0;
                 p.answered = (stage === 2 && !p.isQualified);
                 if (p.conn) p.conn.send({ 
                     type: 'NEXT_QUESTION', 
@@ -1160,12 +1077,12 @@
             const cleanQuestion = qData.question.replace(/^\d+\.\s*/, '');
             document.getElementById('question-text').innerText = cleanQuestion;
 
-            document.getElementById('timer-text').innerText = `⏱️ ${timeLeft}s`;
+            document.getElementById('timer-text').innerText = `⏱️ 倒數 ${maxTime}s`;
             document.getElementById('timer-bar').style.width = '100%';
+            document.getElementById('round-status-hint').innerText = '等待第一個答案送出...';
 
             renderOptions(qData.options);
             renderPlayersDashboard();
-            startTimer();
             triggerAIAnswers(qData);
         }
 
@@ -1227,13 +1144,12 @@
                     statusBadge = '<span class="text-xs md:text-sm text-neon-green font-extrabold">✓ 答題</span>';
                 }
 
-                const boostPercent = p.streak >= 2 ? (p.streak + 3) : 0;
-                const streakText = boostPercent > 0 ? ` 🔥${p.streak}連勝(+${boostPercent}%)` : '';
+                const streakBonus = p.streak >= 1 ? ` 🔥${p.streak}連勝(+${p.streak}分)` : '';
                 const displayName = p.displayName || p.name;
 
-                let teamIndicator = '';
+                let teamFlag = '';
                 if (gameMode === 'team') {
-                    teamIndicator = p.team === 'red' ? '<span class="text-rose-400 mr-1">🔴</span>' : '<span class="text-slate-300 mr-1">⚪</span>';
+                    teamFlag = p.team === 'red' ? '<span class="mr-1">🔴</span>' : '<span class="mr-1">⚪</span>';
                 }
 
                 card.className = `p-2.5 md:p-3 rounded-2xl border-2 ${borderClass} flex items-center justify-between transition-all duration-200 flex-shrink-0`;
@@ -1242,9 +1158,9 @@
                         <span class="font-black text-neon-blue text-lg md:text-xl min-w-[30px] text-center">#${rank + 1}</span>
                         <div class="flex flex-col truncate">
                             <span class="font-black text-white text-xl md:text-2xl truncate tracking-wide leading-tight flex items-center">
-                                ${teamIndicator}${displayName}
+                                ${teamFlag}${displayName}
                             </span>
-                            <span class="text-xs md:text-sm font-bold text-amber-400 leading-tight">${streakText ? streakText : '&nbsp;'}</span>
+                            <span class="text-xs md:text-sm font-bold text-amber-400 leading-tight">${streakBonus ? streakBonus : '&nbsp;'}</span>
                         </div>
                     </div>
                     <div class="flex items-center gap-2.5 flex-shrink-0">
@@ -1258,14 +1174,10 @@
 
         function triggerAIAnswers(qData) {
             players.filter(p => p.isAI && p.isQualified).forEach(ai => {
-                const spec = ai.aiSpec || { minAcc: 0.5, maxAcc: 0.8 };
-                
-                const targetAccuracy = spec.minAcc + Math.random() * (spec.maxAcc - spec.minAcc);
-                const isCorrect = Math.random() < targetAccuracy;
+                const spec = ai.aiSpec || { minAcc: 0.7, maxAcc: 0.9 };
+                const isCorrect = Math.random() < spec.minAcc;
 
-                const speedFactor = 1 - (targetAccuracy * 0.6);
-                let delay = (speedFactor * (maxTime * 800)) + (Math.random() * 500);
-                delay = Math.min(delay, maxTime * 1000 - 300);
+                let delay = getRandomInt(800, 3500);
 
                 const timerId = setTimeout(() => {
                     if (isTransitioning || ai.answered) return;
@@ -1277,17 +1189,17 @@
                         ai.choice = wrongChoices[Math.floor(Math.random() * wrongChoices.length)];
                     }
 
-                    ai.answered = true;
-                    ai.answerTimeLeft = timeLeft;
-                    renderPlayersDashboard();
-                    checkAllAnswered();
+                    handleAnswerSubmission(ai.id, ai.choice);
                 }, delay);
 
                 aiTimeouts.push(timerId);
             });
         }
 
-        function startTimer() {
+        function startCountdownTimer() {
+            timerStarted = true;
+            document.getElementById('round-status-hint').innerText = '倒數計時中！';
+
             const startTime = Date.now();
             const duration = maxTime * 1000;
 
@@ -1296,7 +1208,7 @@
                 const remainingMs = Math.max(0, duration - elapsed);
                 timeLeft = Math.ceil(remainingMs / 1000);
 
-                document.getElementById('timer-text').innerText = `⏱️ ${timeLeft}s`;
+                document.getElementById('timer-text').innerText = `⏱️ 倒數 ${timeLeft}s`;
                 document.getElementById('timer-bar').style.width = `${(remainingMs / duration) * 100}%`;
 
                 if (remainingMs <= 0) {
@@ -1331,26 +1243,23 @@
                 }
             }
 
+            // 新計分邏輯
             players.forEach(p => {
                 if (p.isQualified) {
                     if (p.choice === correctAns) {
-                        p.streak = (p.streak || 0) + 1;
-                        
-                        let baseScore = stage === 1 ? 100 : 200;
-                        let timeBonusPerSec = stage === 1 ? 10 : 20;
-                        
-                        let remainingSec = Math.max(0, p.answerTimeLeft || 0);
-                        let timeBonus = remainingSec * timeBonusPerSec;
-                        
-                        let totalPoints = baseScore + timeBonus;
+                        // 1. 答對基礎分
+                        let point = 20;
 
-                        if (p.streak >= 2) {
-                            let boostPercent = p.streak + 3;
-                            let multiplier = 1 + (boostPercent / 100);
-                            totalPoints = Math.round(totalPoints * multiplier);
+                        // 2. 順序加分 (第1個答對+10, 第2個+9...第10個+1)
+                        if (p.answerOrder >= 1 && p.answerOrder <= 10) {
+                            point += (11 - p.answerOrder);
                         }
 
-                        p.score += totalPoints;
+                        // 3. 連勝加分 (連勝1題+1, 連勝2題+2...)
+                        p.streak = (p.streak || 0) + 1;
+                        point += p.streak;
+
+                        p.score += point;
                     } else {
                         p.streak = 0;
                     }
@@ -1368,7 +1277,7 @@
                 } else {
                     startQuestionFlow(currentQuestionIndex);
                 }
-            }, revealTime * 1000);
+            }, 1500);
         }
 
         function showIntermission() {
@@ -1443,15 +1352,15 @@
                 const item = document.createElement('div');
                 item.className = 'flex flex-col p-2.5 bg-slate-900 rounded-xl border border-slate-800 text-sm gap-1';
                 
-                let teamPrefix = '';
+                let teamFlag = '';
                 if (gameMode === 'team') {
-                    teamPrefix = p.team === 'red' ? '🔴 ' : '⚪ ';
+                    teamFlag = p.team === 'red' ? '🔴 ' : '⚪ ';
                 }
 
                 item.innerHTML = `
                     <div class="flex items-center gap-2 truncate w-full">
                         <span class="font-bold text-slate-500 text-xs w-6 flex-shrink-0">#${rankNum}</span>
-                        <span class="font-bold ${p.isQualified ? 'text-neon-yellow' : 'text-slate-300'} truncate">${teamPrefix}${p.name}</span>
+                        <span class="font-bold ${p.isQualified ? 'text-neon-yellow' : 'text-slate-300'} truncate">${teamFlag}${p.name}</span>
                     </div>
                     <div class="text-right w-full pl-8">
                         <span class="font-black text-slate-200">${p.score} 分</span>
@@ -1525,10 +1434,10 @@
                 let winnerBadge = '🤝 雙方勢均力敵 平手！';
                 let winnerColor = 'text-neon-yellow';
                 if (winningTeam === 'red') {
-                    winnerBadge = '🏆 🔴 紅隊 榮獲團體總冠軍！';
+                    winnerBadge = '🏆 🔴 紅旗隊 榮獲團體總冠軍！';
                     winnerColor = 'text-rose-400';
                 } else if (winningTeam === 'white') {
-                    winnerBadge = '🏆 ⚪ 白隊 榮獲團體總冠軍！';
+                    winnerBadge = '🏆 ⚪ 白旗隊 榮獲團體總冠軍！';
                     winnerColor = 'text-slate-100';
                 }
 
@@ -1538,13 +1447,13 @@
 
                     <div class="w-full grid grid-cols-2 gap-4 my-auto">
                         <div class="bg-gradient-to-br from-rose-950/90 to-slate-900 border-2 border-rose-500 rounded-3xl p-5 flex flex-col items-center justify-center shadow-[0_0_25px_rgba(244,63,94,0.3)]">
-                            <span class="text-xl font-black text-rose-300">🔴 紅隊總分</span>
+                            <span class="text-xl font-black text-rose-300">🔴 紅旗隊總分</span>
                             <span class="text-4xl md:text-5xl font-black text-white my-2">${redTotalScore}</span>
                             <span class="text-lg font-bold text-rose-400 bg-rose-950/80 px-3 py-1 rounded-full border border-rose-500/50">佔比 ${redRatio}%</span>
                         </div>
 
                         <div class="bg-gradient-to-br from-slate-800/90 to-slate-950 border-2 border-slate-300 rounded-3xl p-5 flex flex-col items-center justify-center shadow-[0_0_25px_rgba(203,213,225,0.3)]">
-                            <span class="text-xl font-black text-slate-200">⚪ 白隊總分</span>
+                            <span class="text-xl font-black text-slate-200">⚪ 白旗隊總分</span>
                             <span class="text-4xl md:text-5xl font-black text-white my-2">${whiteTotalScore}</span>
                             <span class="text-lg font-bold text-slate-300 bg-slate-800 px-3 py-1 rounded-full border border-slate-400/50">佔比 ${whiteRatio}%</span>
                         </div>
@@ -1634,18 +1543,6 @@
                     gravity: 0.8,
                     colors: ['#00f3ff', '#b000ff', '#ff007f', '#00ff66', '#ffcc00']
                 });
-
-                if (Math.random() < 0.4) {
-                    confetti({
-                        particleCount: 60,
-                        spread: 360,
-                        startVelocity: 35,
-                        origin: { x: 0.5, y: 0.3 },
-                        ticks: 250,
-                        gravity: 0.6,
-                        colors: ['#ffcc00', '#ffffff', '#ff007f']
-                    });
-                }
             }, 300);
         }
     </script>
