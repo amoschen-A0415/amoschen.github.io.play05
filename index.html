@@ -81,7 +81,7 @@
 </head>
 <body class="h-screen w-screen flex flex-col justify-between overflow-hidden">
 
-    <!-- 背景音樂：Two_Coins_Left.mp3 (需求2：修復音訊路徑還原遊戲過程音樂) -->
+    <!-- 背景音樂：Two_Coins_Left.mp3 -->
     <audio id="bgm" loop preload="auto" src="Two_Coins_Left.mp3"></audio>
 
     <!-- 頂部 Header -->
@@ -306,7 +306,7 @@
                     <div id="players-dashboard" class="flex flex-col space-y-2.5 overflow-y-auto flex-grow pr-1"></div>
                 </div>
 
-                <!-- 下半部：音樂播放控制卡片 -->
+                <!-- 下半部：美化音樂播放控制卡片（完全還原初始檔案設定） -->
                 <div class="mt-3 pt-3 border-t-2 border-amber-200/80 flex-shrink-0 bg-amber-50/70 rounded-2xl p-3 border border-amber-200 shadow-inner">
                     <div class="flex items-center justify-between mb-2">
                         <div class="flex items-center gap-2 truncate">
@@ -316,11 +316,13 @@
                         <span id="music-status-text" class="text-[10px] bg-amber-200/80 text-amber-900 px-2 py-0.5 rounded-md font-bold whitespace-nowrap">1.0x</span>
                     </div>
 
+                    <!-- 原生 HTML Audio 音樂播放控制器 -->
                     <audio id="audioPlayerInGame" controls class="w-full h-8 mb-2 rounded-lg outline-none opacity-90 hover:opacity-100 transition-opacity">
                         <source src="Two_Coins_Left.mp3" type="audio/mpeg">
                         您的瀏覽器不支援音樂播放。
                     </audio>
 
+                    <!-- 播放速度控制按鈕組 -->
                     <div class="grid grid-cols-3 gap-1.5">
                         <button class="music-speed-btn py-1 px-1 rounded-lg text-xs font-black shadow-sm" onclick="setMusicSpeed(0.5, this)">50%</button>
                         <button class="music-speed-btn active py-1 px-1 rounded-lg text-xs font-black shadow-sm" onclick="setMusicSpeed(1.0, this)">100%</button>
@@ -478,22 +480,7 @@
             return audioCtx;
         }
 
-        // 需求2：音樂播放與連動修正
-        function playMainBgm() {
-            const bgm = document.getElementById('bgm');
-            const inGameAudio = document.getElementById('audioPlayerInGame');
-            getAudioContext();
-            
-            if (bgm) {
-                bgm.currentTime = 0;
-                bgm.play().catch(e => console.warn("BGM play error:", e));
-            }
-            if (inGameAudio) {
-                inGameAudio.currentTime = 0;
-                inGameAudio.play().catch(e => console.warn("InGame audio play error:", e));
-            }
-        }
-
+        // 音樂播放器速度調整功能 (完全還原初始檔案設定)
         function setMusicSpeed(speedRate, buttonEl) {
             const bgm = document.getElementById('bgm');
             const inGameAudio = document.getElementById('audioPlayerInGame');
@@ -506,11 +493,13 @@
                 statusText.textContent = `${speedRate}x`;
             }
 
+            // 按鈕切換高亮樣式
             const buttons = document.querySelectorAll('.music-speed-btn');
             buttons.forEach(btn => btn.classList.remove('active'));
             if (buttonEl) buttonEl.classList.add('active');
         }
 
+        // 單音調播放器（完全還原初始檔案設定）
         function playSingleNote(freq, duration, type = 'square', gainValue = 0.12) {
             try {
                 const ctx = getAudioContext();
@@ -530,6 +519,7 @@
             }
         }
 
+        // 停止背景音樂循環（完全還原初始檔案設定）
         function stopBgm() {
             currentBgmType = null;
             if (bgmTimeoutId) {
@@ -538,6 +528,7 @@
             }
         }
 
+        // 播放瑪利歐勝利音樂（完全還原初始檔案設定）
         function playMarioVictoryFanfare() {
             getAudioContext();
             stopBgm();
@@ -571,6 +562,7 @@
             playNext();
         }
 
+        // 播放吃到正確食物的清脆躍動音效（完全還原初始檔案設定）
         function playScoreSound() {
             try {
                 const ctx = getAudioContext();
@@ -595,6 +587,7 @@
             }
         }
 
+        // 播放吃到不可放入食物時的爆炸音效（完全還原初始檔案設定）
         function playExplosionSound() {
             try {
                 const ctx = getAudioContext();
@@ -630,6 +623,7 @@
             }
         }
 
+        // 播放煙火爆炸聲效（完全還原初始檔案設定）
         function playFireworkBoomSound() {
             try {
                 const ctx = getAudioContext();
@@ -673,12 +667,13 @@
             }
         }
 
+        // 解鎖瀏覽器音訊限制（完全還原初始檔案設定）
         function unlockAudio() {
             getAudioContext();
             const bgm = document.getElementById('bgm');
             if (bgm && bgm.paused) {
                 bgm.play().then(() => {
-                    bgm.pause(); 
+                    bgm.pause(); // 預先點擊觸發以解鎖音訊權限
                     bgm.currentTime = 0;
                 }).catch(() => {});
             }
@@ -1059,9 +1054,20 @@
             }
 
             renderLobbyPlayers();
-            
-            // 需求2：開賽播放音樂
-            playMainBgm();
+
+            // 完全還原一開始 (安得烈食物銀行接接食物.html) 按開始遊戲後播放 Two_Coins_Left.mp3 的邏輯
+            const bgm = document.getElementById('bgm');
+            getAudioContext();
+            if (bgm) {
+                bgm.currentTime = 0;
+                const playPromise = bgm.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(e => {
+                        console.warn("Autoplay was blocked by browser. Retrying on user interaction...", e);
+                    });
+                }
+            }
+
             startGame();
         }
 
@@ -1175,11 +1181,11 @@
             }
         }
 
-        // 需求4：參賽者圖示碰撞物理反彈處理 (彈開 50% 圖示大小位移)
+        // 參賽者圖示碰撞物理彈開處理 (彈開 50% 圖示大小位移)
         function handlePlayerCollisions() {
-            const avatarSize = 52; // 圖示像素大小
-            const minDist = avatarSize; // 碰撞判斷距離
-            const pushOffsetNormalized = (avatarSize * 0.5) / canvas.width; // 50% 圖示大小轉換為 Canvas 相對寬度比例
+            const avatarSize = 52; 
+            const minDist = avatarSize; 
+            const pushOffsetNormalized = (avatarSize * 0.5) / canvas.width; 
 
             for (let i = 0; i < players.length; i++) {
                 for (let j = i + 1; j < players.length; j++) {
@@ -1196,9 +1202,8 @@
                     const dist = Math.hypot(dx, dy);
 
                     if (dist < minDist && dist > 0) {
-                        const nx = dx / dist; // 碰撞方向向量
+                        const nx = dx / dist; 
 
-                        // 將兩邊向相反方向彈開 50% 的圖示尺寸距離 (即向左右/兩側位移)
                         p1.x = Math.max(0.05, Math.min(0.95, p1.x - nx * pushOffsetNormalized * 0.5));
                         p2.x = Math.max(0.05, Math.min(0.95, p2.x + nx * pushOffsetNormalized * 0.5));
                     }
@@ -1211,7 +1216,7 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // 執行參賽者圖示互相碰撞彈開檢查
+            // 執行參賽者圖示碰撞彈開檢查
             handlePlayerCollisions();
 
             // 更新 AI 位置
@@ -1245,7 +1250,7 @@
                 ctx.textAlign = 'center';
                 ctx.fillText(food.icon, drawX, drawY);
 
-                // 繪製物資名稱 (需求3：移除名稱下方的得分數字顯示)
+                // 繪製物資名稱 (不顯示得分)
                 ctx.font = 'bold 14px "Noto Sans TC"';
                 ctx.fillStyle = food.score > 0 ? '#15803d' : '#e11d48';
                 ctx.fillText(food.name, drawX, drawY + 24);
@@ -1423,12 +1428,18 @@
             });
         }
 
-        // 需求1：團體頒獎典禮（以團體榮譽與兩隊 MVP 顯示）
+        // 完全還原一開始 (安得烈食物銀行接接食物.html) 暫停主背景音樂「Two_Coins_Left.mp3」並播放頒獎音樂的邏輯
         function showFinalResult() {
             const bgm = document.getElementById('bgm');
             const inGameAudio = document.getElementById('audioPlayerInGame');
-            if (bgm) { bgm.pause(); bgm.currentTime = 0; }
-            if (inGameAudio) { inGameAudio.pause(); inGameAudio.currentTime = 0; }
+            if (bgm) {
+                bgm.pause();
+                bgm.currentTime = 0;
+            }
+            if (inGameAudio) {
+                inGameAudio.pause();
+                inGameAudio.currentTime = 0;
+            }
             playMarioVictoryFanfare();
 
             document.getElementById('view-game').classList.add('hidden');
@@ -1450,7 +1461,6 @@
                 document.getElementById('result-title').innerText = winningTeam === 'draw' ? '🏆 團體賽：兩隊同分 平手！ 🏆' : (winningTeam === 'red' ? '🏆 恭喜【🚩 紅隊】贏得團隊總冠軍！ 🏆' : '🏆 恭喜【🏳️ 白隊】贏得團隊總冠軍！ 🏆');
                 document.getElementById('top3-badge-title').innerText = '🌟 兩隊 MVP 王座 🌟';
 
-                // 團體賽：左側顯示紅隊成員，右側顯示白隊成員
                 document.getElementById('result-left-title').innerText = '🚩 紅隊成員榜';
                 document.getElementById('result-right-title').innerText = '🏳️ 白隊成員榜';
                 document.getElementById('result-left-count').innerText = `${redPlayers.length} 人`;
@@ -1459,7 +1469,6 @@
                 renderParticipantList('result-left-list', redPlayers, 1);
                 renderParticipantList('result-right-list', whitePlayers, 1);
 
-                // 中央顯示兩隊各自的 MVP
                 const top3Container = document.getElementById('top3-container');
                 top3Container.innerHTML = '';
 
@@ -1468,14 +1477,12 @@
 
                 const mvpCardsHtml = `
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                        <!-- 紅隊 MVP 卡片 -->
                         <div class="p-4 rounded-2xl border-2 border-rose-300 bg-rose-50/90 flex flex-col items-center shadow-md">
                             <span class="text-xs font-black text-white bg-rose-500 px-3 py-1 rounded-full border border-rose-200 mb-2">🚩 紅隊最高分 MVP</span>
                             <div class="text-5xl my-1">${redMVP.avatar}</div>
                             <div class="text-xl font-black text-slate-800 text-center truncate w-full">${redMVP.displayName || redMVP.name}</div>
                             <div class="text-lg font-black text-amber-600 mt-1">${redMVP.score} 分</div>
                         </div>
-                        <!-- 白隊 MVP 卡片 -->
                         <div class="p-4 rounded-2xl border-2 border-sky-300 bg-sky-50/90 flex flex-col items-center shadow-md">
                             <span class="text-xs font-black text-white bg-sky-500 px-3 py-1 rounded-full border border-sky-200 mb-2">🏳️ 白隊最高分 MVP</span>
                             <div class="text-5xl my-1">${whiteMVP.avatar}</div>
@@ -1487,7 +1494,6 @@
                 top3Container.innerHTML = mvpCardsHtml;
 
             } else {
-                // 個人賽畫面渲染
                 document.getElementById('result-title').innerText = '🏆 最終頒獎典禮 🏆';
                 document.getElementById('top3-badge-title').innerText = '✨ TOP 3 WINNERS ✨';
 
@@ -1542,7 +1548,6 @@
                 });
             }
 
-            // 發送手機端結算通知
             players.forEach(p => {
                 if (p.conn) {
                     const rank = allSortedPlayers.findIndex(s => s.id === p.id) + 1;
