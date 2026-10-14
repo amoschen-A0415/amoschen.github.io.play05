@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>水果餐刀時鐘 & 世界風景</title>
+  <title>方形水果餐刀時鐘 & 世界風景</title>
   <style>
     * {
       box-sizing: border-box;
@@ -19,7 +19,7 @@
       justify-content: center;
       align-items: center;
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background-color: #050505;
+      background-color: #000;
       user-select: none;
     }
 
@@ -41,79 +41,63 @@
       opacity: 1;
     }
 
-    /* 超大時鐘容器：極高透明度 & 邊緣無界線漸層淡化 */
+    /* 方形時鐘容器：底部 100% 完全透明，無邊框 */
     .clock-container {
       position: relative;
-      width: min(94vw, 94vh);
-      height: min(94vw, 94vh);
-      /* 極透明的徑向漸層，從微白到完全透明 */
-      background: radial-gradient(
-        circle,
-        rgba(255, 255, 255, 0.10) 0%,
-        rgba(255, 255, 255, 0.05) 55%,
-        rgba(255, 255, 255, 0.01) 80%,
-        rgba(255, 255, 255, 0) 100%
-      );
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      border-radius: 50%;
+      width: min(88vw, 88vh);
+      height: min(88vw, 88vh);
+      background: transparent; /* 完全透明 */
       border: none;
       box-shadow: none;
       z-index: 2;
     }
 
-    /* 中心極小固定點 */
+    /* 中心點 */
     .center-dot {
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 14px;
-      height: 14px;
+      width: 16px;
+      height: 16px;
       background: #ffffff;
-      border: 2px solid rgba(0, 0, 0, 0.3);
+      border: 2px solid rgba(0, 0, 0, 0.4);
       border-radius: 50%;
       transform: translate(-50%, -50%);
       z-index: 10;
-      box-shadow: 0 0 8px rgba(0,0,0,0.4);
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
     }
 
-    /* 水果刻度容器 */
+    /* 水果圖示元件 */
     .fruit-item {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      width: max(8vw, 8vh);
-      height: max(8vw, 8vh);
-      margin-top: calc(-1 * max(4vw, 4vh));
-      margin-left: calc(-1 * max(4vw, 4vh));
-      font-size: max(6.5vw, 6.5vh);
+      width: max(7vw, 7vh);
+      height: max(7vw, 7vh);
+      font-size: max(5.5vw, 5.5vh);
       display: flex;
       justify-content: center;
       align-items: center;
-      filter: drop-shadow(0px 6px 10px rgba(0, 0, 0, 0.6));
+      transform: translate(-50%, -50%);
+      filter: drop-shadow(0px 6px 12px rgba(0, 0, 0, 0.7));
       z-index: 3;
     }
 
-    /* 水果外側數字 (1-12) */
+    /* 外側數字 (1-12) 元件 */
     .number-item {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 50px;
-      height: 50px;
-      margin-top: -25px;
-      margin-left: -25px;
+      width: max(4vw, 4vh);
+      height: max(4vw, 4vh);
       font-size: max(3vw, 3vh);
       font-weight: 900;
       color: #ffffff;
       display: flex;
       justify-content: center;
       align-items: center;
-      text-shadow: 0 2px 6px rgba(0,0,0,0.8), 0 0 12px rgba(0,0,0,0.6);
+      transform: translate(-50%, -50%);
+      text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7);
       z-index: 4;
     }
 
-    /* 餐刀指針通用 Container */
+    /* 餐刀指針 Container */
     .hand {
       position: absolute;
       top: 0;
@@ -124,33 +108,33 @@
       pointer-events: none;
     }
 
-    /* SVG 刀子圖片的旋轉基準點 */
+    /* SVG 刀子圖片 */
     .hand svg {
       position: absolute;
       left: 50%;
       bottom: 50%;
       transform-origin: 50% 100%;
-      filter: drop-shadow(3px 5px 8px rgba(0,0,0,0.6));
+      filter: drop-shadow(3px 6px 10px rgba(0,0,0,0.7));
     }
 
-    /* 時針 - 厚實餐刀 */
+    /* 時針 - 主餐刀 */
     .hour-hand svg {
       width: max(2.8vw, 2.8vh);
-      height: calc(min(94vw, 94vh) * 0.25);
+      height: calc(min(88vw, 88vh) * 0.25);
       margin-left: calc(-1 * max(1.4vw, 1.4vh));
     }
 
-    /* 分針 - 長款牛排刀 */
+    /* 分針 - 牛排刀 */
     .minute-hand svg {
       width: max(2.4vw, 2.4vh);
-      height: calc(min(94vw, 94vh) * 0.36);
+      height: calc(min(88vw, 88vh) * 0.36);
       margin-left: calc(-1 * max(1.2vw, 1.2vh));
     }
 
-    /* 秒針 - 紅色水果小刀 */
+    /* 秒針 - 紅色水果刀 */
     .second-hand svg {
       width: max(1.8vw, 1.8vh);
-      height: calc(min(94vw, 94vh) * 0.42);
+      height: calc(min(88vw, 88vh) * 0.42);
       margin-left: calc(-1 * max(0.9vw, 0.9vh));
     }
   </style>
@@ -161,50 +145,47 @@
   <div id="bg1" class="bg-layer active"></div>
   <div id="bg2" class="bg-layer"></div>
 
-  <!-- 超大透明水果時鐘 -->
+  <!-- 方形超透明水果時鐘 -->
   <div class="clock-container">
     <div class="center-dot"></div>
     
-    <!-- 1-12 水果與外側數字刻度 -->
+    <!-- 水果與數字容器 -->
     <div id="dial-container"></div>
 
     <!-- 餐刀造型指針 -->
-    <!-- 時針：主餐刀 -->
     <div id="hour-hand" class="hand hour-hand">
       <svg viewBox="0 0 30 200" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M 11,200 L 19,200 L 19,100 L 21,90 C 23,70 23,30 15,0 C 13,30 11,70 11,100 Z" fill="url(#silverGrad)"/>
-        <path d="M 11,200 L 19,200 L 19,120 L 11,120 Z" fill="#222222"/>
+        <path d="M 11,200 L 19,200 L 19,120 L 11,120 Z" fill="#111111"/>
         <circle cx="15" cy="140" r="1.5" fill="#aaa"/>
         <circle cx="15" cy="170" r="1.5" fill="#aaa"/>
         <defs>
           <linearGradient id="silverGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#888888"/>
+            <stop offset="0%" stop-color="#777777"/>
             <stop offset="35%" stop-color="#ffffff"/>
             <stop offset="65%" stop-color="#dddddd"/>
-            <stop offset="100%" stop-color="#666666"/>
+            <stop offset="100%" stop-color="#555555"/>
           </linearGradient>
         </defs>
       </svg>
     </div>
 
-    <!-- 分針：長牛排刀 -->
     <div id="minute-hand" class="hand minute-hand">
       <svg viewBox="0 0 24 260" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M 9,260 L 15,260 L 15,110 L 17,95 C 19,65 19,25 12,0 C 10,25 9,65 9,110 Z" fill="url(#silverGrad2)"/>
-        <path d="M 9,260 L 15,260 L 15,140 L 9,140 Z" fill="#333333"/>
+        <path d="M 9,260 L 15,260 L 15,140 L 9,140 Z" fill="#222222"/>
         <circle cx="12" cy="160" r="1.2" fill="#bbb"/>
         <circle cx="12" cy="220" r="1.2" fill="#bbb"/>
         <defs>
           <linearGradient id="silverGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#999"/>
+            <stop offset="0%" stop-color="#888"/>
             <stop offset="40%" stop-color="#fff"/>
-            <stop offset="100%" stop-color="#777"/>
+            <stop offset="100%" stop-color="#666"/>
           </linearGradient>
         </defs>
       </svg>
     </div>
 
-    <!-- 秒針：紅色水果切刀 -->
     <div id="second-hand" class="hand second-hand">
       <svg viewBox="0 0 18 300" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M 7,300 L 11,300 L 11,120 L 13,90 C 15,50 14,20 9,0 C 7,20 7,50 7,120 Z" fill="#ff3b30"/>
@@ -220,7 +201,7 @@
       "🍇", "🍓", "🍒", "🍑", "🍍", "🥝"
     ];
 
-    // 高畫質世界風景圖片 (Unsplash)
+    // 世界風景圖片庫
     const landscapeImages = [
       "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80",
       "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80",
@@ -231,40 +212,67 @@
       "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1920&q=80"
     ];
 
-    // 1. 生成水果刻度與外側數字
+    // 方形分佈點位計算 (依百分比 0% 到 100%)
+    // 內圈為水果，外圈為數字
+    const squarePositions = {
+      // 水果座標 (x%, y%) - 沿著方形邊緣內側
+      fruit: {
+        12: { x: 50, y: 18 },
+        1:  { x: 82, y: 18 },
+        2:  { x: 82, y: 34 },
+        3:  { x: 82, y: 50 },
+        4:  { x: 82, y: 66 },
+        5:  { x: 82, y: 82 },
+        6:  { x: 50, y: 82 },
+        7:  { x: 18, y: 82 },
+        8:  { x: 18, y: 66 },
+        9:  { x: 18, y: 50 },
+        10: { x: 18, y: 34 },
+        11: { x: 18, y: 18 }
+      },
+      // 外側數字座標 (x%, y%) - 靠近最外邊
+      number: {
+        12: { x: 50, y: 5 },
+        1:  { x: 95, y: 5 },
+        2:  { x: 95, y: 28 },
+        3:  { x: 95, y: 50 },
+        4:  { x: 95, y: 72 },
+        5:  { x: 95, y: 95 },
+        6:  { x: 50, y: 95 },
+        7:  { x: 5,  y: 95 },
+        8:  { x: 5,  y: 72 },
+        9:  { x: 5,  y: 50 },
+        10: { x: 5,  y: 28 },
+        11: { x: 5,  y: 5 }
+      }
+    };
+
+    // 1. 生成方形水果與外側數字
     const dialContainer = document.getElementById("dial-container");
-    const fruitRadius = 33;  // 水果距離中心的百分比 (%)
-    const numberRadius = 45; // 數字距離中心的百分比 (%)
 
     fruits.forEach((fruit, index) => {
       const hourNum = index + 1;
-      const angleDeg = hourNum * 30;
-      const angleRad = (angleDeg - 90) * (Math.PI / 180);
-
-      // 水果座標
-      const fx = 50 + fruitRadius * Math.cos(angleRad);
-      const fy = 50 + fruitRadius * Math.sin(angleRad);
-
+      
+      // 水果定位
+      const fPos = squarePositions.fruit[hourNum];
       const fruitEl = document.createElement("div");
       fruitEl.className = "fruit-item";
       fruitEl.textContent = fruit;
-      fruitEl.style.left = `${fx}%`;
-      fruitEl.style.top = `${fy}%`;
+      fruitEl.style.left = `${fPos.x}%`;
+      fruitEl.style.top = `${fPos.y}%`;
       dialContainer.appendChild(fruitEl);
 
-      // 外側數字座標
-      const nx = 50 + numberRadius * Math.cos(angleRad);
-      const ny = 50 + numberRadius * Math.sin(angleRad);
-
+      // 外側數字定位
+      const nPos = squarePositions.number[hourNum];
       const numEl = document.createElement("div");
       numEl.className = "number-item";
       numEl.textContent = hourNum;
-      numEl.style.left = `${nx}%`;
-      numEl.style.top = `${ny}%`;
+      numEl.style.left = `${nPos.x}%`;
+      numEl.style.top = `${nPos.y}%`;
       dialContainer.appendChild(numEl);
     });
 
-    // 2. 時鐘轉動邏輯
+    // 2. 時鐘更新邏輯
     const hourHandSvg = document.querySelector("#hour-hand svg");
     const minuteHandSvg = document.querySelector("#minute-hand svg");
     const secondHandSvg = document.querySelector("#second-hand svg");
@@ -287,7 +295,7 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // 3. 背景 30 秒自動淡入淡出輪播
+    // 3. 背景 30 秒輪播 (平滑淡入淡出)
     let currentImageIndex = 0;
     let activeBgIndex = 1;
     const bg1 = document.getElementById("bg1");
