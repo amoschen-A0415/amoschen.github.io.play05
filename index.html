@@ -88,6 +88,18 @@
             animation: ball-hit-explode 0.5s ease-out forwards;
         }
 
+        /* 超大突破性皇冠閃耀旋轉動畫 */
+        @keyframes crown-shimmer-vibrate {
+            0% { transform: scale(1) rotate(-5deg); filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.9)); }
+            25% { transform: scale(1.15) rotate(5deg); filter: drop-shadow(0 0 30px rgba(245, 158, 11, 1)); }
+            50% { transform: scale(1) rotate(-3deg); filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.9)); }
+            75% { transform: scale(1.18) rotate(4deg); filter: drop-shadow(0 0 35px rgba(245, 158, 11, 1)); }
+            100% { transform: scale(1) rotate(-5deg); filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.9)); }
+        }
+        .animate-super-crown {
+            animation: crown-shimmer-vibrate 2s infinite ease-in-out;
+        }
+
         /* 加分文字爆破動畫 */
         @keyframes score-explode-vibrate {
             0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
@@ -224,13 +236,11 @@
         <!-- 手機端 - 參賽者控制端 -->
         <div id="view-player-mobile" class="hidden fixed inset-0 z-50 bg-slate-50 p-4 flex-col justify-between overflow-hidden">
             
-            <!-- 調整 5：上半屏 (50% 空間) 提供 4 格角色圖像選擇：安得鹿、小貓、小豬、小花 -->
             <div id="mobile-half-display" class="w-full h-[48%] bg-gradient-to-b from-chch-lightGreen to-emerald-100 rounded-3xl border-4 border-chch-green shadow-xl flex flex-col items-center justify-between p-3 relative overflow-hidden">
                 <span class="text-xs font-black text-chch-darkGreen bg-white px-3 py-0.5 rounded-full border border-chch-green/30 flex-shrink-0">
                     選擇個人專屬頭像
                 </span>
                 
-                <!-- 4 格選擇按鈕 -->
                 <div id="avatar-select-grid" class="grid grid-cols-4 gap-2 w-full my-auto px-1">
                     <button type="button" onclick="selectMobileAvatar('🦌', '安得鹿')" class="avatar-option-btn active flex flex-col items-center justify-center p-2 bg-white rounded-2xl border-2 border-chch-green shadow-md transition-all">
                         <span class="text-4xl">🦌</span>
@@ -257,7 +267,6 @@
                 </div>
             </div>
 
-            <!-- 輸入暱稱連線區塊 -->
             <div id="mobile-join-form" class="space-y-4 bg-white/90 p-6 rounded-3xl border-2 border-chch-green/30 my-auto shadow-xl backdrop-blur-md w-full">
                 <input type="text" id="mobile-name-input" maxlength="8" placeholder="請輸入參賽者暱稱..." 
                     class="w-full bg-chch-lightGreen/50 border-2 border-chch-green/40 p-4 rounded-2xl text-center text-slate-800 text-xl font-bold focus:border-chch-green outline-none shadow-inner">
@@ -329,14 +338,12 @@
                     <!-- 左邊一半：玩家圖像及名稱 / 弱勢扶助題目區塊 -->
                     <div class="w-1/2 h-full border-r-4 border-chch-green/20 flex flex-col items-center justify-center p-3 bg-gradient-to-br from-chch-lightGreen/50 to-amber-50/50 rounded-l-xl relative">
                         
-                        <!-- 調整 3：圖像顯示為原先的 80% 大小 (text-7xl) -->
                         <div id="player-info-container" class="flex flex-col items-center justify-center w-full h-full">
                             <span class="text-xs font-black text-chch-darkGreen bg-white px-3 py-1 rounded-full border border-chch-green/30 mb-2 shadow-sm">當前回合參賽者</span>
                             <div id="current-player-avatar" class="text-7xl md:text-7xl animate-bounce my-2 drop-shadow-md">🦌</div>
                             <div id="current-player-name" class="text-2xl md:text-3xl font-black text-slate-800 tracking-wider">參賽者名稱</div>
                         </div>
 
-                        <!-- 調整 1：弱勢扶助觸發時，左半邊圖像消失，改顯示題目 (分 2 列) -->
                         <div id="center-question-box" class="hidden absolute inset-0 bg-amber-50 p-6 rounded-l-xl flex flex-col items-center justify-center text-center shadow-inner border-r-2 border-amber-300">
                             <span class="text-xs md:text-sm font-black text-chch-orange bg-amber-200/80 px-4 py-1 rounded-full border border-amber-400 mb-4 shadow-sm">❓ 弱勢扶助問答關卡</span>
                             <div class="flex flex-col space-y-2 text-slate-900 font-black">
@@ -389,19 +396,23 @@
             </div>
         </div>
 
-        <!-- 頒獎典禮通知窗格 (內部 4 格，第一名超大皇冠) -->
+        <!-- 調整 1：頒獎典禮通知窗格 (移除溢出隱藏，第一名呈現突破性超大璀璨皇冠 👑) -->
         <div id="view-result" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6">
-            <div id="result-notice-box" class="w-[85%] h-[85%] bg-white/95 border-4 border-chch-green rounded-3xl p-6 flex flex-col justify-between shadow-2xl overflow-hidden relative">
+            <div id="result-notice-box" class="w-[85%] h-[85%] bg-white/95 border-4 border-chch-green rounded-3xl p-6 flex flex-col justify-between shadow-2xl relative">
                 
                 <h2 id="result-title" class="text-3xl md:text-4xl font-black text-center text-chch-darkGreen mb-3 flex-shrink-0 tracking-wider">
                     🏆 安得烈惜食大富翁 頒獎典禮 🏆
                 </h2>
 
-                <div id="result-four-grid" class="grid grid-cols-4 gap-4 flex-grow overflow-hidden my-2">
+                <div id="result-four-grid" class="grid grid-cols-4 gap-4 flex-grow my-2">
                     
-                    <div id="rank-card-1" class="bg-gradient-to-b from-amber-100 via-amber-50 to-amber-200/80 rounded-2xl border-4 border-amber-400 p-3 flex flex-col items-center justify-between text-center relative shadow-lg overflow-hidden">
-                        <div class="absolute -top-3 text-6xl drop-shadow-md animate-bounce z-20">👑</div>
-                        <span class="mt-8 text-xs md:text-sm font-black text-amber-950 bg-amber-300 px-3 py-1 rounded-full border border-amber-500 shadow-sm z-10">🥇 冠軍 (第一名)</span>
+                    <!-- 第 1 名區塊 (突破框線的超大亮炫皇冠) -->
+                    <div id="rank-card-1" class="bg-gradient-to-b from-amber-100 via-amber-50 to-amber-200/90 rounded-2xl border-4 border-amber-400 p-3 flex flex-col items-center justify-between text-center relative shadow-xl">
+                        <!-- 調整 1：無邊框阻擋之突破性超大皇冠，附帶金色芒閃耀效果 -->
+                        <div class="absolute -top-12 md:-top-16 text-8xl md:text-9xl drop-shadow-[0_10px_25px_rgba(245,158,11,0.9)] animate-super-crown z-30 pointer-events-none">
+                            👑
+                        </div>
+                        <span class="mt-10 text-xs md:text-sm font-black text-amber-950 bg-amber-300 px-3 py-1 rounded-full border border-amber-500 shadow-sm z-10">🥇 冠軍 (第一名)</span>
                         
                         <div id="rank-1-avatar" class="text-7xl md:text-8xl my-2 drop-shadow-md">🦌</div>
                         <div id="rank-1-name" class="text-xl md:text-2xl font-black text-slate-800 truncate w-full">參賽者</div>
@@ -759,7 +770,6 @@
                         <span class="text-3xl md:text-5xl flex-shrink-0">${tile.icon}</span>
                         <span class="text-base md:text-2xl font-black text-chch-darkGreen leading-tight flex-grow">${formattedTitle}</span>
                     </div>
-                    <!-- 調整 2：地圖頭像顯示為目前的 6 倍 (text-3xl / text-4xl) 且半透明 (opacity-60) -->
                     <div id="tile-players-${i}" class="absolute bottom-0 right-0 flex gap-0.5 text-3xl md:text-4xl z-20"></div>
                 `;
                 container.appendChild(tileDiv);
@@ -768,7 +778,6 @@
             updatePlayerPositionsUI();
         }
 
-        // 調整 2：地圖格子上頭像放大 6 倍，覆蓋文字處 half-transparent
         function updatePlayerPositionsUI() {
             for (let i = 0; i < 20; i++) {
                 const holder = document.getElementById(`tile-players-${i}`);
@@ -868,7 +877,6 @@
             }
         }
 
-        // 調整 4：擲骰子時，小球每 1 秒速度增加 20%
         function startBoardBallCollisionPhase(p) {
             const container = document.getElementById('center-ball-container');
             
@@ -906,7 +914,6 @@
             activeCollisionListener = true;
             runBallPhysicsLoop();
 
-            // 每 1 秒加速度 20% 計時器
             speedBoostTimer = setInterval(() => {
                 if (!activeCollisionListener) {
                     clearInterval(speedBoostTimer);
@@ -987,7 +994,6 @@
             });
         }
 
-        // 調整 5：手機端頭像點擊切換選擇
         function selectMobileAvatar(avatarChar, avatarName) {
             myAvatar = avatarChar;
             const btns = document.querySelectorAll('.avatar-option-btn');
@@ -1171,15 +1177,32 @@
                     }
                 }
             } else if (tile.type === '休息') {
+                // 調整 2：修復「休息格子與最快/最慢參賽者交換位置」無效修復
                 const rand = Math.random();
                 if (rand < 0.2) {
-                    const fastest = [...players].sort((a,b) => b.laps - a.laps)[0];
-                    const temp = p.tileIndex; p.tileIndex = fastest.tileIndex; fastest.tileIndex = temp;
-                    showNoticeOverlay("休息", "與最快抵達起點參賽者交換位置！", 0, "☕", "跟跑最快的小朋友換位置囉！");
+                    // 尋找圈數最大（最快）的參賽者
+                    let targetPlayer = [...players].sort((a, b) => b.laps - a.laps)[0];
+                    if (targetPlayer.id === p.id && players.length > 1) {
+                        targetPlayer = [...players].sort((a, b) => b.laps - a.laps)[1];
+                    }
+                    
+                    const tempTile = p.tileIndex;
+                    p.tileIndex = targetPlayer.tileIndex;
+                    targetPlayer.tileIndex = tempTile;
+
+                    showNoticeOverlay("休息", `與最快參賽者 ${targetPlayer.name} 交換位置！`, 0, "☕", "跟跑最快的小朋友交換地圖位置囉！");
                 } else if (rand < 0.4) {
-                    const slowest = [...players].sort((a,b) => a.laps - b.laps)[0];
-                    const temp = p.tileIndex; p.tileIndex = slowest.tileIndex; slowest.tileIndex = temp;
-                    showNoticeOverlay("休息", "與最慢抵達起點參賽者交換位置！", 0, "☕", "跟跑在最後面的小朋友換位置囉！");
+                    // 尋找圈數最小（最慢）的參賽者
+                    let targetPlayer = [...players].sort((a, b) => a.laps - b.laps)[0];
+                    if (targetPlayer.id === p.id && players.length > 1) {
+                        targetPlayer = [...players].sort((a, b) => a.laps - b.laps)[1];
+                    }
+
+                    const tempTile = p.tileIndex;
+                    p.tileIndex = targetPlayer.tileIndex;
+                    targetPlayer.tileIndex = tempTile;
+
+                    showNoticeOverlay("休息", `與最慢參賽者 ${targetPlayer.name} 交換位置！`, 0, "☕", "跟跑在最後面的小朋友交換地圖位置囉！");
                 } else {
                     showNoticeOverlay("休息", "好好休息一回合。", 0, "☕", "辛苦囉！停下來喝口水休息一下！");
                 }
@@ -1202,7 +1225,6 @@
                 }
                 updatePlayerPositionsUI();
             } else if (tile.type === '弱勢扶助') {
-                // 調整 1：弱勢扶助題目分兩列呈現
                 const randItem = weakAssistanceList[Math.floor(Math.random() * weakAssistanceList.length)];
                 const isCorrectPair = Math.random() < 0.5;
                 pendingWeakCorrectChoice = isCorrectPair;
