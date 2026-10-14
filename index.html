@@ -78,14 +78,16 @@
             box-shadow: 0 2px 4px rgba(217, 119, 6, 0.2);
         }
 
-        /* 號碼球被撞擊爆破動畫 */
-        @keyframes ball-hit-explode {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(2.2); opacity: 0.9; }
-            100% { transform: scale(3); opacity: 0; }
+        /* 調整 4：號碼球被撞擊放大再大一倍並停住 1 秒動畫 */
+        @keyframes ball-hit-freeze {
+            0% { transform: scale(1); filter: drop-shadow(0 0 0px transparent); }
+            30% { transform: scale(2.8); filter: drop-shadow(0 0 25px rgba(245, 158, 11, 1)); }
+            80% { transform: scale(2.8); filter: drop-shadow(0 0 30px rgba(239, 68, 68, 1)); opacity: 1; }
+            100% { transform: scale(3.5); opacity: 0; }
         }
-        .animate-ball-explode {
-            animation: ball-hit-explode 0.5s ease-out forwards;
+        .animate-ball-freeze-explode {
+            animation: ball-hit-freeze 1.0s ease-out forwards;
+            z-index: 50 !important;
         }
 
         /* 超大皇冠閃耀旋轉動畫 */
@@ -126,19 +128,20 @@
             animation: score-continuous-vibrate 0.3s infinite;
         }
 
-        /* 交換位置時頭像變大變小閃爍 3 次特效動畫 */
-        @keyframes exchange-pulse-3times {
+        /* 調整 2：交換位置時頭像放大縮小閃爍歷時 3 秒 (z-index: 100) */
+        @keyframes exchange-pulse-3sec {
             0% { transform: scale(1); filter: drop-shadow(0 0 0px transparent); }
-            16.6% { transform: scale(2.2); filter: drop-shadow(0 0 15px #f59e0b); }
-            33.3% { transform: scale(0.7); }
-            50% { transform: scale(2.2); filter: drop-shadow(0 0 20px #ef4444); }
-            66.6% { transform: scale(0.7); }
-            83.3% { transform: scale(2.2); filter: drop-shadow(0 0 20px #10b981); }
+            16.6% { transform: scale(2.5); filter: drop-shadow(0 0 20px #f59e0b); }
+            33.3% { transform: scale(0.6); }
+            50% { transform: scale(2.5); filter: drop-shadow(0 0 25px #ef4444); }
+            66.6% { transform: scale(0.6); }
+            83.3% { transform: scale(2.5); filter: drop-shadow(0 0 25px #10b981); }
             100% { transform: scale(1); filter: drop-shadow(0 0 0px transparent); }
         }
         .animate-exchange-bounce {
-            animation: exchange-pulse-3times 1.5s ease-in-out forwards;
-            z-index: 50 !important;
+            animation: exchange-pulse-3sec 3.0s ease-in-out forwards;
+            z-index: 100 !important;
+            position: relative;
         }
     </style>
 </head>
@@ -156,7 +159,6 @@
             </h1>
         </div>
         <div class="flex items-center gap-3">
-            <!-- 調整 2：右上角改顯示版本號 -->
             <div id="game-stage-badge" class="px-4 py-1.5 rounded-full text-sm md:text-base font-black bg-slate-100 border border-slate-300 text-slate-700 shadow-sm">
                 版本 2026.10.14.01
             </div>
@@ -191,14 +193,14 @@
                             </div>
                         </div>
 
-                        <!-- 調整 1：簡明扼要遊戲規則指南 -->
+                        <!-- 簡明扼要遊戲規則指南 -->
                         <div id="score-rules-box" class="mt-3 p-3 bg-chch-lightOrange border border-amber-300 rounded-xl text-amber-900 text-sm shadow-sm flex-shrink-0">
                             <div class="font-bold border-b border-amber-300/60 pb-1 mb-1.5 flex items-center gap-1.5 text-chch-orange">
                                 <i class="fa-solid fa-circle-info"></i> 簡明規則指南
                             </div>
                             <ul class="grid grid-cols-2 gap-1 text-xs text-slate-700 font-bold">
                                 <li>🎯 <b>碰撞擲骰</b>：移動小球選1-6點。</li>
-                                <li>🚩 <b>起點踩中</b>：第2圈起剛好停+30分。</li>
+                                <li>🚩 <b>起點踩中</b>：第一圈起剛好停+30分。</li>
                                 <li>🤝 <b>弱勢扶助</b>：配對正確食物箱+15分。</li>
                                 <li>❓ <b>機會命運</b>：高風險搶奪與對換分數。</li>
                             </ul>
@@ -269,7 +271,6 @@
                     選擇個人專屬頭像 (不重複)
                 </span>
                 
-                <!-- 調整 3：隨機 4 種不重複頭像選項 -->
                 <div id="avatar-select-grid" class="grid grid-cols-4 gap-2 w-full my-auto px-1"></div>
 
                 <div id="player-mobile-name" class="text-xl font-black text-slate-800 flex-shrink-0">連線中...</div>
@@ -348,9 +349,9 @@
                 <!-- 中央 6x2 區域 -->
                 <div id="center-board-area" class="col-start-2 col-span-6 row-start-2 row-span-2 bg-white/95 rounded-2xl border-4 border-chch-green shadow-xl relative overflow-hidden flex justify-between p-2 z-10">
                     
-                    <!-- 提示 overlay 涵蓋整個中央區域 -->
+                    <!-- 調整 3：提示 overlay 一併顯示參賽者圖像與名稱 -->
                     <div id="ready-prompt-overlay" class="hidden absolute inset-0 bg-amber-400/95 backdrop-blur-md z-40 flex flex-col items-center justify-center p-4 text-center">
-                        <span class="text-6xl mb-2 animate-bounce">📢</span>
+                        <span id="ready-player-avatar" class="text-7xl md:text-8xl mb-2 animate-bounce drop-shadow-lg">🦌</span>
                         <div id="ready-player-text" class="text-3xl md:text-5xl font-black text-amber-950 tracking-wider drop-shadow">
                             參賽者 請準備
                         </div>
@@ -363,7 +364,7 @@
                         <div id="player-info-container" class="flex items-center justify-center w-full h-full gap-4 px-2">
                             <!-- 左邊：名稱與分數 -->
                             <div class="flex flex-col items-end justify-center space-y-2 truncate">
-                                <span class="text-[10px] md:text-xs font-black text-chch-darkGreen bg-white px-2.5 py-0.5 rounded-full border border-chch-green/30 shadow-sm">當開啟回合</span>
+                                <span class="text-[10px] md:text-xs font-black text-chch-darkGreen bg-white px-2.5 py-0.5 rounded-full border border-chch-green/30 shadow-sm">當前回合</span>
                                 <div id="current-player-name" class="text-xl md:text-2xl font-black text-slate-800 tracking-wider truncate max-w-[150px] md:max-w-[200px] text-right">參賽者</div>
                                 <div id="current-player-score-badge" class="bg-chch-orange/15 border-2 border-chch-orange/50 text-chch-orange px-3 py-0.5 rounded-full font-black text-lg md:text-2xl shadow-sm">
                                     0 分
@@ -406,7 +407,6 @@
                         <div class="absolute top-2 left-0 right-0 text-center text-xs font-black text-chch-darkGreen bg-white/80 py-0.5 z-10 shadow-sm">
                             🎯 請碰撞 1 - 6 號飄浮球決定步數！
                         </div>
-                        <!-- 調整 5：小球圖像動態顯示當前參賽者頭像 -->
                         <div id="active-player-ball" class="absolute w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center text-2xl shadow-xl z-20 border-2 border-white pointer-events-none">
                             ⚽
                         </div>
@@ -454,7 +454,6 @@
 
                 <div id="result-four-grid" class="grid grid-cols-4 gap-4 flex-grow my-2">
                     
-                    <!-- 調整 8：頒獎畫面圖像再放大 20% -->
                     <div id="rank-card-1" class="bg-gradient-to-b from-amber-100 via-amber-50 to-amber-200/90 rounded-2xl border-4 border-amber-400 p-3 flex flex-col items-center justify-between text-center relative shadow-xl overflow-visible">
                         <div class="absolute -top-14 md:-top-16 text-8xl md:text-9xl drop-shadow-[0_10px_25px_rgba(245,158,11,0.9)] animate-super-crown z-0 pointer-events-none">
                             👑
@@ -508,11 +507,9 @@
     </footer>
 
     <script>
-        // 內定豐富頭像池（隨機抽 4 個不重複頭像供選擇）
         const allPossibleAvatars = ['🦌', '🐱', '🐷', '🌸', '🦁', '🐯', '🦊', '🐰', '🐼', '🐨', '🦄', '🐶'];
         let mobileSessionAvatars = [];
 
-        // 調整 6：AI 參賽內定角色與強度數據
         const aiCharacterPool = [
             { name: '小羅羅', minStr: 90, maxStr: 100 },
             { name: '安得鹿', minStr: 0, maxStr: 60 },
@@ -573,6 +570,30 @@
                 audioCtx.resume();
             }
             return audioCtx;
+        }
+
+        // 調整 5：參賽者走格子移動音效 (Pop Sound)
+        function playStepMoveSound() {
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+                
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(450, now);
+                osc.frequency.exponentialRampToValueAtTime(750, now + 0.08);
+
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.08);
+            } catch(e){}
         }
 
         function playScoreExplodeSound() {
@@ -665,7 +686,6 @@
 
             peer.on('connection', (conn) => {
                 conn.on('open', () => {
-                    // 廣播當前已使用的頭像
                     broadcastAvatarState();
 
                     conn.on('data', (data) => {
@@ -701,7 +721,6 @@
         function addPlayer(name, conn, playerId, chosenAvatar) {
             if (players.some(p => p.id === playerId)) return;
 
-            // 確保不重複選取
             let assignedAvatar = chosenAvatar;
             const takenAvatars = players.map(p => p.avatar);
             if (!assignedAvatar || takenAvatars.includes(assignedAvatar)) {
@@ -756,7 +775,6 @@
             finalizePlayersAndStart();
         });
 
-        // 調整 6：AI 隨機生成與強度分配邏輯 (名稱不重複，25% 概率)
         function finalizePlayersAndStart() {
             roundMode = document.getElementById('select-round-mode').value;
             targetScore = parseInt(document.getElementById('select-target-score').value, 10);
@@ -857,7 +875,6 @@
             }
         }
 
-        // 調整 7：顯示在格子上的參賽者頭像改顯示在「外圍框」上並放大 20%
         function renderMapBoard() {
             const container = document.getElementById('view-game').children[1];
             const existingBoardTiles = container.querySelectorAll('.map-tile-grid');
@@ -880,7 +897,6 @@
                     formattedTitle = `${tile.title.substring(0, 2)}<br>${tile.title.substring(2, 4)}`;
                 }
 
-                // 頭像顯示於邊框上邊緣 (外圍框)，圖示由 3xl 放大至 4xl / 5xl (+20%)
                 tileDiv.innerHTML = `
                     <div class="flex items-center justify-center gap-1 w-full h-full p-1 text-center">
                         <span class="text-3xl md:text-5xl flex-shrink-0">${tile.icon}</span>
@@ -957,6 +973,7 @@
         let ballPhysicsAnimFrame = null;
         let speedBoostTimer = null;
 
+        // 調整 3：提示層與碰撞骰球一併顯示專屬頭像，手機震動提醒
         function nextTurn() {
             if (!isGameRunning) return;
 
@@ -977,10 +994,13 @@
             document.getElementById('current-player-name').innerText = p.name;
             document.getElementById('current-player-score-badge').innerText = `${p.score} 分`;
 
+            // 設定「請準備」層的頭像與名稱
             const readyOverlay = document.getElementById('ready-prompt-overlay');
+            document.getElementById('ready-player-avatar').innerText = p.avatar;
             document.getElementById('ready-player-text').innerText = `${p.name} 請準備`;
             readyOverlay.classList.remove('hidden');
 
+            // 廣播給手機並觸發震動提醒
             players.forEach(player => {
                 if (player.conn) {
                     player.conn.send({ 
@@ -1004,7 +1024,6 @@
             }, 1000);
         }
 
-        // 調整 5：碰撞骰子時的小球圖像更正為「參賽者頭像」
         function startBoardBallCollisionPhase(p) {
             const container = document.getElementById('center-ball-container');
             
@@ -1079,6 +1098,7 @@
             ballPhysicsAnimFrame = requestAnimationFrame(runBallPhysicsLoop);
         }
 
+        // 調整 4：撞擊小球時，被撞擊的小球放大再大一倍並停住 1 秒
         function handlePlayerMoveData(playerId, deltaX, deltaY) {
             const p = players[currentTurnIndex];
             if (!activeCollisionListener || !p || p.id !== playerId) return;
@@ -1102,12 +1122,13 @@
                     if (ballPhysicsAnimFrame) cancelAnimationFrame(ballPhysicsAnimFrame);
                     if (speedBoostTimer) clearInterval(speedBoostTimer);
 
-                    tb.el.classList.add('animate-ball-explode');
+                    // 套用特大號縮放與停住 1 秒特效
+                    tb.el.classList.add('animate-ball-freeze-explode');
                     playScoreExplodeSound();
 
                     confetti({
-                        particleCount: 60,
-                        spread: 80,
+                        particleCount: 80,
+                        spread: 90,
                         origin: {
                             x: (tb.x + container.offsetLeft) / window.innerWidth,
                             y: (tb.y + container.offsetTop) / window.innerHeight
@@ -1115,14 +1136,14 @@
                         colors: ['#f59e0b', '#ef4444', '#10b981', '#ffffff']
                     });
 
+                    // 停住 1 秒（1000ms）後啟動移動步數
                     setTimeout(() => {
                         handleDiceMove(p.id, tb.num);
-                    }, 500);
+                    }, 1000);
                 }
             });
         }
 
-        // 調整 3：生成 4 種隨機不重複頭像按鈕
         function renderMobileAvatarOptions(takenAvatars = []) {
             const grid = document.getElementById('avatar-select-grid');
             if (!grid) return;
@@ -1180,6 +1201,10 @@
                         const alertEl = document.getElementById('mobile-move-alert');
                         if (data.isYourTurn) {
                             alertEl.classList.remove('hidden');
+                            // 調整 3：輪到參賽者時手機振動提醒
+                            try {
+                                if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                            } catch(e){}
                         } else {
                             alertEl.classList.add('hidden');
                         }
@@ -1285,7 +1310,7 @@
             }
         }
 
-        // 調整 4：起點更改為只有「剛好踩上去」才獲得 30 分
+        // 調整 1 & 5：第一圈踩中起點加 30 分，角色移動時播放 Step 音效
         function handleDiceMove(playerId, number) {
             const p = players.find(player => player.id === playerId);
             if (!p) return;
@@ -1296,6 +1321,9 @@
                 p.tileIndex = (p.tileIndex + 1) % 20;
                 stepCount++;
 
+                // 調整 5：每移動一格播放步進音效
+                playStepMoveSound();
+
                 if (p.tileIndex === 0) {
                     p.laps++;
                 }
@@ -1305,8 +1333,8 @@
                 if (stepCount >= number) {
                     clearInterval(moveInterval);
                     
-                    // 只有第二圈以上且剛好停留於 0 號起點才加 30 分
-                    if (p.laps >= 2 && p.tileIndex === 0) {
+                    // 調整 1：第一圈開始只要剛好踩中起點(0號格)就加 30 分
+                    if (p.tileIndex === 0) {
                         p.score += 30;
                     }
 
@@ -1324,11 +1352,7 @@
             const tile = mapTiles[p.tileIndex];
 
             if (tile.type === '起點') {
-                if (p.laps >= 2) {
-                    showNoticeOverlay("起點", "剛好踩中起點，獲得獎勵積分 30 分！", 30, "🚩", "超級幸運！停在起點獲得 30 分大獎勵！");
-                } else {
-                    showNoticeOverlay("起點", "起點，第一圈尚未開始累積過點分數。", 0, "🚩", "加油！繼續向前跑！");
-                }
+                showNoticeOverlay("起點", "剛好踩中起點，獲得獎勵積分 30 分！", 30, "🚩", "超級幸運！停在起點獲得 30 分大獎勵！");
             } else if (tile.type === '機會') {
                 if (p.score < 50) {
                     showNoticeOverlay("機會", "無機會（本身無 50 以上積分）。", 0, "❓", "積分還不夠 50 分，這次先進入無機會喔！");
@@ -1351,6 +1375,7 @@
                         targetPlayer = [...players].sort((a, b) => b.laps - a.laps)[1];
                     }
                     
+                    // 調整 2：觸發閃爍 3 秒，結束後才彈出通知，不會被遮罩覆蓋
                     triggerExchangeFlashAnimation(p.id, targetPlayer.id, () => {
                         const tempTile = p.tileIndex;
                         p.tileIndex = targetPlayer.tileIndex;
@@ -1365,6 +1390,7 @@
                         targetPlayer = [...players].sort((a, b) => a.laps - b.laps)[1];
                     }
 
+                    // 調整 2：觸發閃爍 3 秒，結束後才彈出通知，不會被遮罩覆蓋
                     triggerExchangeFlashAnimation(p.id, targetPlayer.id, () => {
                         const tempTile = p.tileIndex;
                         p.tileIndex = targetPlayer.tileIndex;
@@ -1418,7 +1444,6 @@
                 qBox.classList.remove('hidden');
 
                 if (p.isAI) {
-                    // AI 答題依據強度 (strength) 計算正確率
                     const aiAccuracy = (p.strength || 80) / 100;
                     const isAiRight = Math.random() < aiAccuracy;
                     const aiUserChoice = isAiRight ? (pendingWeakIsCorrectCombo ? 'correct' : 'wrong') : (pendingWeakIsCorrectCombo ? 'wrong' : 'correct');
@@ -1438,6 +1463,7 @@
             }
         }
 
+        // 調整 2：雙方頭像放大縮小閃爍 3 秒且不被遮罩遮擋
         function triggerExchangeFlashAnimation(p1Id, p2Id, callback) {
             const avatar1 = document.getElementById(`player-tile-avatar-${p1Id}`);
             const avatar2 = document.getElementById(`player-tile-avatar-${p2Id}`);
@@ -1451,7 +1477,7 @@
                 if (avatar1) avatar1.classList.remove('animate-exchange-bounce');
                 if (avatar2) avatar2.classList.remove('animate-exchange-bounce');
                 if (callback) callback();
-            }, 1500);
+            }, 3000);
         }
 
         function handlePlayerChoice(playerId, choice) {
