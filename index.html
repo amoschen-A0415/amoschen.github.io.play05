@@ -221,10 +221,9 @@
             </div>
         </div>
 
-        <!-- 手機端 - 參賽者控制端 (半個螢幕大小圖示 + 「請移動」) -->
+        <!-- 手機端 - 參賽者控制端 -->
         <div id="view-player-mobile" class="hidden fixed inset-0 z-50 bg-slate-50 p-4 flex-col justify-between overflow-hidden">
             
-            <!-- 上半個螢幕 (50% 空間)：顯示角色圖示與大字提醒 -->
             <div id="mobile-half-display" class="w-full h-[48%] bg-gradient-to-b from-chch-lightGreen to-emerald-100 rounded-3xl border-4 border-chch-green shadow-xl flex flex-col items-center justify-center p-4 relative overflow-hidden">
                 <span class="text-xs font-black text-chch-darkGreen bg-white px-3 py-1 rounded-full border border-chch-green/30 absolute top-3">參賽者名片</span>
                 
@@ -233,13 +232,11 @@
                 </div>
                 <div id="player-mobile-name" class="text-2xl font-black text-slate-800">連線中...</div>
 
-                <!-- 輪到自己時顯示「請移動」三個大字 -->
                 <div id="mobile-move-alert" class="hidden absolute inset-0 bg-amber-500/90 backdrop-blur-sm flex items-center justify-center text-white text-6xl font-black tracking-widest animate-pulse border-4 border-white rounded-3xl z-30 shadow-2xl">
                     請移動
                 </div>
             </div>
 
-            <!-- 輸入暱稱連線區塊 -->
             <div id="mobile-join-form" class="space-y-4 bg-white/90 p-6 rounded-3xl border-2 border-chch-green/30 my-auto shadow-xl backdrop-blur-md w-full">
                 <input type="text" id="mobile-name-input" maxlength="8" placeholder="請輸入參賽者暱稱..." 
                     class="w-full bg-chch-lightGreen/50 border-2 border-chch-green/40 p-4 rounded-2xl text-center text-slate-800 text-xl font-bold focus:border-chch-green outline-none shadow-inner">
@@ -248,7 +245,6 @@
                 </button>
             </div>
 
-            <!-- 下半個螢幕 (50% 空間)：指尖觸控/傾斜操作 Touchpad 區域 -->
             <div id="mobile-controls-area" class="hidden w-full h-[48%] bg-slate-800 rounded-3xl border-4 border-chch-green shadow-xl relative overflow-hidden touch-none select-none flex flex-col items-center justify-center">
                 <div class="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:16px_16px] opacity-40 pointer-events-none"></div>
                 <div id="touchpad-hint" class="text-slate-300 font-bold text-sm pointer-events-none z-10 flex flex-col items-center gap-1">
@@ -257,7 +253,6 @@
                 </div>
             </div>
 
-            <!-- 手機端機會／弱勢扶助選擇按鈕 -->
             <div id="mobile-choice-panel" class="hidden flex-col items-center justify-center space-y-4 bg-white border-2 border-chch-green/40 p-6 rounded-3xl shadow-xl my-auto w-full z-40">
                 <div id="choice-title" class="text-xl font-black text-slate-800 text-center">請選擇行動</div>
                 <div id="choice-buttons" class="grid grid-cols-2 gap-4 w-full">
@@ -291,14 +286,16 @@
                 <div class="mt-2 pt-2 border-t-2 border-chch-green/20 flex-shrink-0 bg-chch-lightGreen rounded-xl p-2 border border-chch-green/30">
                     <div class="flex items-center justify-between mb-1">
                         <span class="font-bold text-[10px] text-chch-darkGreen truncate" title="Two_Coins_Left.mp3">Two_Coins_Left.mp3</span>
-                        <span id="music-status-text" class="text-[9px] bg-chch-green text-white px-1.5 py-0.5 rounded font-bold">50%</span>
+                        <!-- 調整 1：音樂預設顯示 100% -->
+                        <span id="music-status-text" class="text-[9px] bg-chch-green text-white px-1.5 py-0.5 rounded font-bold">100%</span>
                     </div>
                     <audio id="audioPlayerInGame" controls class="w-full h-6 mb-1 rounded opacity-90">
                         <source src="Two_Coins_Left.mp3" type="audio/mpeg">
                     </audio>
                     <div class="grid grid-cols-3 gap-1">
-                        <button class="music-speed-btn active py-0.5 text-[9px] font-black rounded" onclick="setMusicSpeed(0.5, this)">50%</button>
-                        <button class="music-speed-btn py-0.5 text-[9px] font-black rounded" onclick="setMusicSpeed(1.0, this)">100%</button>
+                        <button class="music-speed-btn py-0.5 text-[9px] font-black rounded" onclick="setMusicSpeed(0.5, this)">50%</button>
+                        <!-- 調整 1：預設 100% 音樂速度 -->
+                        <button class="music-speed-btn active py-0.5 text-[9px] font-black rounded" onclick="setMusicSpeed(1.0, this)">100%</button>
                         <button class="music-speed-btn py-0.5 text-[9px] font-black rounded" onclick="setMusicSpeed(1.5, this)">150%</button>
                     </div>
                 </div>
@@ -307,28 +304,34 @@
             <!-- 大富翁走格子畫面 -->
             <div class="col-span-10 relative bg-emerald-50/60 rounded-2xl border-2 border-chch-green/30 p-2 grid grid-cols-8 grid-rows-4 gap-2 h-full shadow-inner">
                 
-                <!-- 格子圍繞之全部中央區域 (佔中央 6x2 空間) -->
+                <!-- 中央 6x2 區域 -->
                 <div id="center-board-area" class="col-start-2 col-span-6 row-start-2 row-span-2 bg-white/95 rounded-2xl border-4 border-chch-green shadow-xl relative overflow-hidden flex justify-between p-2 z-10">
                     
-                    <!-- 調整 1：左邊一半 (50% 空間) 顯示目前參賽者圖像與名稱 -->
-                    <div class="w-1/2 h-full border-r-4 border-chch-green/20 flex flex-col items-center justify-center p-3 bg-gradient-to-br from-chch-lightGreen/50 to-amber-50/50 rounded-l-xl">
-                        <span class="text-xs font-black text-chch-darkGreen bg-white px-3 py-1 rounded-full border border-chch-green/30 mb-2 shadow-sm">當前回合參賽者</span>
-                        <div id="current-player-avatar" class="text-8xl md:text-9xl animate-bounce my-2 drop-shadow-md">🐱</div>
-                        <div id="current-player-name" class="text-2xl md:text-3xl font-black text-slate-800 tracking-wider">參賽者名稱</div>
+                    <!-- 左邊一半：玩家圖像及名稱 / 弱勢扶助題目區塊 -->
+                    <div class="w-1/2 h-full border-r-4 border-chch-green/20 flex flex-col items-center justify-center p-3 bg-gradient-to-br from-chch-lightGreen/50 to-amber-50/50 rounded-l-xl relative">
                         
-                        <!-- 調整 2：弱勢扶助觸發時，同步顯示問題於左半邊 -->
-                        <div id="center-question-box" class="hidden mt-3 w-full bg-chch-lightOrange border-2 border-amber-300 p-2.5 rounded-xl text-center shadow-sm">
-                            <span class="text-xs font-bold text-chch-orange block mb-0.5">❓ 弱勢扶助問答問題</span>
-                            <span id="center-question-text" class="text-base font-black text-amber-950">0-3歲 應給予 嬰兒物資箱？</span>
+                        <!-- 常規顯示：當前參賽者資訊 -->
+                        <div id="player-info-container" class="flex flex-col items-center justify-center w-full h-full">
+                            <span class="text-xs font-black text-chch-darkGreen bg-white px-3 py-1 rounded-full border border-chch-green/30 mb-2 shadow-sm">當前回合參賽者</span>
+                            <div id="current-player-avatar" class="text-8xl md:text-9xl animate-bounce my-2 drop-shadow-md">🐱</div>
+                            <div id="current-player-name" class="text-2xl md:text-3xl font-black text-slate-800 tracking-wider">參賽者名稱</div>
                         </div>
+
+                        <!-- 調整 3：弱勢扶助觸發時，左半邊圖像消失，改顯示題目 -->
+                        <div id="center-question-box" class="hidden absolute inset-0 bg-amber-50 p-6 rounded-l-xl flex flex-col items-center justify-center text-center shadow-inner border-r-2 border-amber-300">
+                            <span class="text-sm font-black text-chch-orange bg-amber-200/80 px-4 py-1 rounded-full border border-amber-400 mb-3 shadow-sm">❓ 弱勢扶助問答關卡</span>
+                            <div id="center-question-text" class="text-2xl md:text-3xl font-black text-amber-950 leading-snug tracking-wide">
+                                0-3歲 應給予 嬰兒物資箱？
+                            </div>
+                        </div>
+
                     </div>
 
-                    <!-- 調整 1：右邊一半 (50% 空間) 為 1-6 號小球慢慢移動與邊界反彈遊戲區 -->
+                    <!-- 右邊一半：1-6 號號碼球碰撞區 -->
                     <div id="center-ball-container" class="w-1/2 h-full relative overflow-hidden rounded-r-xl bg-slate-100/90 border-l-2 border-slate-200">
                         <div class="absolute top-2 left-0 right-0 text-center text-xs font-black text-chch-darkGreen bg-white/80 py-0.5 z-10 shadow-sm">
                             🎯 請碰撞 1 - 6 號飄浮球決定步數！
                         </div>
-                        <!-- 參賽者專屬球體 (由手機移動操控) -->
                         <div id="active-player-ball" class="absolute w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center text-2xl shadow-xl z-20 border-2 border-white pointer-events-none">
                             ⚽
                         </div>
@@ -366,37 +369,61 @@
             </div>
         </div>
 
-        <!-- 調整 3：頒獎典禮直接在原本的地圖上出現通知窗格 (透明度 50% 底色) -->
+        <!-- 調整 4：頒獎典禮通知窗格，內部再分 4 格 (第一名～第四名，第一名配有超大皇冠) -->
         <div id="view-result" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6">
-            <div id="result-notice-box" class="w-[80%] h-[80%] bg-white/95 border-4 border-chch-green rounded-3xl p-6 md:p-8 flex flex-col justify-between shadow-2xl overflow-hidden relative">
+            <div id="result-notice-box" class="w-[85%] h-[85%] bg-white/95 border-4 border-chch-green rounded-3xl p-6 flex flex-col justify-between shadow-2xl overflow-hidden relative">
                 
-                <h2 id="result-title" class="text-3xl md:text-5xl font-black text-center text-chch-darkGreen mb-2 flex-shrink-0">
+                <h2 id="result-title" class="text-3xl md:text-4xl font-black text-center text-chch-darkGreen mb-3 flex-shrink-0 tracking-wider">
                     🏆 安得烈惜食大富翁 頒獎典禮 🏆
                 </h2>
 
-                <div id="result-main-grid" class="grid grid-cols-1 md:grid-cols-12 gap-6 flex-grow overflow-hidden my-2">
-                    <div class="md:col-span-3 bg-chch-lightGreen/60 rounded-2xl p-4 border border-chch-green/30 flex flex-col justify-between overflow-hidden shadow-sm">
-                        <div class="flex justify-between items-center mb-3 border-b border-chch-green/20 pb-2 flex-shrink-0">
-                            <span class="font-black text-xl md:text-2xl text-chch-darkGreen">全場排名 (左)</span>
-                            <span id="result-left-count" class="text-xs bg-chch-green text-white px-2.5 py-1 rounded-full font-bold">0 人</span>
+                <!-- 內部劃分為 4 個格子的頒獎舞台 -->
+                <div id="result-four-grid" class="grid grid-cols-4 gap-4 flex-grow overflow-hidden my-2">
+                    
+                    <!-- 第 1 名區塊 (金色輝煌 + 超大皇冠) -->
+                    <div id="rank-card-1" class="bg-gradient-to-b from-amber-100 via-amber-50 to-amber-200/80 rounded-2xl border-4 border-amber-400 p-3 flex flex-col items-center justify-between text-center relative shadow-lg overflow-hidden">
+                        <!-- 超大皇冠裝飾 -->
+                        <div class="absolute -top-3 text-6xl drop-shadow-md animate-bounce z-20">👑</div>
+                        <span class="mt-8 text-xs md:text-sm font-black text-amber-950 bg-amber-300 px-3 py-1 rounded-full border border-amber-500 shadow-sm z-10">🥇 冠軍 (第一名)</span>
+                        
+                        <div id="rank-1-avatar" class="text-7xl md:text-8xl my-2 drop-shadow-md">🐱</div>
+                        <div id="rank-1-name" class="text-xl md:text-2xl font-black text-slate-800 truncate w-full">參賽者</div>
+                        
+                        <div class="w-full bg-white/90 py-1.5 rounded-xl border border-amber-300 shadow-inner mt-1">
+                            <span id="rank-1-score" class="text-xl md:text-2xl font-black text-chch-orange">0 分</span>
                         </div>
-                        <div id="result-left-list" class="space-y-2 overflow-hidden pr-1 flex-grow overflow-y-auto"></div>
                     </div>
 
-                    <div class="md:col-span-6 bg-gradient-to-b from-chch-lightOrange to-amber-100/60 border-2 border-amber-300 rounded-2xl p-6 flex flex-col items-center justify-center text-center overflow-hidden shadow-inner">
-                        <div class="w-full flex flex-col items-center h-full justify-center">
-                            <span class="text-chch-orange font-black tracking-widest text-base mb-3 bg-white/80 px-4 py-1 rounded-full border border-amber-300">✨ 大富翁總冠軍 ✨</span>
-                            <div id="top3-container" class="w-full flex flex-col items-center space-y-4 my-auto"></div>
+                    <!-- 第 2 名區塊 (銀色品質) -->
+                    <div id="rank-card-2" class="bg-gradient-to-b from-slate-100 to-slate-200/80 rounded-2xl border-2 border-slate-300 p-3 flex flex-col items-center justify-between text-center shadow-sm overflow-hidden">
+                        <span class="text-xs font-black text-slate-800 bg-slate-300 px-3 py-1 rounded-full border border-slate-400 shadow-sm">🥈 亞軍 (第二名)</span>
+                        <div id="rank-2-avatar" class="text-6xl md:text-7xl my-2">🐶</div>
+                        <div id="rank-2-name" class="text-lg md:text-xl font-bold text-slate-800 truncate w-full">參賽者</div>
+                        <div class="w-full bg-white/90 py-1 rounded-xl border border-slate-300 shadow-inner">
+                            <span id="rank-2-score" class="text-lg md:text-xl font-bold text-slate-700">0 分</span>
                         </div>
                     </div>
 
-                    <div class="md:col-span-3 bg-chch-lightGreen/60 rounded-2xl p-4 border border-chch-green/30 flex flex-col justify-between overflow-hidden shadow-sm">
-                        <div class="flex justify-between items-center mb-3 border-b border-chch-green/20 pb-2 flex-shrink-0">
-                            <span class="font-black text-xl md:text-2xl text-chch-darkGreen">全場排名 (右)</span>
-                            <span id="result-right-count" class="text-xs bg-chch-green text-white px-2.5 py-1 rounded-full font-bold">0 人</span>
+                    <!-- 第 3 名區塊 (銅色品質) -->
+                    <div id="rank-card-3" class="bg-gradient-to-b from-amber-50 to-orange-100/70 rounded-2xl border-2 border-amber-600/40 p-3 flex flex-col items-center justify-between text-center shadow-sm overflow-hidden">
+                        <span class="text-xs font-black text-amber-900 bg-amber-200 px-3 py-1 rounded-full border border-amber-400 shadow-sm">🥉 季軍 (第三名)</span>
+                        <div id="rank-3-avatar" class="text-6xl md:text-7xl my-2">🐭</div>
+                        <div id="rank-3-name" class="text-lg md:text-xl font-bold text-slate-800 truncate w-full">參賽者</div>
+                        <div class="w-full bg-white/90 py-1 rounded-xl border border-amber-300 shadow-inner">
+                            <span id="rank-3-score" class="text-lg md:text-xl font-bold text-slate-700">0 分</span>
                         </div>
-                        <div id="result-right-list" class="space-y-2 overflow-hidden pr-1 flex-grow overflow-y-auto"></div>
                     </div>
+
+                    <!-- 第 4 名區塊 (殿軍) -->
+                    <div id="rank-card-4" class="bg-gradient-to-b from-emerald-50 to-emerald-100/60 rounded-2xl border-2 border-chch-green/30 p-3 flex flex-col items-center justify-between text-center shadow-sm overflow-hidden">
+                        <span class="text-xs font-bold text-chch-darkGreen bg-chch-lightGreen px-3 py-1 rounded-full border border-chch-green/30 shadow-sm">🏅 殿軍 (第四名)</span>
+                        <div id="rank-4-avatar" class="text-6xl md:text-7xl my-2">🐹</div>
+                        <div id="rank-4-name" class="text-lg md:text-xl font-bold text-slate-800 truncate w-full">參賽者</div>
+                        <div class="w-full bg-white/90 py-1 rounded-xl border border-chch-green/20 shadow-inner">
+                            <span id="rank-4-score" class="text-lg md:text-xl font-bold text-slate-700">0 分</span>
+                        </div>
+                    </div>
+
                 </div>
 
             </div>
@@ -652,10 +679,11 @@
                 return;
             }
 
+            // 調整 1：遊戲開始時音效與 BGM 速度為 100% (1.0)
             const bgm = document.getElementById('bgm');
             if (bgm) {
                 bgm.volume = 0.3;
-                bgm.playbackRate = 0.5;
+                bgm.playbackRate = 1.0;
                 bgm.play().catch(() => {});
             }
 
@@ -718,7 +746,8 @@
                         <span class="text-3xl md:text-5xl flex-shrink-0">${tile.icon}</span>
                         <span class="text-base md:text-2xl font-black text-chch-darkGreen leading-tight flex-grow">${formattedTitle}</span>
                     </div>
-                    <div id="tile-players-${i}" class="absolute bottom-0.5 right-0.5 flex gap-0.5 text-base"></div>
+                    <!-- 調整 2：地圖上的玩家頭像容器，放置在右下方且圖像半透明與縮小至 1/4 格子大 -->
+                    <div id="tile-players-${i}" class="absolute bottom-0.5 right-0.5 flex gap-0.5 text-xs md:text-sm z-20"></div>
                 `;
                 container.appendChild(tileDiv);
             });
@@ -726,6 +755,7 @@
             updatePlayerPositionsUI();
         }
 
+        // 調整 2：格子上圖示顯示為 1/4 大小，重疊文字時半透明 (opacity-60)
         function updatePlayerPositionsUI() {
             for (let i = 0; i < 20; i++) {
                 const holder = document.getElementById(`tile-players-${i}`);
@@ -736,7 +766,7 @@
                 const holder = document.getElementById(`tile-players-${p.tileIndex}`);
                 if (holder) {
                     const avatarSpan = document.createElement('span');
-                    avatarSpan.className = 'animate-bounce';
+                    avatarSpan.className = 'animate-bounce opacity-60 text-xs md:text-sm drop-shadow';
                     avatarSpan.innerText = p.avatar;
                     holder.appendChild(avatarSpan);
                 }
@@ -799,10 +829,10 @@
                 return;
             }
 
-            // 隱藏問題問答框
+            // 調整 3：回復左半邊玩家圖像與名稱顯示，隱藏題目區塊
+            document.getElementById('player-info-container').classList.remove('hidden');
             document.getElementById('center-question-box').classList.add('hidden');
 
-            // 調整 1：左邊一半顯示目前參賽者圖示與名稱
             document.getElementById('current-player-avatar').innerText = p.avatar;
             document.getElementById('current-player-name').innerText = p.name;
 
@@ -825,7 +855,6 @@
             }
         }
 
-        // 調整 1：中央右邊一半區域產生 1-6 號號碼球與邊界反彈
         function startBoardBallCollisionPhase(p) {
             const container = document.getElementById('center-ball-container');
             
@@ -875,7 +904,6 @@
                 tb.x += tb.vx;
                 tb.y += tb.vy;
 
-                // 碰撞邊界快速反彈
                 if (tb.x <= 0) { tb.x = 0; tb.vx = Math.abs(tb.vx) * 1.25; }
                 if (tb.x >= cw - 44) { tb.x = cw - 44; tb.vx = -Math.abs(tb.vx) * 1.25; }
                 if (tb.y <= 0) { tb.y = 0; tb.vy = Math.abs(tb.vy) * 1.25; }
@@ -1138,11 +1166,12 @@
                 }
                 updatePlayerPositionsUI();
             } else if (tile.type === '弱勢扶助') {
-                // 調整 2：弱勢扶助觸發時，大螢幕中央區域一併顯示問題
+                // 調整 3：弱勢扶助觸發時，隱藏左半邊參賽者頭像，顯示題目
                 const randItem = weakAssistanceList[Math.floor(Math.random() * weakAssistanceList.length)];
                 const isCorrectPair = Math.random() < 0.5;
                 pendingWeakCorrectChoice = isCorrectPair;
 
+                document.getElementById('player-info-container').classList.add('hidden');
                 const qBox = document.getElementById('center-question-box');
                 const qText = document.getElementById('center-question-text');
                 qText.innerText = `${randItem.age} 應給予 ${randItem.box}？`;
@@ -1196,7 +1225,10 @@
                     }
                 }
             } else if (tile.type === '弱勢扶助') {
+                // 調整 3：回應完成後恢復左半邊參賽者圖像與名稱
                 document.getElementById('center-question-box').classList.add('hidden');
+                document.getElementById('player-info-container').classList.remove('hidden');
+
                 const userChoiceBool = (choice === 'correct');
                 if (userChoiceBool === pendingWeakCorrectChoice) {
                     p.score += 15;
@@ -1209,6 +1241,7 @@
             updatePlayerPositionsUI();
         }
 
+        // 調整 1：通知窗格的顯示秒數改為 5 秒
         function showNoticeOverlay(title, text, scoreDelta, icon1, childText, icon2 = "🍲") {
             const overlay = document.getElementById('tile-notice-overlay');
             const scoreEl = document.getElementById('score-change-text');
@@ -1239,10 +1272,11 @@
                 if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200, 100, 200]);
             } catch(e){}
 
+            // 改為 5000 毫秒 (5 秒)
             setTimeout(() => {
                 overlay.classList.add('hidden');
                 checkGameEndConditions();
-            }, 8000);
+            }, 5000);
         }
 
         function checkGameEndConditions() {
@@ -1264,39 +1298,30 @@
             }
         }
 
-        // 調整 3：頒獎典禮在原本的地圖上出現通知窗格，音樂每秒 -1% 音量減少
+        // 調整 4：頒獎典禮通知窗格填入第 1 名至第 4 名
         function showFinalResult() {
-            // view-game 不隱藏，直接疊加 view-result 通知窗格
             document.getElementById('view-result').classList.remove('hidden');
 
-            // 調整 3：背景音樂每秒以 -1% 的音量減少
             fadeMusicVolumeOut();
 
             const allSorted = [...players].sort((a,b) => b.score - a.score);
 
-            const half = Math.ceil(allSorted.length / 2);
-            const lefts = allSorted.slice(0, half);
-            const rights = allSorted.slice(half);
+            // 渲染 4 個名次卡片
+            for (let i = 0; i < 4; i++) {
+                const p = allSorted[i];
+                const avatarEl = document.getElementById(`rank-${i+1}-avatar`);
+                const nameEl = document.getElementById(`rank-${i+1}-name`);
+                const scoreEl = document.getElementById(`rank-${i+1}-score`);
 
-            document.getElementById('result-left-count').innerText = `${lefts.length} 人`;
-            document.getElementById('result-right-count').innerText = `${rights.length} 人`;
-
-            renderParticipantList('result-left-list', lefts, 1);
-            renderParticipantList('result-right-list', rights, half + 1);
-
-            const top3Container = document.getElementById('top3-container');
-            top3Container.innerHTML = '';
-
-            const topWinner = allSorted[0];
-            if (topWinner) {
-                top3Container.innerHTML = `
-                    <div class="w-full max-w-md p-6 rounded-3xl border-4 border-amber-400 bg-amber-100/90 flex flex-col items-center justify-center shadow-lg">
-                        <span class="text-xs font-black text-amber-900 bg-amber-200 px-4 py-1 rounded-full border border-amber-400 mb-2">👑 大富翁總冠軍 👑</span>
-                        <div class="text-7xl my-2">${topWinner.avatar}</div>
-                        <div class="text-3xl font-black text-slate-800 tracking-wide text-center">${topWinner.name}</div>
-                        <div class="text-2xl font-black text-chch-orange mt-2">${topWinner.score} 分</div>
-                    </div>
-                `;
+                if (p) {
+                    avatarEl.innerText = p.avatar;
+                    nameEl.innerText = p.name;
+                    scoreEl.innerText = `${p.score} 分`;
+                } else {
+                    avatarEl.innerText = "❓";
+                    nameEl.innerText = "虛位以待";
+                    scoreEl.innerText = "0 分";
+                }
             }
 
             players.forEach(p => {
@@ -1314,7 +1339,6 @@
             launch8SecFireworks();
         }
 
-        // 每秒降低 1% 音量的漸淡計時器
         function fadeMusicVolumeOut() {
             const bgm = document.getElementById('bgm');
             const inGameAudio = document.getElementById('audioPlayerInGame');
@@ -1322,7 +1346,7 @@
             const fadeInterval = setInterval(() => {
                 let currentVol = bgm ? bgm.volume : 0;
                 if (currentVol > 0.01) {
-                    currentVol = Math.max(0, currentVol - 0.01); // 每秒降低 1% (0.01)
+                    currentVol = Math.max(0, currentVol - 0.01);
                     if (bgm) bgm.volume = currentVol;
                     if (inGameAudio) inGameAudio.volume = currentVol;
                 } else {
@@ -1349,27 +1373,6 @@
                 <div class="text-2xl font-bold text-slate-700">總得分：<span class="text-chch-green font-black">${data.score}</span> 分</div>
             `;
             document.getElementById('view-player-mobile').appendChild(resultBox);
-        }
-
-        function renderParticipantList(elementId, playerGroup, startIndex = 1) {
-            const container = document.getElementById(elementId);
-            container.innerHTML = '';
-            playerGroup.forEach((p, idx) => {
-                const rankNum = startIndex + idx;
-                const item = document.createElement('div');
-                item.className = 'flex flex-col p-2.5 bg-white rounded-xl border border-chch-green/20 text-sm gap-1 shadow-sm';
-                item.innerHTML = `
-                    <div class="flex items-center gap-2 truncate w-full">
-                        <span class="font-bold text-chch-darkGreen text-xs w-6 flex-shrink-0">#${rankNum}</span>
-                        <span class="text-xl">${p.avatar}</span>
-                        <span class="font-bold text-slate-700 truncate">${p.name}</span>
-                    </div>
-                    <div class="text-right w-full pl-8">
-                        <span class="font-black text-chch-orange">${p.score} 分</span>
-                    </div>
-                `;
-                container.appendChild(item);
-            });
         }
 
         function launch8SecFireworks() {
