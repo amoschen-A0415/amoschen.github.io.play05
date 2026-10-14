@@ -3,1690 +3,520 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>安得烈食物銀行惜食大富翁</title>
+    <title>益智遊戲大觀園 (Puzzle Master Hub)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- PeerJS & QRCode.js -->
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- Canvas Confetti CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <!-- FontAwesome CDN -->
+    <!-- FontAwesome 圖示 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        chch: {
-                            green: '#2e7d32',      /* 安得烈綠 */
-                            darkGreen: '#1b5e20',
-                            lightGreen: '#f1f8e9',
-                            orange: '#f57c00',     /* 溫暖橘 */
-                            lightOrange: '#fff3e0',
-                            yellow: '#fbc02d',
-                            red: '#d32f2f',
-                            warmBg: '#fefce8'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
-        body {
-            font-family: 'Noto Sans TC', sans-serif;
-            background: linear-gradient(135deg, #f1f8e9 0%, #e8f5e9 100%);
-            color: #1e293b;
-            user-select: none;
-            overflow: hidden;
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
         }
-
-        * {
-            scrollbar-width: none !important;
-            -ms-overflow-style: none !important;
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
         }
-        *::-webkit-scrollbar {
-            display: none !important;
-            width: 0 !important;
-            height: 0 !important;
-        }
-
-        #qrcode canvas, #qrcode img {
-            margin: 0 auto;
-            display: block;
-            max-width: 100%;
-            height: auto;
-        }
-
-        .music-speed-btn {
-            background-color: #ffffff;
-            color: #d97706;
-            border: 2px solid #fcd34d;
-            transition: all 0.2s ease;
-        }
-        .music-speed-btn:hover {
-            background-color: #fef3c7;
-            color: #b45309;
-        }
-        .music-speed-btn.active {
-            background-color: #f59e0b;
-            color: #ffffff;
-            border-color: #d97706;
-            box-shadow: 0 2px 4px rgba(217, 119, 6, 0.2);
-        }
-
-        /* 調整 4：號碼球被撞擊放大再大一倍並停住 1 秒動畫 */
-        @keyframes ball-hit-freeze {
-            0% { transform: scale(1); filter: drop-shadow(0 0 0px transparent); }
-            30% { transform: scale(2.8); filter: drop-shadow(0 0 25px rgba(245, 158, 11, 1)); }
-            80% { transform: scale(2.8); filter: drop-shadow(0 0 30px rgba(239, 68, 68, 1)); opacity: 1; }
-            100% { transform: scale(3.5); opacity: 0; }
-        }
-        .animate-ball-freeze-explode {
-            animation: ball-hit-freeze 1.0s ease-out forwards;
-            z-index: 50 !important;
-        }
-
-        /* 超大皇冠閃耀旋轉動畫 */
-        @keyframes crown-shimmer-vibrate {
-            0% { transform: scale(1) rotate(-5deg); filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.9)); }
-            25% { transform: scale(1.1) rotate(5deg); filter: drop-shadow(0 0 30px rgba(245, 158, 11, 1)); }
-            50% { transform: scale(1) rotate(-3deg); filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.9)); }
-            75% { transform: scale(1.12) rotate(4deg); filter: drop-shadow(0 0 35px rgba(245, 158, 11, 1)); }
-            100% { transform: scale(1) rotate(-5deg); filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.9)); }
-        }
-        .animate-super-crown {
-            animation: crown-shimmer-vibrate 2s infinite ease-in-out;
-        }
-
-        /* 加分文字爆破動畫 */
-        @keyframes score-explode-vibrate {
-            0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
-            40% { transform: scale(1.3) rotate(5deg); opacity: 1; }
-            60% { transform: scale(0.95) rotate(-3deg); }
-            70% { transform: scale(1.1) rotate(2deg); }
-            80% { transform: scale(0.98) rotate(-1deg); }
-            100% { transform: scale(1) rotate(0deg); }
-        }
-
-        .animate-score-explode {
-            animation: score-explode-vibrate 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        @keyframes score-continuous-vibrate {
-            0% { transform: scale(1) rotate(0deg); }
-            25% { transform: scale(1.08) rotate(-3deg); }
-            50% { transform: scale(0.95) rotate(3deg); }
-            75% { transform: scale(1.05) rotate(-2deg); }
-            100% { transform: scale(1) rotate(0deg); }
-        }
-
-        .animate-vibrate-score {
-            animation: score-continuous-vibrate 0.3s infinite;
-        }
-
-        /* 調整 2：交換位置時頭像放大縮小閃爍歷時 3 秒 (z-index: 100) */
-        @keyframes exchange-pulse-3sec {
-            0% { transform: scale(1); filter: drop-shadow(0 0 0px transparent); }
-            16.6% { transform: scale(2.5); filter: drop-shadow(0 0 20px #f59e0b); }
-            33.3% { transform: scale(0.6); }
-            50% { transform: scale(2.5); filter: drop-shadow(0 0 25px #ef4444); }
-            66.6% { transform: scale(0.6); }
-            83.3% { transform: scale(2.5); filter: drop-shadow(0 0 25px #10b981); }
-            100% { transform: scale(1); filter: drop-shadow(0 0 0px transparent); }
-        }
-        .animate-exchange-bounce {
-            animation: exchange-pulse-3sec 3.0s ease-in-out forwards;
-            z-index: 100 !important;
-            position: relative;
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
         }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col justify-between overflow-hidden bg-chch-lightGreen">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans">
 
-    <!-- 背景音樂：Two_Coins_Left.mp3 -->
-    <audio id="bgm" loop preload="auto" src="Two_Coins_Left.mp3"></audio>
-
-    <!-- 頂部 Header -->
-    <header id="main-header" class="w-full px-6 py-3 border-b border-chch-green/20 bg-white/95 backdrop-blur-md flex justify-between items-center z-10 flex-shrink-0 shadow-sm">
-        <div class="flex items-center space-x-3">
-            <span class="text-3xl">🍲</span>
-            <h1 class="text-2xl md:text-3xl font-black tracking-wider text-chch-darkGreen">
-                安得烈食物銀行惜食大富翁
-            </h1>
-        </div>
-        <div class="flex items-center gap-3">
-            <div id="game-stage-badge" class="px-4 py-1.5 rounded-full text-sm md:text-base font-black bg-slate-100 border border-slate-300 text-slate-700 shadow-sm">
-                版本 2026.10.14.01
+    <!-- 頂部導覽列 -->
+    <header class="bg-indigo-600 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="showCategories()">
+                <i class="fa-solid fa-puzzle-piece text-3xl text-yellow-300"></i>
+                <h1 class="text-2xl font-bold tracking-wide">益智遊戲大觀園</h1>
             </div>
+            <button onclick="showCategories()" id="home-btn" class="hidden flex items-center gap-2 bg-indigo-700 hover:bg-indigo-800 px-4 py-2 rounded-lg text-sm transition">
+                <i class="fa-solid fa-house"></i> 回大廳
+            </button>
         </div>
     </header>
 
-    <!-- 主要內容區域 -->
-    <main class="flex-grow flex items-center justify-center p-2 md:p-4 relative overflow-hidden">
-
-        <!-- 大螢幕 - 遊戲大廳 / 掃碼進入 -->
-        <div id="view-lobby" class="w-full max-w-[96vw] h-full max-h-[90vh] bg-white/95 border-2 border-chch-green/30 rounded-3xl p-4 md:p-6 shadow-xl backdrop-blur-xl relative flex flex-col justify-between overflow-hidden">
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center h-full">
-                
-                <!-- 左側：QR Code -->
-                <div class="md:col-span-6 lg:col-span-7 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-chch-green/20 pr-0 md:pr-6 pb-2 md:pb-0 text-center h-full overflow-hidden">
-                    <div class="p-5 bg-gradient-to-br from-chch-green via-emerald-600 to-chch-darkGreen rounded-3xl shadow-lg my-auto transition-transform hover:scale-[1.02] duration-300 border-2 border-white">
-                        <div id="qrcode" class="bg-white p-4 rounded-2xl border-2 border-emerald-100 flex items-center justify-center shadow-inner"></div>
-                    </div>
-                </div>
-
-                <!-- 右側：玩家名單 & 設定選項 & 開始按鈕 -->
-                <div class="md:col-span-6 lg:col-span-5 flex flex-col justify-between h-full overflow-hidden pl-0 md:pl-2">
-                    <div class="flex-grow flex flex-col overflow-hidden">
-                        <h2 class="text-2xl md:text-3xl font-bold text-chch-darkGreen mb-4 flex items-center justify-between flex-shrink-0">
-                            <span class="flex items-center gap-2"><i class="fa-solid fa-users"></i> 參賽者名單 (至多4位)</span>
-                            <span id="player-count-badge" class="text-xl bg-chch-lightGreen text-chch-darkGreen px-4 py-1.5 rounded-full font-black border border-chch-green/30 shadow-sm">0 / 4 人</span>
-                        </h2>
-
-                        <div id="player-list-lobby" class="grid grid-cols-2 gap-2.5 overflow-hidden flex-grow content-start">
-                            <div class="col-span-full text-chch-green/70 text-center py-12 font-bold border-2 border-dashed border-chch-green/30 rounded-2xl text-lg bg-chch-lightGreen/50">
-                                尚無參賽者連線，請掃描左側 QR Code 加入...
-                            </div>
-                        </div>
-
-                        <!-- 簡明扼要遊戲規則指南 -->
-                        <div id="score-rules-box" class="mt-3 p-3 bg-chch-lightOrange border border-amber-300 rounded-xl text-amber-900 text-sm shadow-sm flex-shrink-0">
-                            <div class="font-bold border-b border-amber-300/60 pb-1 mb-1.5 flex items-center gap-1.5 text-chch-orange">
-                                <i class="fa-solid fa-circle-info"></i> 簡明規則指南
-                            </div>
-                            <ul class="grid grid-cols-2 gap-1 text-xs text-slate-700 font-bold">
-                                <li>🎯 <b>碰撞擲骰</b>：移動小球選1-6點。</li>
-                                <li>🚩 <b>起點踩中</b>：第一圈起剛好停+30分。</li>
-                                <li>🤝 <b>弱勢扶助</b>：配對正確食物箱+15分。</li>
-                                <li>❓ <b>機會命運</b>：高風險搶奪與對換分數。</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- 遊戲模式設定區塊 -->
-                    <div class="w-full pt-3 flex-shrink-0 bg-chch-lightGreen/80 border border-chch-green/30 rounded-2xl p-3 my-2 shadow-inner">
-                        <h3 class="text-chch-darkGreen font-bold text-base mb-2 flex items-center gap-2">
-                            <i class="fa-solid fa-sliders"></i> 遊戲設定選單
-                        </h3>
-                        <div class="grid grid-cols-3 gap-2">
-                            <div class="flex flex-col gap-1">
-                                <label for="select-round-mode" class="text-xs text-chch-darkGreen font-bold">初賽題數(跑幾圈)</label>
-                                <select id="select-round-mode" onchange="toggleScoreMenu()" class="bg-white text-slate-700 font-bold p-1.5 rounded-xl border border-chch-green/40 outline-none focus:border-chch-green cursor-pointer shadow-sm text-xs">
-                                    <option value="1" selected>跑 1 圈</option>
-                                    <option value="3">跑 3 圈</option>
-                                    <option value="5">跑 5 圈</option>
-                                    <option value="score">分數制</option>
-                                </select>
-                            </div>
-                            <div id="score-menu-box" class="hidden flex-col gap-1">
-                                <label for="select-target-score" class="text-xs text-chch-darkGreen font-bold">決賽題數(總分數)</label>
-                                <select id="select-target-score" class="bg-white text-slate-700 font-bold p-1.5 rounded-xl border border-chch-green/40 outline-none focus:border-chch-green cursor-pointer shadow-sm text-xs">
-                                    <option value="200" selected>200 分</option>
-                                    <option value="400">400 分</option>
-                                    <option value="600">600 分</option>
-                                    <option value="999">999 分</option>
-                                </select>
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label for="select-ai-count" class="text-xs text-chch-darkGreen font-bold">AI參賽人數</label>
-                                <select id="select-ai-count" class="bg-white text-slate-700 font-bold p-1.5 rounded-xl border border-chch-green/40 outline-none focus:border-chch-green cursor-pointer shadow-sm text-xs">
-                                    <option value="0" selected>0 人</option>
-                                    <option value="1">1 人</option>
-                                    <option value="2">2 人</option>
-                                    <option value="3">3 人</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="lobby-start-box" class="w-full pt-1 flex-shrink-0">
-                        <button id="btn-start-game" class="w-full py-3.5 text-2xl font-black text-white bg-gradient-to-r from-chch-green to-emerald-700 rounded-2xl shadow-lg hover:brightness-105 active:scale-95 transition-all border-2 border-white">
-                            🎮 開始惜食大富翁
-                        </button>
-                    </div>
-                </div>
-
-            </div>
+    <!-- 麵包屑導航 -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 py-2 text-sm text-slate-600 flex items-center space-x-2" id="breadcrumb">
+            <span class="hover:text-indigo-600 cursor-pointer" onclick="showCategories()">首頁</span>
         </div>
+    </nav>
 
-        <!-- 遊戲開始 3 秒倒數計時 Overlay -->
-        <div id="start-countdown-overlay" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex flex-col items-center justify-center text-white">
-            <div id="countdown-player-prompt" class="text-3xl md:text-5xl font-black mb-6 text-amber-300 tracking-wider">
-                第一位參賽者 請準備
+    <!-- 主要內容區 -->
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
+        <!-- 1. 分類列表視圖 (Category View) -->
+        <div id="category-view" class="space-y-6">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-2">探索 9 大益智遊戲領域</h2>
+                <p class="text-slate-600">挑選一個你感興趣的類型，鍛鍊邏輯、記憶、空間感與反應力！</p>
             </div>
-            <div id="countdown-num" class="text-8xl md:text-9xl font-black text-white animate-ping">
-                3
-            </div>
-        </div>
-
-        <!-- 手機端 - 參賽者控制端 -->
-        <div id="view-player-mobile" class="hidden fixed inset-0 z-50 bg-slate-50 p-4 flex-col justify-between overflow-hidden">
             
-            <div id="mobile-half-display" class="w-full h-[48%] bg-gradient-to-b from-chch-lightGreen to-emerald-100 rounded-3xl border-4 border-chch-green shadow-xl flex flex-col items-center justify-between p-3 relative overflow-hidden">
-                <span class="text-xs font-black text-chch-darkGreen bg-white px-3 py-0.5 rounded-full border border-chch-green/30 flex-shrink-0">
-                    選擇個人專屬頭像 (不重複)
-                </span>
-                
-                <div id="avatar-select-grid" class="grid grid-cols-4 gap-2 w-full my-auto px-1"></div>
-
-                <div id="player-mobile-name" class="text-xl font-black text-slate-800 flex-shrink-0">連線中...</div>
-
-                <div id="mobile-move-alert" class="hidden absolute inset-0 bg-amber-500/90 backdrop-blur-sm flex items-center justify-center text-white text-6xl font-black tracking-widest animate-pulse border-4 border-white rounded-3xl z-30 shadow-2xl">
-                    請移動
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="category-grid">
+                <!-- 由 JavaScript 自動動態生成 9 大分類 -->
             </div>
+        </div>
 
-            <div id="mobile-join-form" class="space-y-4 bg-white/90 p-6 rounded-3xl border-2 border-chch-green/30 my-auto shadow-xl backdrop-blur-md w-full">
-                <input type="text" id="mobile-name-input" maxlength="8" placeholder="請輸入參賽者暱稱..." 
-                    class="w-full bg-chch-lightGreen/50 border-2 border-chch-green/40 p-4 rounded-2xl text-center text-slate-800 text-xl font-bold focus:border-chch-green outline-none shadow-inner">
-                <button id="btn-mobile-join" class="w-full py-4 bg-gradient-to-r from-chch-green to-emerald-700 text-white font-black text-xl rounded-2xl shadow-lg border-2 border-white">
-                    確認參賽
+        <!-- 2. 子遊戲列表視圖 (Sub-Game List View) -->
+        <div id="subgame-view" class="hidden space-y-6">
+            <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-6 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-indigo-900 flex items-center gap-3" id="cat-title">
+                        <!-- 動態寫入類型標題 -->
+                    </h2>
+                    <p class="text-slate-600 mt-2" id="cat-desc"><!-- 動態寫入類型說明 --></p>
+                </div>
+                <button onclick="showCategories()" class="text-indigo-600 hover:text-indigo-800 font-medium text-sm flex items-center gap-1 shrink-0">
+                    <i class="fa-solid fa-arrow-left"></i> 返回所有分類
                 </button>
             </div>
 
-            <div id="mobile-controls-area" class="hidden w-full h-[48%] bg-slate-800 rounded-3xl border-4 border-chch-green shadow-xl relative overflow-hidden touch-none select-none flex flex-col items-center justify-center">
-                <div class="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:16px_16px] opacity-40 pointer-events-none"></div>
-                <div id="touchpad-hint" class="text-slate-300 font-bold text-sm pointer-events-none z-10 flex flex-col items-center gap-1">
-                    <i class="fa-solid fa-hand-pointer text-3xl text-emerald-400 animate-bounce"></i>
-                    <span>滑動或傾斜手機以碰撞地圖中央 1-6 號球</span>
-                </div>
-            </div>
-
-            <!-- 手機端回應面板 -->
-            <div id="mobile-choice-panel" class="hidden flex-col items-center justify-center space-y-4 bg-white border-2 border-chch-green/40 p-6 rounded-3xl shadow-xl my-auto w-full z-40">
-                <div id="choice-title" class="text-xl font-black text-slate-800 text-center leading-snug">請選擇行動</div>
-                <div id="choice-buttons" class="grid grid-cols-2 gap-4 w-full">
-                    <button onclick="submitMobileChoice('give')" class="py-4 bg-chch-green text-white font-black text-lg rounded-2xl shadow">給予 50 分</button>
-                    <button onclick="submitMobileChoice('rob')" class="py-4 bg-rose-600 text-white font-black text-lg rounded-2xl shadow">搶奪 50 分</button>
-                </div>
-                <div id="weak-buttons" class="hidden grid-cols-2 gap-4 w-full">
-                    <button onclick="submitMobileChoice('correct')" class="py-4 bg-chch-green text-white font-black text-2xl rounded-2xl shadow border-2 border-emerald-600">正確</button>
-                    <button onclick="submitMobileChoice('wrong')" class="py-4 bg-rose-600 text-white font-black text-2xl rounded-2xl shadow border-2 border-rose-700">錯誤</button>
-                </div>
-            </div>
-
-            <div id="mobile-status-text" class="text-center text-chch-darkGreen font-bold py-1.5 text-xs flex-shrink-0 bg-white/80 rounded-full my-1 border border-chch-green/30">
-                連線成功！請選擇頭像與暱稱
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="subgame-grid">
+                <!-- 由 JavaScript 自動動態生成 3 種子遊戲 -->
             </div>
         </div>
 
-        <!-- 大螢幕 - 遊戲主畫面 -->
-        <div id="view-game" class="hidden w-full h-full max-h-[96vh] grid grid-cols-12 gap-3 overflow-hidden p-2">
-            
-            <!-- 最左邊實時積分排行榜 -->
-            <div class="col-span-2 bg-white/95 border-2 border-chch-green/40 rounded-2xl p-2.5 backdrop-blur-xl flex flex-col justify-between overflow-hidden h-full shadow-lg">
-                <div class="overflow-hidden flex flex-col flex-grow min-h-0">
-                    <h3 class="text-chch-darkGreen text-base md:text-lg font-black mb-2 flex items-center justify-between border-b border-chch-green/20 pb-1.5">
-                        <span>🏆 積分排行榜</span>
-                    </h3>
-                    <div id="players-dashboard" class="flex flex-col space-y-2 overflow-y-auto flex-grow pr-1"></div>
+        <!-- 3. 遊戲小試身手視圖 (Game Play View) -->
+        <div id="game-detail-view" class="hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-lg border p-6 md:p-8">
+                <div class="flex justify-between items-center border-b pb-4 mb-6">
+                    <div>
+                        <span id="game-cat-badge" class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs font-semibold"></span>
+                        <h2 class="text-3xl font-bold text-slate-800 mt-2" id="game-title"></h2>
+                    </div>
+                    <button onclick="backToSubGames()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> 返回分類
+                    </button>
                 </div>
 
-                <!-- 排行榜下方音樂控制面板 -->
-                <div class="mt-2 pt-2 border-t-2 border-chch-green/20 flex-shrink-0 bg-chch-lightGreen rounded-xl p-2 border border-chch-green/30">
-                    <div class="flex items-center justify-between mb-1">
-                        <span class="font-bold text-[10px] text-chch-darkGreen truncate" title="Two_Coins_Left.mp3">Two_Coins_Left.mp3</span>
-                        <span id="music-status-text" class="text-[9px] bg-chch-green text-white px-1.5 py-0.5 rounded font-bold">100%</span>
-                    </div>
-                    <audio id="audioPlayerInGame" controls class="w-full h-6 mb-1 rounded opacity-90">
-                        <source src="Two_Coins_Left.mp3" type="audio/mpeg">
-                    </audio>
-                    <div class="grid grid-cols-3 gap-1">
-                        <button class="music-speed-btn py-0.5 text-[9px] font-black rounded" onclick="setMusicSpeed(0.5, this)">50%</button>
-                        <button class="music-speed-btn active py-0.5 text-[9px] font-black rounded" onclick="setMusicSpeed(1.0, this)">100%</button>
-                        <button class="music-speed-btn py-0.5 text-[9px] font-black rounded" onclick="setMusicSpeed(1.5, this)">150%</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 大富翁走格子畫面 -->
-            <div class="col-span-10 relative bg-emerald-50/60 rounded-2xl border-2 border-chch-green/30 p-2 grid grid-cols-8 grid-rows-4 gap-2 h-full shadow-inner">
-                
-                <!-- 中央 6x2 區域 -->
-                <div id="center-board-area" class="col-start-2 col-span-6 row-start-2 row-span-2 bg-white/95 rounded-2xl border-4 border-chch-green shadow-xl relative overflow-hidden flex justify-between p-2 z-10">
-                    
-                    <!-- 調整 3：提示 overlay 一併顯示參賽者圖像與名稱 -->
-                    <div id="ready-prompt-overlay" class="hidden absolute inset-0 bg-amber-400/95 backdrop-blur-md z-40 flex flex-col items-center justify-center p-4 text-center">
-                        <span id="ready-player-avatar" class="text-7xl md:text-8xl mb-2 animate-bounce drop-shadow-lg">🦌</span>
-                        <div id="ready-player-text" class="text-3xl md:text-5xl font-black text-amber-950 tracking-wider drop-shadow">
-                            參賽者 請準備
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- 遊戲說明側邊欄 -->
+                    <div class="space-y-4 lg:col-span-1 border-r border-slate-100 pr-0 lg:pr-6">
+                        <div>
+                            <h3 class="font-bold text-slate-700 mb-1 flex items-center gap-2"><i class="fa-solid fa-circle-info text-indigo-500"></i> 遊戲簡介</h3>
+                            <p class="text-slate-600 text-sm leading-relaxed" id="game-desc"></p>
                         </div>
-                        <div class="text-lg font-bold text-amber-900/90 mt-2">即將開啟碰撞擲骰...</div>
-                    </div>
-
-                    <!-- 中央區域左半邊：名稱與分數顯示在圖示的左邊 -->
-                    <div class="w-1/2 h-full border-r-4 border-chch-green/20 flex items-center justify-center p-3 bg-gradient-to-br from-chch-lightGreen/50 to-amber-50/50 rounded-l-xl relative">
-                        
-                        <div id="player-info-container" class="flex items-center justify-center w-full h-full gap-4 px-2">
-                            <!-- 左邊：名稱與分數 -->
-                            <div class="flex flex-col items-end justify-center space-y-2 truncate">
-                                <span class="text-[10px] md:text-xs font-black text-chch-darkGreen bg-white px-2.5 py-0.5 rounded-full border border-chch-green/30 shadow-sm">當前回合</span>
-                                <div id="current-player-name" class="text-xl md:text-2xl font-black text-slate-800 tracking-wider truncate max-w-[150px] md:max-w-[200px] text-right">參賽者</div>
-                                <div id="current-player-score-badge" class="bg-chch-orange/15 border-2 border-chch-orange/50 text-chch-orange px-3 py-0.5 rounded-full font-black text-lg md:text-2xl shadow-sm">
-                                    0 分
-                                </div>
-                            </div>
-
-                            <!-- 右邊：參賽者圖示 (頭像) -->
-                            <div id="current-player-avatar" class="text-6xl md:text-8xl animate-bounce drop-shadow-md flex-shrink-0">🦌</div>
+                        <div>
+                            <h3 class="font-bold text-slate-700 mb-1 flex items-center gap-2"><i class="fa-solid fa-book-open text-indigo-500"></i> 規則與玩法</h3>
+                            <p class="text-slate-600 text-sm leading-relaxed" id="game-rules"></p>
                         </div>
-
-                        <!-- 弱勢扶助問答關卡區塊 -->
-                        <div id="center-question-box" class="hidden absolute inset-0 bg-amber-50 p-6 rounded-l-xl flex flex-col items-center justify-center text-center shadow-inner border-r-2 border-amber-300 z-20">
-                            <span class="text-xs md:text-sm font-black text-chch-orange bg-amber-200/80 px-4 py-1 rounded-full border border-amber-400 mb-3 shadow-sm">❓ 弱勢扶助問答關卡</span>
-                            <div class="flex flex-col space-y-2 text-slate-900 font-black">
-                                <div id="center-question-line1" class="text-2xl md:text-3xl tracking-wide text-amber-900">0-3歲給予</div>
-                                <div id="center-question-line2" class="text-2xl md:text-3xl tracking-wide text-chch-darkGreen">嬰兒物資箱提供協助</div>
-                            </div>
-                        </div>
-
-                        <!-- 中央區域左半邊「機會」選項 -->
-                        <div id="center-chance-box" class="hidden absolute inset-0 bg-emerald-50 p-6 rounded-l-xl flex flex-col items-center justify-center text-center shadow-inner border-r-2 border-emerald-300 z-20">
-                            <span class="text-xs md:text-sm font-black text-chch-green bg-emerald-200/80 px-4 py-1 rounded-full border border-emerald-400 mb-4 shadow-sm">❓ 機會選擇（成功率 30%）</span>
-                            <div class="grid grid-cols-2 gap-3 w-full">
-                                <div class="bg-white p-3 rounded-xl border border-chch-green/30 shadow-sm">
-                                    <div class="font-black text-chch-darkGreen text-lg mb-1">🎁 給予 50 分</div>
-                                    <div class="text-xs text-slate-600 font-bold">成功：隨機玩家+50分，自己增加125分<br>失敗：停止一回合</div>
-                                </div>
-                                <div class="bg-white p-3 rounded-xl border border-rose-300 shadow-sm">
-                                    <div class="font-black text-rose-700 text-lg mb-1">⚔️ 搶奪 50 分</div>
-                                    <div class="text-xs text-slate-600 font-bold">成功：隨機玩家-50分，自己+50分<br>失敗：自己扣除 25 分</div>
-                                </div>
-                            </div>
-                            <div class="mt-3 text-xs font-black text-slate-500">請操作手機做出選擇...</div>
-                        </div>
-
-                    </div>
-
-                    <!-- 右邊一半：1-6 號號碼球碰撞區 -->
-                    <div id="center-ball-container" class="w-1/2 h-full relative overflow-hidden rounded-r-xl bg-slate-100/90 border-l-2 border-slate-200 flex items-center justify-center">
-                        <div class="absolute top-2 left-0 right-0 text-center text-xs font-black text-chch-darkGreen bg-white/80 py-0.5 z-10 shadow-sm">
-                            🎯 請碰撞 1 - 6 號飄浮球決定步數！
-                        </div>
-                        <div id="active-player-ball" class="absolute w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center text-2xl shadow-xl z-20 border-2 border-white pointer-events-none">
-                            ⚽
+                        <div class="pt-2">
+                            <span class="text-xs text-slate-400">難易度：</span>
+                            <span id="game-diff" class="text-xs font-bold text-amber-500"></span>
                         </div>
                     </div>
 
-                </div>
-
-                <!-- 通知窗格背景透明度 25% (bg-black/25) -->
-                <div id="tile-notice-overlay" class="hidden absolute inset-0 z-40 bg-black/25 backdrop-blur-sm flex items-center justify-center p-6">
-                    <div id="notice-box" class="w-[80%] h-[80%] bg-white/95 rounded-3xl border-4 border-chch-green shadow-2xl p-6 flex items-center justify-between overflow-hidden relative">
-                        <div class="w-1/2 h-full flex flex-col items-center justify-around border-r-2 border-chch-green/20 p-4">
-                            <span id="notice-icon-1" class="text-[8.5rem]">🚨</span>
-                            <span id="notice-icon-2" class="text-[8.5rem]">🍲</span>
-                        </div>
-                        <div class="w-1/2 h-full flex flex-col justify-between p-6 text-left">
-                            <div class="w-full flex-grow flex flex-col justify-start">
-                                <div id="notice-title" class="text-3xl md:text-4xl font-black text-chch-darkGreen mb-2">急難救助</div>
-                                <div id="notice-original-text" class="text-xl md:text-2xl font-extrabold text-slate-700 leading-snug">發生重大生命事件，安得烈即刻救援。</div>
-                                
-                                <div class="my-4 flex items-center justify-start">
-                                    <span id="score-change-text" class="text-6xl md:text-7xl font-black text-rose-600 tracking-wider drop-shadow-lg inline-block">
-                                        +20分
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="w-full bg-chch-lightOrange border-2 border-amber-300 rounded-2xl p-4 flex-shrink-0">
-                                <div class="text-xs font-black text-chch-orange mb-1">💡 小朋友白話解說：</div>
-                                <div id="notice-child-text" class="text-lg md:text-xl font-bold text-amber-950 leading-normal">遇到超級危險的事情時，安得烈叔叔阿姨會馬上跑過來幫忙喔！</div>
-                            </div>
-                        </div>
+                    <!-- 遊戲實體互動區域 -->
+                    <div class="lg:col-span-2 bg-slate-50 border rounded-xl p-6 flex flex-col items-center justify-center min-h-[350px]" id="game-playground">
+                        <!-- 互動遊戲會在這裡動態渲染 -->
                     </div>
                 </div>
-
             </div>
         </div>
-
-        <!-- 頒獎典禮通知窗格 -->
-        <div id="view-result" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6">
-            <div id="result-notice-box" class="w-[85%] h-[85%] bg-white/95 border-4 border-chch-green rounded-3xl p-6 flex flex-col justify-between shadow-2xl relative">
-                
-                <h2 id="result-title" class="text-3xl md:text-4xl font-black text-center text-chch-darkGreen mb-3 flex-shrink-0 tracking-wider">
-                    🏆 安得烈惜食大富翁 頒獎典禮 🏆
-                </h2>
-
-                <div id="result-four-grid" class="grid grid-cols-4 gap-4 flex-grow my-2">
-                    
-                    <div id="rank-card-1" class="bg-gradient-to-b from-amber-100 via-amber-50 to-amber-200/90 rounded-2xl border-4 border-amber-400 p-3 flex flex-col items-center justify-between text-center relative shadow-xl overflow-visible">
-                        <div class="absolute -top-14 md:-top-16 text-8xl md:text-9xl drop-shadow-[0_10px_25px_rgba(245,158,11,0.9)] animate-super-crown z-0 pointer-events-none">
-                            👑
-                        </div>
-                        <span class="mt-8 text-xs md:text-sm font-black text-amber-950 bg-amber-300 px-3 py-1 rounded-full border border-amber-500 shadow-sm z-10">🥇 冠軍 (第一名)</span>
-                        
-                        <div id="rank-1-avatar" class="text-8xl md:text-[9.5rem] my-1 drop-shadow-md z-10">🦌</div>
-                        <div id="rank-1-name" class="text-xl md:text-2xl font-black text-slate-800 truncate w-full z-10">參賽者</div>
-                        
-                        <div class="w-full bg-white/90 py-1.5 rounded-xl border border-amber-300 shadow-inner mt-1 z-10">
-                            <span id="rank-1-score" class="text-xl md:text-2xl font-black text-chch-orange">0 分</span>
-                        </div>
-                    </div>
-
-                    <div id="rank-card-2" class="bg-gradient-to-b from-slate-100 to-slate-200/80 rounded-2xl border-2 border-slate-300 p-3 flex flex-col items-center justify-between text-center shadow-sm overflow-hidden">
-                        <span class="text-xs font-black text-slate-800 bg-slate-300 px-3 py-1 rounded-full border border-slate-400 shadow-sm">🥈 亞軍 (第二名)</span>
-                        <div id="rank-2-avatar" class="text-7xl md:text-8xl my-2">🐱</div>
-                        <div id="rank-2-name" class="text-lg md:text-xl font-bold text-slate-800 truncate w-full">參賽者</div>
-                        <div class="w-full bg-white/90 py-1 rounded-xl border border-slate-300 shadow-inner">
-                            <span id="rank-2-score" class="text-lg md:text-xl font-bold text-slate-700">0 分</span>
-                        </div>
-                    </div>
-
-                    <div id="rank-card-3" class="bg-gradient-to-b from-amber-50 to-orange-100/70 rounded-2xl border-2 border-amber-600/40 p-3 flex flex-col items-center justify-between text-center shadow-sm overflow-hidden">
-                        <span class="text-xs font-black text-amber-900 bg-amber-200 px-3 py-1 rounded-full border border-amber-400 shadow-sm">🥉 季軍 (第三名)</span>
-                        <div id="rank-3-avatar" class="text-7xl md:text-8xl my-2">🐷</div>
-                        <div id="rank-3-name" class="text-lg md:text-xl font-bold text-slate-800 truncate w-full">參賽者</div>
-                        <div class="w-full bg-white/90 py-1 rounded-xl border border-amber-300 shadow-inner">
-                            <span id="rank-3-score" class="text-lg md:text-xl font-bold text-slate-700">0 分</span>
-                        </div>
-                    </div>
-
-                    <div id="rank-card-4" class="bg-gradient-to-b from-emerald-50 to-emerald-100/60 rounded-2xl border-2 border-chch-green/30 p-3 flex flex-col items-center justify-between text-center shadow-sm overflow-hidden">
-                        <span class="text-xs font-bold text-chch-darkGreen bg-chch-lightGreen px-3 py-1 rounded-full border border-chch-green/30 shadow-sm">🏅 殿軍 (第四名)</span>
-                        <div id="rank-4-avatar" class="text-7xl md:text-8xl my-2">🌸</div>
-                        <div id="rank-4-name" class="text-lg md:text-xl font-bold text-slate-800 truncate w-full">參賽者</div>
-                        <div class="w-full bg-white/90 py-1 rounded-xl border border-chch-green/20 shadow-inner">
-                            <span id="rank-4-score" class="text-lg md:text-xl font-bold text-slate-700">0 分</span>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-        </div>
-
     </main>
 
-    <footer id="main-footer" class="w-full py-2 px-4 border-t border-chch-green/20 bg-white/80 text-center text-slate-600 text-sm flex-shrink-0">
-        社團法人中華安得烈慈善協會 | 弱勢扶助・急難救助・災害援助・教育推廣
+    <!-- 頁腳 -->
+    <footer class="bg-slate-800 text-slate-400 py-6 text-center text-sm mt-auto">
+        <p>© 益智遊戲大觀園 - 鍛鍊腦力與邏輯的最佳平台</p>
     </footer>
 
+    <!-- JavaScript 邏輯與 9x3 完整資料 -->
     <script>
-        const allPossibleAvatars = ['🦌', '🐱', '🐷', '🌸', '🦁', '🐯', '🦊', '🐰', '🐼', '🐨', '🦄', '🐶'];
-        let mobileSessionAvatars = [];
-
-        const aiCharacterPool = [
-            { name: '小羅羅', minStr: 90, maxStr: 100 },
-            { name: '安得鹿', minStr: 0, maxStr: 60 },
-            { name: '大黑怪', minStr: 0, maxStr: 90 },
-            { name: '寶石公主', minStr: 60, maxStr: 90 }
+        // 9 大類別及各自 3 個遊戲的完整結構
+        const puzzleData = [
+            {
+                id: 'numeric',
+                name: '數字邏輯類',
+                icon: 'fa-hashtag',
+                color: 'bg-blue-500',
+                desc: '透過數字推算、幾何運算與邏輯盤面，訓練數感與推理能力。',
+                games: [
+                    { id: 'sudoku', name: '數獨 (Sudoku)', diff: '中等', desc: '經典的 9x9 數字填充遊戲。', rules: '在網格中填入 1~9 數字，使每行、每列及每個 3x3 宮格內的數字皆不重複。' },
+                    { id: '2048', name: '2048', diff: '簡單', desc: '熱門滑動數字合併遊戲。', rules: '滑動方塊使相同數字合併相加，目標是拼出 2048 方塊。' },
+                    { id: 'bulls_cows', name: '1A2B 幾A幾B', diff: '中等', desc: '邏輯數字猜測遊戲。', rules: '猜測 4 位不重複數字，數字與位置皆對為 A，數字對位置錯為 B。' }
+                ]
+            },
+            {
+                id: 'spatial',
+                name: '圖形空間類',
+                icon: 'fa-shapes',
+                color: 'bg-emerald-500',
+                desc: '考驗立體旋轉、形狀拼接與空間想像力。',
+                games: [
+                    { id: 'tangram', name: '七巧板 (Tangram)', diff: '簡單', desc: '傳統多邊形組合 puzzle。', rules: '使用七塊特定形狀的圖形拼板，拼出指定的輪廓形狀。' },
+                    { id: 'tetris', name: '俄羅斯方塊 (Tetris)', diff: '簡單', desc: '動態空間擺放與下落累積遊戲。', rules: '旋轉並移動下落的方塊，填滿一整行即可消除得分。' },
+                    { id: 'spatial_rotation', name: '展開圖與透視 (3D Fold)', diff: '困難', desc: '訓練 3D 空間建構力的測驗。', rules: '根據 2D 平面展開圖，推算出折疊後的 3D 立體圖形樣貌。' }
+                ]
+            },
+            {
+                id: 'word',
+                name: '文字解謎類',
+                icon: 'fa-font',
+                color: 'bg-purple-500',
+                desc: '結合字彙量、成語語感與語言推演的字詞謎題。',
+                games: [
+                    { id: 'crossword', name: '填字遊戲 (Crossword)', diff: '中等', desc: '交叉字詞網格填充。', rules: '根據提示在直橫交錯的格字中填入對應的詞彙。' },
+                    { id: 'idiom_fill', name: '成語接龍 / 填空', diff: '簡單', desc: '考驗中文成語庫存。', rules: '利用上下文提示或首尾字接續，填補出正確的成語。' },
+                    { id: 'wordle', name: 'Wordle 猜字', diff: '中等', desc: '英文五字單字推論遊戲。', rules: '有 6 次機會猜測 5 字母單字，綠色代表位置正確，黃色代表字母存在。' }
+                ]
+            },
+            {
+                id: 'memory',
+                name: '記憶觀察類',
+                icon: 'fa-brain',
+                color: 'bg-amber-500',
+                desc: '考驗短期記憶力、視覺專注度與細節比對。',
+                games: [
+                    { id: 'card_match', name: '翻牌記憶 (Memory Match)', diff: '簡單', desc: '經典翻牌配對遊戲。', rules: '翻開兩張相同的卡牌即可配對消除，考驗短期圖像記憶。' },
+                    { id: 'spot_difference', name: '找不同 (Spot Difference)', diff: '簡單', desc: '細節觀察力比對。', rules: '在兩張極為相似的圖片中找出細微的相異之處。' },
+                    { id: 'simon_says', name: '西蒙燈光記憶 (Simon)', diff: '中等', desc: '序列與節奏記憶。', rules: '觀察燈光與聲音播放的順序，並按完全相同的順序重複點擊。' }
+                ]
+            },
+            {
+                id: 'physics',
+                name: '物理力學類',
+                icon: 'fa-apple-whole',
+                color: 'bg-rose-500',
+                desc: '運用重力、槓桿、傳導與連鎖反應解開謎題。',
+                games: [
+                    { id: 'pipe_connect', name: '接水管 (Water Pipes)', diff: '簡單', desc: '管道方向連接遊戲。', rules: '旋轉不同形狀的水管，將起點的水流成功引導至終點。' },
+                    { id: 'cut_rope', name: '割繩子 (Cut the Rope)', diff: '中等', desc: '重力與擺盪時機計算。', rules: '在適當的時間剪斷繩子，讓物體利用重力和慣性掉入目標點。' },
+                    { id: 'balance_bridge', name: '造橋專家 (Bridge Builder)', diff: '困難', desc: '結構受力與力學設計。', rules: '利用受限的預算搭建橋樑，使其能承受車輛通過的重量。' }
+                ]
+            },
+            {
+                id: 'board',
+                name: '棋牌對弈類',
+                icon: 'fa-chess',
+                color: 'bg-indigo-500',
+                desc: '雙人或單人策略計算，預判對手步驟與全局佈局。',
+                games: [
+                    { id: 'gomoku', name: '五子棋 (Gomoku)', diff: '簡單', desc: '連珠攻防棋類遊戲。', rules: '雙方輪流下子，率先在直、橫、斜方向連成五子者獲勝。' },
+                    { id: 'reversi', name: '黑白棋 (Reversi / Othello)', diff: '中等', desc: '翻轉夾擊棋類。', rules: '將棋子下在能包夾對方棋子的位置，即可將對手的棋子翻轉為己方顏色。' },
+                    { id: 'chess', name: '西洋棋 / 將棋謎題', diff: '困難', desc: '殘局解謎 (Chess Puzzles)。', rules: '給定特定盤面殘局，要求在限定步數內完成將死 (Checkmate)。' }
+                ]
+            },
+            {
+                id: 'maze',
+                name: '迷宮闖關類',
+                icon: 'fa-route',
+                color: 'bg-teal-500',
+                desc: '路徑搜尋、推箱規劃與避開障礙到達終點。',
+                games: [
+                    { id: 'sokoban', name: '推箱子 (Sokoban)', diff: '中等', desc: '空間規劃與順序推導。', rules: '控制角色將所有箱子推到指定的目標點，箱子只能推不能拉。' },
+                    { id: 'classic_maze', name: '經典迷宮 (Classic Maze)', diff: '簡單', desc: '視覺路徑追蹤。', rules: '在錯綜複雜的通路中找出從入口到達出口的唯一正確路線。' },
+                    { id: 'unblock_me', name: '華容道 / 滑塊Puzzle', diff: '中等', desc: '位移卡位解鎖。', rules: '移動其他障礙木條，為指定的紅色木條開闢出一條滑出出口的道路。' }
+                ]
+            },
+            {
+                id: 'probability',
+                name: '機率賽局類',
+                icon: 'fa-dice',
+                color: 'bg-orange-500',
+                desc: '分析風險與回報，在不確定性中做出最佳期望值決策。',
+                games: [
+                    { id: 'minesweeper', name: '踩地雷 (Minesweeper)', diff: '中等', desc: '機率與邏輯推算並重。', rules: '根據格子顯示的周圍地雷數量提示，找出所有安全格子並標記地雷。' },
+                    { id: 'monty_hall', name: '三門問題 (Monty Hall)', diff: '簡單', desc: '直覺與反直覺機率實驗。', rules: '選擇一扇門後，主持人開啟一扇空門，選擇「換門」或「不換門」來提高獲勝率。' },
+                    { id: 'poker_puzzle', name: '德州撲克殘局 (Poker Odds)', diff: '困難', desc: '勝率計算與期望值分析。', rules: '根據手牌與公牌，計算底牌勝率並做出最符合期望值的押注決策。' }
+                ]
+            },
+            {
+                id: 'scenario',
+                name: '生活情境類',
+                icon: 'fa-user-gear',
+                color: 'bg-cyan-500',
+                desc: '模擬現實場景中的資源分配、排程與情境問題解決。',
+                games: [
+                    { id: 'river_crossing', name: '狼羊菜過河問題', diff: '簡單', desc: '條件約束與互斥排程。', rules: '在一次只能帶一樣東西且特定組合不能單獨相處的條件下，將所有物品安全運過河。' },
+                    { id: 'traffic_control', name: '交通紅綠燈調控', diff: '中等', desc: '瓶頸與流量控管。', rules: '調整各路口的紅綠燈時長，防止車輛堵塞並達到最大通行效率。' },
+                    { id: 'resource_mgmt', name: '時間與時間表排程', diff: '中等', desc: '關鍵路徑與時間管理。', rules: '在有限時間與人力下，規劃各項任務的優先順序以獲得最大效益。' }
+                ]
+            }
         ];
 
-        const weakAgeCategories = ["0-3歲", "3-15歲", "65-80歲", "80歲以上"];
-        const weakBoxTypes = ["嬰兒物資箱", "膳糧食物箱", "長青食物箱", "松柏食物箱"];
-        
-        const weakCorrectAnswersMap = {
-            "0-3歲": "嬰兒物資箱",
-            "3-15歲": "膳糧食物箱",
-            "65-80歲": "長青食物箱",
-            "80歲以上": "松柏食物箱"
+        // 當前狀態
+        let currentCatIndex = null;
+        let currentGame = null;
+
+        // 初始化
+        window.onload = function() {
+            renderCategories();
         };
 
-        const eventDefinitions = {
-            "急難救助": [
-                { title: "急難救助", text: "發生重大生命事件，安得烈即刻救援。", score: 20, icon1: "🚨", icon2: "🛟", childText: "遇到超級危險的事情時，安得烈叔叔阿姨會馬上跑過來幫忙喔！" },
-                { title: "急難救助", text: "解決租屋問題，與地方單位協同。", score: 15, icon1: "🏠", icon2: "🤝", childText: "幫忙沒有房子住的小朋友和爸爸媽媽，找一個溫暖安全的新家！" },
-                { title: "急難救助", text: "求援通報，電訪後轉為親訪。", score: 10, icon1: "📞", icon2: "🚶", childText: "接到打電話求救後，工作人員會親自走到他們家看望照顧喔！" },
-                { title: "急難救助", text: "急難聯繫後，評估不符合，轉介其它單位。", score: 5, icon1: "📋", icon2: "🕊️", childText: "如果我們幫不上忙，也會溫柔地幫忙介紹其他厲害的機構來照顧他！" }
-            ],
-            "災害援助": [
-                { title: "災害援助", text: "迅期於潛勢地區預備安心食物箱。", score: 20, icon1: "⛈️", icon2: "📦", childText: "颱風大雨來之前，我們先把好吃的食物箱搬到危險地區準備好！" },
-                { title: "災害援助", text: "聯繫地方政府，準備物資進入災區。", score: 15, icon1: "🚚", icon2: "🏛️", childText: "跟政府好朋友一起開大卡車，把滿滿的餅乾跟乾糧載進災區！" },
-                { title: "災害援助", text: "災後進入捐款與物資，協助復原。", score: 10, icon1: "🏗️", icon2: "❤️", childText: "大雨過後，用大家的愛心錢錢跟乾糧，幫忙大家把家裡收拾乾淨！" },
-                { title: "災害援助", text: "重大國外災害，以捐款援助。", score: 5, icon1: "🌍", icon2: "💰", childText: "外國有小朋友遇到地震時，我們也會把愛心錢錢寄過去幫忙！" }
-            ],
-            "教育推廣": [
-                { title: "教育推廣", text: "集食行善-幸福一日捐，善果計劃。", score: 20, icon1: "🍎", icon2: "🌱", childText: "大家一起把省下來的食物跟餅乾捐出來，當個有愛心的好孩子！" },
-                { title: "教育推廣", text: "活動擺攤，一起推廣「知福、惜福、感恩與分享」。", score: 15, icon1: "🎪", icon2: "📢", childText: "大家一起擺攤宣導，要珍惜飯菜不浪費，還要跟好朋友分享喔！" },
-                { title: "教育推廣", text: "食物箱包裝，培養「愛與分享」。", score: 10, icon1: "🎁", icon2: "🤲", childText: "大家親手把好吃的食物裝進箱子裡，學習把愛分享出去！" },
-                { title: "教育推廣", text: "參加宣導，認識安得烈。", score: 5, icon1: "🏫", icon2: "📖", childText: "聽老師講故事，認識安得烈食物銀行是怎麼幫助別人的！" }
-            ]
-        };
+        // 渲染 9 大分類
+        function renderCategories() {
+            const grid = document.getElementById('category-grid');
+            grid.innerHTML = '';
 
-        let peer = null;
-        let hostConn = null;
-        let players = [];
-        let myPlayerId = null;
-        let myAvatar = '';
-
-        let roundMode = '1';
-        let targetScore = 200;
-        let currentTurnIndex = 0;
-        let mapTiles = [];
-
-        let audioCtx = null;
-        let isGameRunning = false;
-
-        function getAudioContext() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            return audioCtx;
-        }
-
-        // 調整 5：參賽者走格子移動音效 (Pop Sound)
-        function playStepMoveSound() {
-            try {
-                const ctx = getAudioContext();
-                const now = ctx.currentTime;
-                
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(450, now);
-                osc.frequency.exponentialRampToValueAtTime(750, now + 0.08);
-
-                gain.gain.setValueAtTime(0.3, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
-
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-
-                osc.start(now);
-                osc.stop(now + 0.08);
-            } catch(e){}
-        }
-
-        function playScoreExplodeSound() {
-            try {
-                const ctx = getAudioContext();
-                const now = ctx.currentTime;
-                
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(300, now);
-                osc.frequency.exponentialRampToValueAtTime(800, now + 0.15);
-                osc.frequency.exponentialRampToValueAtTime(150, now + 0.4);
-
-                gain.gain.setValueAtTime(0.5, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-
-                osc.start(now);
-                osc.stop(now + 0.4);
-            } catch(e){}
-        }
-
-        function toggleScoreMenu() {
-            const mode = document.getElementById('select-round-mode').value;
-            const scoreBox = document.getElementById('score-menu-box');
-            if (mode === 'score') {
-                scoreBox.classList.remove('hidden');
-                scoreBox.classList.add('flex');
-            } else {
-                scoreBox.classList.add('hidden');
-            }
-        }
-
-        function setMusicSpeed(speedRate, buttonEl) {
-            const bgm = document.getElementById('bgm');
-            const inGameAudio = document.getElementById('audioPlayerInGame');
-            const statusText = document.getElementById('music-status-text');
-
-            if (bgm) {
-                bgm.playbackRate = speedRate;
-                bgm.volume = 0.3;
-            }
-            if (inGameAudio) {
-                inGameAudio.playbackRate = speedRate;
-                inGameAudio.volume = 0.3;
-            }
-
-            if (statusText) {
-                statusText.textContent = `${Math.round(speedRate * 100)}%`;
-            }
-
-            const buttons = document.querySelectorAll('.music-speed-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            if (buttonEl) buttonEl.classList.add('active');
-        }
-
-        window.onload = () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const hostId = urlParams.get('host');
-
-            if (hostId) {
-                document.getElementById('main-header').classList.add('hidden');
-                document.getElementById('main-footer').classList.add('hidden');
-                document.getElementById('view-lobby').style.display = 'none';
-                document.getElementById('view-player-mobile').classList.remove('hidden');
-                document.getElementById('view-player-mobile').classList.add('flex');
-                initMobileController(hostId);
-            } else {
-                initHostPeer();
-            }
-        };
-
-        function initHostPeer() {
-            peer = new Peer();
-            
-            peer.on('open', (id) => {
-                const joinUrl = `${window.location.href.split('?')[0]}?host=${id}`;
-                document.getElementById("qrcode").innerHTML = "";
-                
-                new QRCode(document.getElementById("qrcode"), {
-                    text: joinUrl,
-                    width: 480,
-                    height: 480
-                });
-            });
-
-            peer.on('connection', (conn) => {
-                conn.on('open', () => {
-                    broadcastAvatarState();
-
-                    conn.on('data', (data) => {
-                        if (data.type === 'JOIN') {
-                            if (players.length < 4) {
-                                addPlayer(data.name, conn, data.playerId, data.avatar);
-                            }
-                        } else if (data.type === 'MOVE') {
-                            handlePlayerMoveData(data.playerId, data.deltaX, data.deltaY);
-                        } else if (data.type === 'CHOICE_RESULT') {
-                            handlePlayerChoice(data.playerId, data.choice);
-                        }
-                    });
-
-                    conn.on('close', () => {
-                        players = players.filter(p => p.conn !== conn);
-                        broadcastAvatarState();
-                        renderLobbyPlayers();
-                    });
-                });
-            });
-        }
-
-        function broadcastAvatarState() {
-            const takenAvatars = players.map(p => p.avatar);
-            players.forEach(p => {
-                if (p.conn && p.conn.open) {
-                    p.conn.send({ type: 'AVATAR_UPDATE', takenAvatars: takenAvatars });
-                }
-            });
-        }
-
-        function addPlayer(name, conn, playerId, chosenAvatar) {
-            if (players.some(p => p.id === playerId)) return;
-
-            let assignedAvatar = chosenAvatar;
-            const takenAvatars = players.map(p => p.avatar);
-            if (!assignedAvatar || takenAvatars.includes(assignedAvatar)) {
-                assignedAvatar = allPossibleAvatars.find(a => !takenAvatars.includes(a)) || '🦌';
-            }
-
-            const p = {
-                id: playerId,
-                name: name,
-                displayName: name,
-                avatar: assignedAvatar,
-                conn: conn,
-                isAI: false,
-                strength: 100,
-                score: 0,
-                tileIndex: 0, 
-                laps: 0,
-                skipTurn: false
-            };
-            players.push(p);
-
-            if (conn) {
-                conn.send({ type: 'ASSIGN_AVATAR', avatar: assignedAvatar });
-            }
-
-            broadcastAvatarState();
-            renderLobbyPlayers();
-        }
-
-        function renderLobbyPlayers() {
-            const container = document.getElementById('player-list-lobby');
-            container.innerHTML = '';
-            document.getElementById('player-count-badge').innerText = `${players.length} / 4 人`;
-
-            players.forEach(p => {
-                const item = document.createElement('div');
-                item.className = 'flex justify-between items-center bg-white p-2.5 rounded-xl border border-chch-green/30 text-sm shadow-sm';
-                item.innerHTML = `
-                    <div class="flex items-center gap-2 truncate">
-                        <span class="text-2xl">${p.avatar}</span>
-                        <span class="font-bold text-slate-700 truncate">${p.displayName || p.name}</span>
-                    </div>
-                    <span class="text-[10px] ${p.isAI ? 'bg-amber-100 text-amber-800' : 'bg-chch-lightGreen text-chch-darkGreen'} px-2 py-0.5 rounded font-bold border">
-                        ${p.isAI ? 'AI' : '參賽者'}
-                    </span>
-                `;
-                container.appendChild(item);
-            });
-        }
-
-        document.getElementById('btn-start-game').addEventListener('click', () => {
-            finalizePlayersAndStart();
-        });
-
-        function finalizePlayersAndStart() {
-            roundMode = document.getElementById('select-round-mode').value;
-            targetScore = parseInt(document.getElementById('select-target-score').value, 10);
-            const aiCount = parseInt(document.getElementById('select-ai-count').value, 10);
-
-            let availableAiChars = [...aiCharacterPool].sort(() => Math.random() - 0.5);
-
-            for (let i = 0; i < aiCount; i++) {
-                if (players.length < 4 && availableAiChars.length > 0) {
-                    const aiChar = availableAiChars.pop();
-                    const strength = Math.floor(Math.random() * (aiChar.maxStr - aiChar.minStr + 1)) + aiChar.minStr;
-                    
-                    const takenAvatars = players.map(p => p.avatar);
-                    const aiAvatar = allPossibleAvatars.find(a => !takenAvatars.includes(a)) || '🤖';
-
-                    const aiFullName = `🤖 ${aiChar.name}(${strength}%)`;
-
-                    players.push({
-                        id: 'ai_' + Date.now() + '_' + i,
-                        name: aiFullName,
-                        displayName: aiFullName,
-                        avatar: aiAvatar,
-                        conn: null,
-                        isAI: true,
-                        strength: strength,
-                        score: 0,
-                        tileIndex: 0,
-                        laps: 0,
-                        skipTurn: false
-                    });
-                }
-            }
-
-            if (players.length === 0) {
-                alert('請至少加入 1 位參賽者或選擇 AI 參賽者！');
-                return;
-            }
-
-            const bgm = document.getElementById('bgm');
-            if (bgm) {
-                bgm.volume = 0.3;
-                bgm.playbackRate = 1.0;
-                bgm.play().catch(() => {});
-            }
-
-            runStartCountdownAnimation();
-        }
-
-        function runStartCountdownAnimation() {
-            const overlay = document.getElementById('start-countdown-overlay');
-            const numEl = document.getElementById('countdown-num');
-            const promptEl = document.getElementById('countdown-player-prompt');
-
-            promptEl.innerText = `第一位參賽者 ${players[0].name} 請準備`;
-            overlay.classList.remove('hidden');
-
-            let count = 3;
-            numEl.innerText = count;
-
-            const timer = setInterval(() => {
-                count--;
-                if (count > 0) {
-                    numEl.innerText = count;
-                } else {
-                    clearInterval(timer);
-                    overlay.classList.add('hidden');
-                    startGame();
-                }
-            }, 1000);
-        }
-
-        function buildMapTiles() {
-            const middleCategories = [
-                '弱勢扶助','弱勢扶助','弱勢扶助','弱勢扶助',
-                '急難救助','急難救助','急難救助','急難救助',
-                '災害援助','災害援助','災害援助','災害援助',
-                '教育推廣','教育推廣','教育推廣','教育推廣'
-            ].sort(() => Math.random() - 0.5);
-
-            mapTiles = [];
-            let midIdx = 0;
-
-            for (let i = 0; i < 20; i++) {
-                if (i === 0) mapTiles.push({ type: '起點', title: '起點', icon: '🚩' });
-                else if (i === 5) mapTiles.push({ type: '機會', title: '機會', icon: '❓' });
-                else if (i === 10) mapTiles.push({ type: '休息', title: '休息', icon: '☕' });
-                else if (i === 15) mapTiles.push({ type: '命運', title: '命運', icon: '🔮' });
-                else {
-                    const cat = middleCategories[midIdx++];
-                    let icon = '📦';
-                    if (cat === '弱勢扶助') icon = '🤝';
-                    else if (cat === '急難救助') icon = '🚨';
-                    else if (cat === '災害援助') icon = '⛈️';
-                    else if (cat === '教育推廣') icon = '🏫';
-
-                    mapTiles.push({ type: cat, title: cat, icon: icon });
-                }
-            }
-        }
-
-        function renderMapBoard() {
-            const container = document.getElementById('view-game').children[1];
-            const existingBoardTiles = container.querySelectorAll('.map-tile-grid');
-            existingBoardTiles.forEach(el => el.remove());
-
-            const coords = [
-                { r: 1, c: 1 }, { r: 1, c: 2 }, { r: 1, c: 3 }, { r: 1, c: 4 }, { r: 1, c: 5 }, { r: 1, c: 6 }, { r: 1, c: 7 }, { r: 1, c: 8 },
-                { r: 2, c: 8 }, { r: 3, c: 8 }, { r: 4, c: 8 },
-                { r: 4, c: 7 }, { r: 4, c: 6 }, { r: 4, c: 5 }, { r: 4, c: 4 }, { r: 4, c: 3 }, { r: 4, c: 2 }, { r: 4, c: 1 },
-                { r: 3, c: 1 }, { r: 2, c: 1 }
-            ];
-
-            mapTiles.forEach((tile, i) => {
-                const pos = coords[i];
-                const tileDiv = document.createElement('div');
-                tileDiv.className = `map-tile-grid col-start-${pos.c} row-start-${pos.r} bg-white rounded-xl border-2 border-chch-green/40 p-1 flex flex-col items-center justify-center relative shadow-md overflow-visible`;
-                
-                let formattedTitle = tile.title;
-                if (tile.title.length === 4) {
-                    formattedTitle = `${tile.title.substring(0, 2)}<br>${tile.title.substring(2, 4)}`;
-                }
-
-                tileDiv.innerHTML = `
-                    <div class="flex items-center justify-center gap-1 w-full h-full p-1 text-center">
-                        <span class="text-3xl md:text-5xl flex-shrink-0">${tile.icon}</span>
-                        <span class="text-base md:text-2xl font-black text-chch-darkGreen leading-tight flex-grow">${formattedTitle}</span>
-                    </div>
-                    <div id="tile-players-${i}" class="absolute -top-3 -right-2 flex gap-0.5 text-4xl md:text-5xl z-20 pointer-events-none drop-shadow-xl"></div>
-                `;
-                container.appendChild(tileDiv);
-            });
-
-            updatePlayerPositionsUI();
-        }
-
-        function updatePlayerPositionsUI() {
-            for (let i = 0; i < 20; i++) {
-                const holder = document.getElementById(`tile-players-${i}`);
-                if (holder) holder.innerHTML = '';
-            }
-
-            players.forEach(p => {
-                const holder = document.getElementById(`tile-players-${p.tileIndex}`);
-                if (holder) {
-                    const avatarSpan = document.createElement('span');
-                    avatarSpan.id = `player-tile-avatar-${p.id}`;
-                    avatarSpan.className = 'animate-bounce opacity-95 drop-shadow-2xl inline-block transition-transform';
-                    avatarSpan.innerText = p.avatar;
-                    holder.appendChild(avatarSpan);
-                }
-            });
-
-            renderPlayersDashboard();
-        }
-
-        function renderPlayersDashboard() {
-            const dashboard = document.getElementById('players-dashboard');
-            dashboard.innerHTML = '';
-
-            players.forEach((p, idx) => {
+            puzzleData.forEach((cat, index) => {
                 const card = document.createElement('div');
-                const isCurrent = idx === currentTurnIndex;
-                card.className = `p-2 rounded-xl border-2 ${isCurrent ? 'border-amber-400 bg-amber-50 shadow-md' : 'border-chch-green/30 bg-white'} flex flex-col justify-between`;
+                card.className = "bg-white rounded-xl shadow-md hover:shadow-xl transition duration-300 p-6 cursor-pointer border border-slate-100 flex flex-col justify-between group";
+                card.onclick = () => showSubGames(index);
+
                 card.innerHTML = `
-                    <div class="flex items-center gap-1.5 truncate">
-                        <span class="text-xl flex-shrink-0">${p.avatar}</span>
-                        <span class="font-bold text-slate-800 text-xs md:text-sm truncate">${p.name}</span>
+                    <div>
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="w-12 h-12 rounded-lg ${cat.color} text-white flex items-center justify-center text-xl shadow-md group-hover:scale-110 transition duration-300">
+                                <i class="fa-solid ${cat.icon}"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-800 group-hover:text-indigo-600 transition">${cat.name}</h3>
+                                <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded">3 種遊戲</span>
+                            </div>
+                        </div>
+                        <p class="text-slate-600 text-sm mb-4 leading-relaxed">${cat.desc}</p>
                     </div>
-                    <div class="mt-1 pt-1 border-t border-slate-100 flex items-center justify-between">
-                        <span class="text-chch-orange font-black text-sm md:text-base">${p.score} 分</span>
-                        <span class="text-[9px] text-slate-500 font-bold">${p.laps} 圈</span>
+                    <div class="border-t pt-3 flex justify-between items-center text-xs text-indigo-600 font-semibold">
+                        <span>點擊進入探索</span>
+                        <i class="fa-solid fa-chevron-right group-hover:translate-x-1 transition"></i>
                     </div>
                 `;
-                dashboard.appendChild(card);
+                grid.appendChild(card);
             });
         }
 
-        function startGame() {
-            document.getElementById('view-lobby').classList.add('hidden');
-            document.getElementById('main-header').classList.add('hidden');
-            document.getElementById('main-footer').classList.add('hidden');
-
-            document.getElementById('view-game').classList.remove('hidden');
-            document.getElementById('view-game').classList.add('grid');
-
-            buildMapTiles();
-            renderMapBoard();
-
-            isGameRunning = true;
-            nextTurn();
-        }
-
-        let ballTargetList = [];
-        let playerBallPos = { x: 100, y: 100 };
-        let activeCollisionListener = false;
-        let ballPhysicsAnimFrame = null;
-        let speedBoostTimer = null;
-
-        // 調整 3：提示層與碰撞骰球一併顯示專屬頭像，手機震動提醒
-        function nextTurn() {
-            if (!isGameRunning) return;
-
-            const p = players[currentTurnIndex];
-
-            if (p.skipTurn) {
-                p.skipTurn = false;
-                currentTurnIndex = (currentTurnIndex + 1) % players.length;
-                nextTurn();
-                return;
-            }
-
-            document.getElementById('player-info-container').classList.remove('hidden');
-            document.getElementById('center-question-box').classList.add('hidden');
-            document.getElementById('center-chance-box').classList.add('hidden');
-
-            document.getElementById('current-player-avatar').innerText = p.avatar;
-            document.getElementById('current-player-name').innerText = p.name;
-            document.getElementById('current-player-score-badge').innerText = `${p.score} 分`;
-
-            // 設定「請準備」層的頭像與名稱
-            const readyOverlay = document.getElementById('ready-prompt-overlay');
-            document.getElementById('ready-player-avatar').innerText = p.avatar;
-            document.getElementById('ready-player-text').innerText = `${p.name} 請準備`;
-            readyOverlay.classList.remove('hidden');
-
-            // 廣播給手機並觸發震動提醒
-            players.forEach(player => {
-                if (player.conn) {
-                    player.conn.send({ 
-                        type: 'TURN_STATUS', 
-                        isYourTurn: player.id === p.id 
-                    });
-                }
-            });
-
-            setTimeout(() => {
-                readyOverlay.classList.add('hidden');
-                
-                if (p.isAI) {
-                    setTimeout(() => {
-                        const simulatedNum = Math.floor(Math.random() * 6) + 1;
-                        handleDiceMove(p.id, simulatedNum);
-                    }, 1500);
-                } else {
-                    startBoardBallCollisionPhase(p);
-                }
-            }, 1000);
-        }
-
-        function startBoardBallCollisionPhase(p) {
-            const container = document.getElementById('center-ball-container');
+        // 顯示大廳
+        function showCategories() {
+            document.getElementById('category-view').classList.remove('hidden');
+            document.getElementById('subgame-view').classList.add('hidden');
+            document.getElementById('game-detail-view').classList.add('hidden');
+            document.getElementById('home-btn').classList.add('hidden');
             
-            if (ballPhysicsAnimFrame) cancelAnimationFrame(ballPhysicsAnimFrame);
-            if (speedBoostTimer) clearInterval(speedBoostTimer);
+            // 更新麵包屑
+            document.getElementById('breadcrumb').innerHTML = `<span class="font-semibold text-slate-800">首頁大廳</span>`;
+        }
 
-            const oldBalls = container.querySelectorAll('.target-num-ball');
-            oldBalls.forEach(b => b.remove());
+        // 顯示子遊戲列表
+        function showSubGames(catIndex) {
+            currentCatIndex = catIndex;
+            const cat = puzzleData[catIndex];
 
-            const playerBall = document.getElementById('active-player-ball');
-            playerBall.innerText = p.avatar; // 顯示參賽者專屬頭像
+            document.getElementById('category-view').classList.add('hidden');
+            document.getElementById('subgame-view').classList.remove('hidden');
+            document.getElementById('game-detail-view').classList.add('hidden');
+            document.getElementById('home-btn').classList.remove('hidden');
 
-            playerBallPos = { x: container.clientWidth / 2 - 24, y: container.clientHeight / 2 - 24 };
-            playerBall.style.left = `${playerBallPos.x}px`;
-            playerBall.style.top = `${playerBallPos.y}px`;
+            document.getElementById('cat-title').innerHTML = `<i class="fa-solid ${cat.icon} text-indigo-600"></i> ${cat.name}`;
+            document.getElementById('cat-desc').innerText = cat.desc;
 
-            ballTargetList = [];
-            for (let i = 1; i <= 6; i++) {
-                const ball = document.createElement('div');
-                ball.className = 'target-num-ball absolute w-11 h-11 bg-chch-green text-white font-black text-xl rounded-full flex items-center justify-center shadow-lg border-2 border-white transition-transform';
-                const rx = Math.floor(Math.random() * (container.clientWidth - 50)) + 5;
-                const ry = Math.floor(Math.random() * (container.clientHeight - 50)) + 5;
+            // 渲染 3 個子遊戲
+            const subGrid = document.getElementById('subgame-grid');
+            subGrid.innerHTML = '';
+
+            cat.games.forEach((game) => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl shadow border hover:border-indigo-300 transition p-6 flex flex-col justify-between";
                 
-                const vx = (Math.random() - 0.5) * 1.5;
-                const vy = (Math.random() - 0.5) * 1.5;
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="text-lg font-bold text-slate-800">${game.name}</h4>
+                            <span class="text-xs px-2 py-1 bg-amber-50 text-amber-600 border border-amber-200 rounded">${game.diff}</span>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-4">${game.desc}</p>
+                    </div>
+                    <button onclick="playGame('${game.id}')" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-sm transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-gamepad"></i> 進入試玩/說明
+                    </button>
+                `;
+                subGrid.appendChild(card);
+            });
 
-                ball.style.left = `${rx}px`;
-                ball.style.top = `${ry}px`;
-                ball.innerText = i;
-                container.appendChild(ball);
+            // 更新麵包屑
+            document.getElementById('breadcrumb').innerHTML = `
+                <span class="hover:text-indigo-600 cursor-pointer" onclick="showCategories()">首頁</span>
+                <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+                <span class="font-semibold text-slate-800">${cat.name}</span>
+            `;
+        }
 
-                ballTargetList.push({ num: i, x: rx, y: ry, vx: vx, vy: vy, el: ball, hit: false });
+        // 返回當前分類
+        function backToSubGames() {
+            if(currentCatIndex !== null) {
+                showSubGames(currentCatIndex);
+            } else {
+                showCategories();
             }
+        }
 
-            activeCollisionListener = true;
-            runBallPhysicsLoop();
+        // 載入具體遊戲實體/示範
+        function playGame(gameId) {
+            const cat = puzzleData[currentCatIndex];
+            const game = cat.games.find(g => g.id === gameId);
+            currentGame = game;
 
-            speedBoostTimer = setInterval(() => {
-                if (!activeCollisionListener) {
-                    clearInterval(speedBoostTimer);
+            document.getElementById('category-view').classList.add('hidden');
+            document.getElementById('subgame-view').classList.add('hidden');
+            document.getElementById('game-detail-view').classList.remove('hidden');
+
+            document.getElementById('game-cat-badge').innerText = cat.name;
+            document.getElementById('game-title').innerText = game.name;
+            document.getElementById('game-desc').innerText = game.desc;
+            document.getElementById('game-rules').innerText = game.rules;
+            document.getElementById('game-diff').innerText = game.diff;
+
+            // 麵包屑
+            document.getElementById('breadcrumb').innerHTML = `
+                <span class="hover:text-indigo-600 cursor-pointer" onclick="showCategories()">首頁</span>
+                <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+                <span class="hover:text-indigo-600 cursor-pointer" onclick="backToSubGames()">${cat.name}</span>
+                <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+                <span class="font-semibold text-slate-800">${game.name}</span>
+            `;
+
+            // 動態載入簡易試玩模組
+            loadPlaygroundModule(gameId);
+        }
+
+        // 簡易互動 Mini-Game 載入器
+        function loadPlaygroundModule(gameId) {
+            const playground = document.getElementById('game-playground');
+            playground.innerHTML = ''; // 清空
+
+            switch(gameId) {
+                case 'bulls_cows': // 1A2B 遊戲
+                    init1A2B(playground);
+                    break;
+                case 'card_match': // 翻牌記憶
+                    initCardMatch(playground);
+                    break;
+                case 'monty_hall': // 三門問題
+                    initMontyHall(playground);
+                    break;
+                default:
+                    // 預設說明卡
+                    playground.innerHTML = `
+                        <div class="text-center p-6 space-y-3">
+                            <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto text-2xl">
+                                <i class="fa-solid fa-cubes"></i>
+                            </div>
+                            <h4 class="text-lg font-bold text-slate-800">${currentGame.name} 互動模組</h4>
+                            <p class="text-sm text-slate-500 max-w-md">本遊戲的核心概念為：「${currentGame.rules}」</p>
+                            <button onclick="alert('提示：觀察規則並預先規劃步驟是通關關鍵！')" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm shadow hover:bg-indigo-700">獲得遊戲提示</button>
+                        </div>
+                    `;
+            }
+        }
+
+        // --- 簡易 Demo 1: 1A2B 遊戲邏輯 ---
+        function init1A2B(container) {
+            // 產生 4 個不重複數字
+            let secret = [];
+            while(secret.length < 4){
+                let r = Math.floor(Math.random() * 10);
+                if(secret.indexOf(r) === -1) secret.push(r);
+            }
+            let secretStr = secret.join('');
+
+            container.innerHTML = `
+                <div class="w-full max-w-md bg-white p-6 rounded-xl shadow-sm border text-center space-y-4">
+                    <h4 class="font-bold text-slate-800">1A2B 猜數字小遊戲</h4>
+                    <p class="text-xs text-slate-500">電腦已生成 4 位不重複數字，請輸入你的猜測：</p>
+                    <div class="flex gap-2 justify-center">
+                        <input type="text" id="input-1a2b" maxlength="4" placeholder="例如 1234" class="border px-3 py-2 rounded text-center font-mono text-lg w-32 focus:outline-indigo-500">
+                        <button id="btn-1a2b" class="bg-indigo-600 text-white px-4 py-2 rounded font-medium hover:bg-indigo-700">猜測</button>
+                    </div>
+                    <div id="logs-1a2b" class="h-32 border rounded p-2 overflow-y-auto text-left font-mono text-xs space-y-1 bg-slate-50 custom-scrollbar">
+                        <div class="text-slate-400">--- 開始猜測 ---</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('btn-1a2b').onclick = function() {
+                const input = document.getElementById('input-1a2b').value;
+                if(input.length !== 4 || isNaN(input)) {
+                    alert('請输入 4 位純數字！');
                     return;
                 }
-                ballTargetList.forEach(tb => {
-                    tb.vx *= 1.2;
-                    tb.vy *= 1.2;
-                });
-            }, 1000);
-        }
-
-        function runBallPhysicsLoop() {
-            if (!activeCollisionListener) return;
-
-            const container = document.getElementById('center-ball-container');
-            const cw = container.clientWidth;
-            const ch = container.clientHeight;
-
-            ballTargetList.forEach(tb => {
-                if (tb.hit) return;
-
-                tb.x += tb.vx;
-                tb.y += tb.vy;
-
-                if (tb.x <= 0) { tb.x = 0; tb.vx = Math.abs(tb.vx) * 1.1; }
-                if (tb.x >= cw - 44) { tb.x = cw - 44; tb.vx = -Math.abs(tb.vx) * 1.1; }
-                if (tb.y <= 0) { tb.y = 0; tb.vy = Math.abs(tb.vy) * 1.1; }
-                if (tb.y >= ch - 44) { tb.y = ch - 44; tb.vy = -Math.abs(tb.vy) * 1.1; }
-
-                tb.el.style.left = `${tb.x}px`;
-                tb.el.style.top = `${tb.y}px`;
-            });
-
-            ballPhysicsAnimFrame = requestAnimationFrame(runBallPhysicsLoop);
-        }
-
-        // 調整 4：撞擊小球時，被撞擊的小球放大再大一倍並停住 1 秒
-        function handlePlayerMoveData(playerId, deltaX, deltaY) {
-            const p = players[currentTurnIndex];
-            if (!activeCollisionListener || !p || p.id !== playerId) return;
-
-            const container = document.getElementById('center-ball-container');
-            const playerBall = document.getElementById('active-player-ball');
-
-            playerBallPos.x = Math.max(0, Math.min(container.clientWidth - 48, playerBallPos.x + deltaX * 280));
-            playerBallPos.y = Math.max(0, Math.min(container.clientHeight - 48, playerBallPos.y + deltaY * 280));
-
-            playerBall.style.left = `${playerBallPos.x}px`;
-            playerBall.style.top = `${playerBallPos.y}px`;
-
-            ballTargetList.forEach(tb => {
-                if (tb.hit) return;
-
-                const dist = Math.hypot(playerBallPos.x - tb.x, playerBallPos.y - tb.y);
-                if (dist < 38) {
-                    tb.hit = true;
-                    activeCollisionListener = false;
-                    if (ballPhysicsAnimFrame) cancelAnimationFrame(ballPhysicsAnimFrame);
-                    if (speedBoostTimer) clearInterval(speedBoostTimer);
-
-                    // 套用特大號縮放與停住 1 秒特效
-                    tb.el.classList.add('animate-ball-freeze-explode');
-                    playScoreExplodeSound();
-
-                    confetti({
-                        particleCount: 80,
-                        spread: 90,
-                        origin: {
-                            x: (tb.x + container.offsetLeft) / window.innerWidth,
-                            y: (tb.y + container.offsetTop) / window.innerHeight
-                        },
-                        colors: ['#f59e0b', '#ef4444', '#10b981', '#ffffff']
-                    });
-
-                    // 停住 1 秒（1000ms）後啟動移動步數
-                    setTimeout(() => {
-                        handleDiceMove(p.id, tb.num);
-                    }, 1000);
+                
+                let a = 0, b = 0;
+                for(let i=0; i<4; i++) {
+                    if(input[i] === secretStr[i]) a++;
+                    else if(secretStr.includes(input[i])) b++;
                 }
-            });
+
+                const log = document.getElementById('logs-1a2b');
+                log.innerHTML = `<div>> ${input} ➔ <span class="font-bold text-indigo-600">${a}A${b}B</span></div>` + log.innerHTML;
+                document.getElementById('input-1a2b').value = '';
+
+                if(a === 4) {
+                    alert('🎉 恭喜你答對了！答案就是 ' + secretStr);
+                }
+            };
         }
 
-        function renderMobileAvatarOptions(takenAvatars = []) {
-            const grid = document.getElementById('avatar-select-grid');
-            if (!grid) return;
+        // --- 簡易 Demo 2: 翻牌記憶遊戲 ---
+        function initCardMatch(container) {
+            const icons = ['🐶', '🐱', '🐭', '🐹', '🐶', '🐱', '🐭', '🐹'];
+            // 隨機打亂
+            icons.sort(() => Math.random() - 0.5);
 
-            if (mobileSessionAvatars.length === 0) {
-                mobileSessionAvatars = [...allPossibleAvatars].sort(() => Math.random() - 0.5).slice(0, 4);
-                myAvatar = mobileSessionAvatars[0];
-            }
+            container.innerHTML = `
+                <div class="text-center space-y-4">
+                    <h4 class="font-bold text-slate-800">4x2 翻牌記憶體驗</h4>
+                    <div class="grid grid-cols-4 gap-3 max-w-xs mx-auto" id="card-grid"></div>
+                </div>
+            `;
 
-            grid.innerHTML = '';
-            mobileSessionAvatars.forEach(av => {
-                const isTaken = takenAvatars.includes(av) && av !== myAvatar;
-                const isSelected = av === myAvatar;
+            const grid = document.getElementById('card-grid');
+            let firstCard = null;
+            let lock = false;
 
+            icons.forEach((icon, i) => {
                 const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.disabled = isTaken;
-                btn.onclick = () => selectMobileAvatar(av, btn);
-                btn.className = `avatar-option-btn flex flex-col items-center justify-center p-2 bg-white rounded-2xl border-2 shadow-sm transition-all ${
-                    isSelected ? 'active border-chch-green opacity-100 shadow-md ring-2 ring-chch-green' : 
-                    isTaken ? 'border-slate-200 opacity-30 bg-slate-100 cursor-not-allowed' : 'border-slate-200 opacity-70'
-                }`;
+                btn.className = "w-14 h-14 bg-indigo-500 text-white font-bold text-xl rounded-lg shadow flex items-center justify-center transition";
+                btn.dataset.icon = icon;
+                btn.innerText = '?';
 
-                btn.innerHTML = `
-                    <span class="text-4xl">${av}</span>
-                    <span class="text-[10px] font-black text-slate-700 mt-1">${isTaken ? '已被選擇' : (isSelected ? '已選擇' : '可選擇')}</span>
-                `;
+                btn.onclick = function() {
+                    if(lock || btn.innerText !== '?') return;
+                    btn.innerText = icon;
+                    btn.classList.remove('bg-indigo-500');
+                    btn.classList.add('bg-white', 'text-slate-800', 'border-2', 'border-indigo-500');
+
+                    if(!firstCard) {
+                        firstCard = btn;
+                    } else {
+                        if(firstCard.dataset.icon === icon) {
+                            firstCard = null;
+                        } else {
+                            lock = true;
+                            setTimeout(() => {
+                                btn.innerText = '?';
+                                btn.className = "w-14 h-14 bg-indigo-500 text-white font-bold text-xl rounded-lg shadow flex items-center justify-center transition";
+                                firstCard.innerText = '?';
+                                firstCard.className = "w-14 h-14 bg-indigo-500 text-white font-bold text-xl rounded-lg shadow flex items-center justify-center transition";
+                                firstCard = null;
+                                lock = false;
+                            }, 800);
+                        }
+                    }
+                };
                 grid.appendChild(btn);
             });
         }
 
-        function selectMobileAvatar(avatarChar, btnEl) {
-            myAvatar = avatarChar;
-            renderMobileAvatarOptions([]);
-        }
-
-        function initMobileController(hostId) {
-            peer = new Peer();
-            peer.on('open', (id) => {
-                myPlayerId = 'p_' + id;
-                hostConn = peer.connect(hostId);
-
-                hostConn.on('open', () => {
-                    document.getElementById('player-mobile-name').innerText = "已連線至大螢幕";
-                    renderMobileAvatarOptions();
-                });
-
-                hostConn.on('data', (data) => {
-                    if (data.type === 'ASSIGN_AVATAR') {
-                        myAvatar = data.avatar;
-                        renderMobileAvatarOptions();
-                    } else if (data.type === 'AVATAR_UPDATE') {
-                        renderMobileAvatarOptions(data.takenAvatars || []);
-                    } else if (data.type === 'TURN_STATUS') {
-                        const alertEl = document.getElementById('mobile-move-alert');
-                        if (data.isYourTurn) {
-                            alertEl.classList.remove('hidden');
-                            // 調整 3：輪到參賽者時手機振動提醒
-                            try {
-                                if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-                            } catch(e){}
-                        } else {
-                            alertEl.classList.add('hidden');
-                        }
-                    } else if (data.type === 'SHOW_CHOICE') {
-                        showMobileChoiceUI(data.kind, data.extra);
-                    } else if (data.type === 'FINAL_RESULT') {
-                        showMobileFinalResult(data);
-                    }
-                });
-            });
-
-            document.getElementById('btn-mobile-join').addEventListener('click', () => {
-                const name = document.getElementById('mobile-name-input').value.trim();
-                if (!name) return alert('請輸入暱稱！');
-
-                if (hostConn && hostConn.open) {
-                    hostConn.send({ type: 'JOIN', name: name, playerId: myPlayerId, avatar: myAvatar });
-                    document.getElementById('player-mobile-name').innerText = `參賽者：${name}`;
-                    document.getElementById('mobile-join-form').classList.add('hidden');
-                    document.getElementById('mobile-controls-area').classList.remove('hidden');
-                    document.getElementById('mobile-status-text').innerText = '已成功進入遊戲，等待您的回合...';
-                    
-                    initMobileTouchAndGyro();
-                }
-            });
-        }
-
-        function initMobileTouchAndGyro() {
-            const area = document.getElementById('mobile-controls-area');
-            let isTouching = false;
-            let lastX = 0, lastY = 0;
-
-            area.addEventListener('touchstart', (e) => {
-                if (e.touches.length > 0) {
-                    isTouching = true;
-                    lastX = e.touches[0].clientX;
-                    lastY = e.touches[0].clientY;
-                }
-            }, { passive: true });
-
-            area.addEventListener('touchmove', (e) => {
-                if (!isTouching || e.touches.length === 0) return;
-                const clientX = e.touches[0].clientX;
-                const clientY = e.touches[0].clientY;
-
-                const deltaX = (clientX - lastX) * 0.005;
-                const deltaY = (clientY - lastY) * 0.005;
-
-                lastX = clientX;
-                lastY = clientY;
-
-                if (hostConn && hostConn.open) {
-                    hostConn.send({ type: 'MOVE', playerId: myPlayerId, deltaX: deltaX, deltaY: deltaY });
-                }
-            }, { passive: true });
-
-            area.addEventListener('touchend', () => { isTouching = false; }, { passive: true });
-
-            if (window.DeviceOrientationEvent) {
-                window.addEventListener('deviceorientation', (e) => {
-                    const gamma = e.gamma || 0;
-                    const beta = e.beta || 0;
-                    if (Math.abs(gamma) > 2 || Math.abs(beta) > 2) {
-                        if (hostConn && hostConn.open) {
-                            hostConn.send({
-                                type: 'MOVE',
-                                playerId: myPlayerId,
-                                deltaX: (gamma / 30) * 0.02,
-                                deltaY: (beta / 30) * 0.02
-                            });
-                        }
-                    }
-                });
-            }
-        }
-
-        function showMobileChoiceUI(kind, extra) {
-            const panel = document.getElementById('mobile-choice-panel');
-            const choiceBtns = document.getElementById('choice-buttons');
-            const weakBtns = document.getElementById('weak-buttons');
-            const titleEl = document.getElementById('choice-title');
-
-            panel.classList.remove('hidden');
-            panel.classList.add('flex');
-
-            if (kind === 'chance') {
-                titleEl.innerText = "機會事件：選擇給予或搶奪 50 分 (成功率 30%)";
-                choiceBtns.classList.remove('hidden');
-                choiceBtns.classList.add('grid');
-                weakBtns.classList.add('hidden');
-            } else if (kind === 'weak') {
-                titleEl.innerText = `弱勢扶助：${extra.age}給予 ${extra.box}提供協助？`;
-                choiceBtns.classList.add('hidden');
-                weakBtns.classList.remove('hidden');
-                weakBtns.classList.add('grid');
-            }
-        }
-
-        function submitMobileChoice(choiceStr) {
-            document.getElementById('mobile-choice-panel').classList.add('hidden');
-            if (hostConn && hostConn.open) {
-                hostConn.send({ type: 'CHOICE_RESULT', playerId: myPlayerId, choice: choiceStr });
-            }
-        }
-
-        // 調整 1 & 5：第一圈踩中起點加 30 分，角色移動時播放 Step 音效
-        function handleDiceMove(playerId, number) {
-            const p = players.find(player => player.id === playerId);
-            if (!p) return;
-
-            let stepCount = 0;
-
-            const moveInterval = setInterval(() => {
-                p.tileIndex = (p.tileIndex + 1) % 20;
-                stepCount++;
-
-                // 調整 5：每移動一格播放步進音效
-                playStepMoveSound();
-
-                if (p.tileIndex === 0) {
-                    p.laps++;
-                }
-
-                updatePlayerPositionsUI();
-
-                if (stepCount >= number) {
-                    clearInterval(moveInterval);
-                    
-                    // 調整 1：第一圈開始只要剛好踩中起點(0號格)就加 30 分
-                    if (p.tileIndex === 0) {
-                        p.score += 30;
-                    }
-
-                    document.getElementById('current-player-score-badge').innerText = `${p.score} 分`;
-                    setTimeout(() => triggerTileEvent(p), 500);
-                }
-            }, 300);
-        }
-
-        let pendingEventPlayer = null;
-        let pendingWeakIsCorrectCombo = false;
-
-        function triggerTileEvent(p) {
-            pendingEventPlayer = p;
-            const tile = mapTiles[p.tileIndex];
-
-            if (tile.type === '起點') {
-                showNoticeOverlay("起點", "剛好踩中起點，獲得獎勵積分 30 分！", 30, "🚩", "超級幸運！停在起點獲得 30 分大獎勵！");
-            } else if (tile.type === '機會') {
-                if (p.score < 50) {
-                    showNoticeOverlay("機會", "無機會（本身無 50 以上積分）。", 0, "❓", "積分還不夠 50 分，這次先進入無機會喔！");
-                } else {
-                    document.getElementById('player-info-container').classList.add('hidden');
-                    document.getElementById('center-chance-box').classList.remove('hidden');
-
-                    if (p.isAI) {
-                        const aiChoice = Math.random() < 0.5 ? 'give' : 'rob';
-                        handlePlayerChoice(p.id, aiChoice);
-                    } else if (p.conn) {
-                        p.conn.send({ type: 'SHOW_CHOICE', kind: 'chance' });
-                    }
-                }
-            } else if (tile.type === '休息') {
-                const rand = Math.random();
-                if (rand < 0.2) {
-                    let targetPlayer = [...players].sort((a, b) => b.laps - a.laps)[0];
-                    if (targetPlayer.id === p.id && players.length > 1) {
-                        targetPlayer = [...players].sort((a, b) => b.laps - a.laps)[1];
-                    }
-                    
-                    // 調整 2：觸發閃爍 3 秒，結束後才彈出通知，不會被遮罩覆蓋
-                    triggerExchangeFlashAnimation(p.id, targetPlayer.id, () => {
-                        const tempTile = p.tileIndex;
-                        p.tileIndex = targetPlayer.tileIndex;
-                        targetPlayer.tileIndex = tempTile;
-                        updatePlayerPositionsUI();
-                        showNoticeOverlay("休息", `與最快參賽者 ${targetPlayer.name} 交換位置！`, 0, "☕", "跟跑最快的小朋友交換地圖位置囉！");
-                    });
-                    return;
-                } else if (rand < 0.4) {
-                    let targetPlayer = [...players].sort((a, b) => a.laps - b.laps)[0];
-                    if (targetPlayer.id === p.id && players.length > 1) {
-                        targetPlayer = [...players].sort((a, b) => a.laps - b.laps)[1];
-                    }
-
-                    // 調整 2：觸發閃爍 3 秒，結束後才彈出通知，不會被遮罩覆蓋
-                    triggerExchangeFlashAnimation(p.id, targetPlayer.id, () => {
-                        const tempTile = p.tileIndex;
-                        p.tileIndex = targetPlayer.tileIndex;
-                        targetPlayer.tileIndex = tempTile;
-                        updatePlayerPositionsUI();
-                        showNoticeOverlay("休息", `與最慢參賽者 ${targetPlayer.name} 交換位置！`, 0, "☕", "跟跑在最後面的小朋友交換地圖位置囉！");
-                    });
-                    return;
-                } else {
-                    showNoticeOverlay("休息", "好好休息一回合。", 0, "☕", "辛苦囉！停下來喝口水休息一下！");
-                }
-                updatePlayerPositionsUI();
-            } else if (tile.type === '命運') {
-                const rand = Math.random();
-                if (rand < 0.3) {
-                    const highest = [...players].sort((a,b) => b.score - a.score)[0];
-                    const tempScore = p.score; p.score = highest.score; highest.score = tempScore;
-                    showNoticeOverlay("命運", "與最高積分參賽者對換分數！", 0, "🔮", "哇！跟你跟最高分的小朋友交換分數囉！");
-                } else if (rand < 0.6) {
-                    players.forEach(player => player.score = Math.max(0, player.score - 50));
-                    showNoticeOverlay("命運", "全部參賽者積分減少 50 分！", -50, "🔮", "大家一起扣 50 分，繼續加油！");
-                } else if (rand < 0.9) {
-                    const avg = Math.floor(players.reduce((s, player) => s + player.score, 0) / players.length);
-                    players.forEach(player => player.score = avg);
-                    showNoticeOverlay("命運", "全部參賽者積分平均！", 0, "🔮", "大家的分數變成一樣多囉！");
-                } else {
-                    showNoticeOverlay("命運", "平安無事，平安是福。", 0, "🔮", "好幸運！什麼事都沒有發生～");
-                }
-                updatePlayerPositionsUI();
-            } else if (tile.type === '弱勢扶助') {
-                const chosenAge = weakAgeCategories[Math.floor(Math.random() * weakAgeCategories.length)];
-                
-                let chosenBox = "";
-                const makeCorrect = Math.random() < 0.5;
-
-                if (makeCorrect) {
-                    chosenBox = weakCorrectAnswersMap[chosenAge];
-                    pendingWeakIsCorrectCombo = true;
-                } else {
-                    const wrongBoxes = weakBoxTypes.filter(b => b !== weakCorrectAnswersMap[chosenAge]);
-                    chosenBox = wrongBoxes[Math.floor(Math.random() * wrongBoxes.length)];
-                    pendingWeakIsCorrectCombo = false;
-                }
-
-                document.getElementById('player-info-container').classList.add('hidden');
-                const qBox = document.getElementById('center-question-box');
-                
-                document.getElementById('center-question-line1').innerText = `${chosenAge}給予`;
-                document.getElementById('center-question-line2').innerText = `${chosenBox}提供協助`;
-                
-                qBox.classList.remove('hidden');
-
-                if (p.isAI) {
-                    const aiAccuracy = (p.strength || 80) / 100;
-                    const isAiRight = Math.random() < aiAccuracy;
-                    const aiUserChoice = isAiRight ? (pendingWeakIsCorrectCombo ? 'correct' : 'wrong') : (pendingWeakIsCorrectCombo ? 'wrong' : 'correct');
-                    handlePlayerChoice(p.id, aiUserChoice);
-                } else if (p.conn) {
-                    p.conn.send({ 
-                        type: 'SHOW_CHOICE', 
-                        kind: 'weak', 
-                        extra: { age: chosenAge, box: chosenBox } 
-                    });
-                }
-            } else if (eventDefinitions[tile.type]) {
-                const list = eventDefinitions[tile.type];
-                const item = list[Math.floor(Math.random() * list.length)];
-                p.score += item.score;
-                showNoticeOverlay(item.title, item.text, item.score, item.icon1, item.childText, item.icon2);
-            }
-        }
-
-        // 調整 2：雙方頭像放大縮小閃爍 3 秒且不被遮罩遮擋
-        function triggerExchangeFlashAnimation(p1Id, p2Id, callback) {
-            const avatar1 = document.getElementById(`player-tile-avatar-${p1Id}`);
-            const avatar2 = document.getElementById(`player-tile-avatar-${p2Id}`);
-
-            if (avatar1) avatar1.classList.add('animate-exchange-bounce');
-            if (avatar2) avatar2.classList.add('animate-exchange-bounce');
-
-            playScoreExplodeSound();
-
-            setTimeout(() => {
-                if (avatar1) avatar1.classList.remove('animate-exchange-bounce');
-                if (avatar2) avatar2.classList.remove('animate-exchange-bounce');
-                if (callback) callback();
-            }, 3000);
-        }
-
-        function handlePlayerChoice(playerId, choice) {
-            const p = players.find(player => player.id === playerId);
-            if (!p) return;
-
-            const tile = mapTiles[p.tileIndex];
-
-            if (tile.type === '機會') {
-                document.getElementById('center-chance-box').classList.add('hidden');
-                document.getElementById('player-info-container').classList.remove('hidden');
-
-                const isSuccess = Math.random() < 0.3;
-                if (choice === 'give') {
-                    if (isSuccess) {
-                        const otherPlayers = players.filter(player => player.id !== p.id);
-                        if (otherPlayers.length > 0) {
-                            const target = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
-                            target.score += 50;
-                        }
-                        p.score = p.score - 50 + 125;
-                        showNoticeOverlay("機會", "給予成功！隨機給予參賽者 50 分，本身減少 50 分後增加 125 分！", 75, "❓", "太有愛心了！幫助別人自己也得到大獎勵！");
-                    } else {
-                        p.skipTurn = true;
-                        showNoticeOverlay("機會", "給予失敗！停止一回合。", 0, "❓", "這次沒有給成功，休息停一回合喔！");
-                    }
-                } else if (choice === 'rob') {
-                    if (isSuccess) {
-                        const otherPlayers = players.filter(player => player.id !== p.id);
-                        if (otherPlayers.length > 0) {
-                            const target = otherPlayers[Math.floor(Math.random() * otherPlayers.length)];
-                            target.score = Math.max(0, target.score - 50);
-                        }
-                        p.score += 50;
-                        showNoticeOverlay("機會", "搶奪成功！隨機參賽者減少 50 分，本身增加 50 分！", 50, "❓", "成功拿到了 50 分！");
-                    } else {
-                        p.score = Math.max(0, p.score - 25);
-                        showNoticeOverlay("機會", "搶奪失敗！減少 25 分。", -25, "❓", "壞事沒做成，自己扣了 25 分喔！");
-                    }
-                }
-            } else if (tile.type === '弱勢扶助') {
-                document.getElementById('center-question-box').classList.add('hidden');
-                document.getElementById('player-info-container').classList.remove('hidden');
-
-                const isPlayerChoiceCorrectBtn = (choice === 'correct');
-
-                if (isPlayerChoiceCorrectBtn === pendingWeakIsCorrectCombo) {
-                    p.score += 15;
-                    showNoticeOverlay("弱勢扶助", "回應正確！獲得 15 分。", 15, "🤝", "答對囉！成功把正確的食物箱送給最需要的人！");
-                } else {
-                    showNoticeOverlay("弱勢扶助", "回應錯誤！獲得 0 分。", 0, "🤝", "答錯囉，下次要看清楚年齡層與正確的食物箱名稱喔！");
-                }
-            }
-
-            document.getElementById('current-player-score-badge').innerText = `${p.score} 分`;
-            updatePlayerPositionsUI();
-        }
-
-        function showNoticeOverlay(title, text, scoreDelta, icon1, childText, icon2 = "🍲") {
-            const overlay = document.getElementById('tile-notice-overlay');
-            const scoreEl = document.getElementById('score-change-text');
-
-            document.getElementById('notice-icon-1').innerText = icon1 || "🏠";
-            document.getElementById('notice-icon-2').innerText = icon2 || "🍲";
-            document.getElementById('notice-title').innerText = title;
-            document.getElementById('notice-original-text').innerText = text;
-            document.getElementById('notice-child-text').innerText = childText;
-
-            scoreEl.innerText = scoreDelta >= 0 ? `+${scoreDelta}分` : `${scoreDelta}分`;
-            scoreEl.className = "text-6xl md:text-7xl font-black text-rose-600 tracking-wider drop-shadow-lg inline-block animate-score-explode animate-vibrate-score";
-
-            overlay.classList.remove('hidden');
-
-            if (scoreDelta > 0) {
-                playScoreExplodeSound();
-                
-                confetti({
-                    particleCount: 80,
-                    spread: 100,
-                    origin: { y: 0.5 },
-                    colors: ['#e11d48', '#f59e0b', '#10b981', '#3b82f6']
-                });
-            }
-
-            try {
-                if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200, 100, 200]);
-            } catch(e){}
-
-            setTimeout(() => {
-                overlay.classList.add('hidden');
-                checkGameEndConditions();
-            }, 4000);
-        }
-
-        function checkGameEndConditions() {
-            let isEnd = false;
-
-            if (roundMode === 'score') {
-                if (players.some(p => p.score >= targetScore)) isEnd = true;
-            } else {
-                const maxLapsNeeded = parseInt(roundMode, 10);
-                if (players.some(p => p.laps >= maxLapsNeeded)) isEnd = true;
-            }
-
-            if (isEnd) {
-                isGameRunning = false;
-                showFinalResult();
-            } else {
-                currentTurnIndex = (currentTurnIndex + 1) % players.length;
-                nextTurn();
-            }
-        }
-
-        function showFinalResult() {
-            document.getElementById('view-result').classList.remove('hidden');
-
-            fadeMusicVolumeOut();
-
-            const allSorted = [...players].sort((a,b) => b.score - a.score);
-
-            for (let i = 0; i < 4; i++) {
-                const p = allSorted[i];
-                const avatarEl = document.getElementById(`rank-${i+1}-avatar`);
-                const nameEl = document.getElementById(`rank-${i+1}-name`);
-                const scoreEl = document.getElementById(`rank-${i+1}-score`);
-
-                if (p) {
-                    avatarEl.innerText = p.avatar;
-                    nameEl.innerText = p.name;
-                    scoreEl.innerText = `${p.score} 分`;
-                } else {
-                    avatarEl.innerText = "❓";
-                    nameEl.innerText = "虛位以待";
-                    scoreEl.innerText = "0 分";
-                }
-            }
-
-            players.forEach(p => {
-                if (p.conn) {
-                    const rank = allSorted.findIndex(s => s.id === p.id) + 1;
-                    p.conn.send({
-                        type: 'FINAL_RESULT',
-                        rank: rank,
-                        score: p.score,
-                        totalPlayers: allSorted.length
-                    });
-                }
-            });
-
-            launch8SecFireworks();
-        }
-
-        function fadeMusicVolumeOut() {
-            const bgm = document.getElementById('bgm');
-            const inGameAudio = document.getElementById('audioPlayerInGame');
-
-            const fadeInterval = setInterval(() => {
-                let currentVol = bgm ? bgm.volume : 0;
-                if (currentVol > 0.01) {
-                    currentVol = Math.max(0, currentVol - 0.01);
-                    if (bgm) bgm.volume = currentVol;
-                    if (inGameAudio) inGameAudio.volume = currentVol;
-                } else {
-                    if (bgm) { bgm.volume = 0; bgm.pause(); }
-                    if (inGameAudio) { inGameAudio.volume = 0; inGameAudio.pause(); }
-                    clearInterval(fadeInterval);
-                }
-            }, 1000);
-        }
-
-        function showMobileFinalResult(data) {
-            document.getElementById('mobile-half-display').classList.add('hidden');
-            document.getElementById('mobile-controls-area').classList.add('hidden');
-            document.getElementById('mobile-choice-panel').classList.add('hidden');
-            document.getElementById('mobile-status-text').classList.add('hidden');
-
-            const resultBox = document.createElement('div');
-            resultBox.className = "my-auto flex flex-col items-center justify-center space-y-4 text-center bg-white border-2 border-amber-300 p-8 rounded-3xl shadow-2xl w-full";
-            resultBox.innerHTML = `
-                <span class="text-6xl">🏆</span>
-                <h2 class="text-2xl font-black text-chch-orange">惜食大富翁 最終結算</h2>
-                <div class="text-5xl font-black text-slate-800">第 ${data.rank} 名</div>
-                <div class="text-lg font-bold text-slate-500">共 ${data.totalPlayers} 人</div>
-                <div class="text-2xl font-bold text-slate-700">總得分：<span class="text-chch-green font-black">${data.score}</span> 分</div>
+        // --- 簡易 Demo 3: 三門問題 ---
+        function initMontyHall(container) {
+            const carDoor = Math.floor(Math.random() * 3);
+            
+            container.innerHTML = `
+                <div class="text-center space-y-4 max-w-md">
+                    <h4 class="font-bold text-slate-800">三門問題 (Monty Hall Problem)</h4>
+                    <p class="text-xs text-slate-500">三扇門後有一輛汽車與兩隻山羊，請選擇一扇門：</p>
+                    <div class="flex gap-4 justify-center" id="doors-container">
+                        <button onclick="chooseDoor(0, ${carDoor})" class="w-20 h-28 bg-amber-700 text-white font-bold rounded-lg shadow hover:bg-amber-800">門 1</button>
+                        <button onclick="chooseDoor(1, ${carDoor})" class="w-20 h-28 bg-amber-700 text-white font-bold rounded-lg shadow hover:bg-amber-800">門 2</button>
+                        <button onclick="chooseDoor(2, ${carDoor})" class="w-20 h-28 bg-amber-700 text-white font-bold rounded-lg shadow hover:bg-amber-800">門 3</button>
+                    </div>
+                    <div id="monty-msg" class="text-sm font-medium text-indigo-600 h-8"></div>
+                </div>
             `;
-            document.getElementById('view-player-mobile').appendChild(resultBox);
         }
 
-        function launch8SecFireworks() {
-            const duration = 8 * 1000;
-            const animationEnd = Date.now() + duration;
-
-            const interval = setInterval(() => {
-                const timeLeft = animationEnd - Date.now();
-                if (timeLeft <= 0) {
-                    return clearInterval(interval);
-                }
-
-                confetti({
-                    particleCount: 50,
-                    startVelocity: 35,
-                    spread: 360,
-                    ticks: 80,
-                    origin: {
-                        x: Math.random(),
-                        y: Math.random() * 0.6 + 0.1
-                    }
-                });
-            }, 300);
+        function chooseDoor(chosen, car) {
+            let hostOpen = [0, 1, 2].find(d => d !== chosen && d !== car);
+            document.getElementById('monty-msg').innerText = `主持人為您開啟了門 ${hostOpen + 1}，後面是一隻山羊！數學上，此時「換門」獲得汽車的機率會提高至 2/3！`;
         }
     </script>
 </body>
