@@ -233,7 +233,7 @@
             </div>
         </div>
 
-        <!-- 調整 2：遊戲開始 3 秒倒數計時 Overlay -->
+        <!-- 遊戲開始 3 秒倒數計時 Overlay -->
         <div id="start-countdown-overlay" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex flex-col items-center justify-center text-white">
             <div id="countdown-player-prompt" class="text-3xl md:text-5xl font-black mb-6 text-amber-300 tracking-wider">
                 第一位參賽者 請準備
@@ -293,7 +293,7 @@
                 </div>
             </div>
 
-            <!-- 手機端回應面板（包含機會與弱勢扶助選擇按鈕） -->
+            <!-- 手機端回應面板 -->
             <div id="mobile-choice-panel" class="hidden flex-col items-center justify-center space-y-4 bg-white border-2 border-chch-green/40 p-6 rounded-3xl shadow-xl my-auto w-full z-40">
                 <div id="choice-title" class="text-xl font-black text-slate-800 text-center leading-snug">請選擇行動</div>
                 <div id="choice-buttons" class="grid grid-cols-2 gap-4 w-full">
@@ -346,13 +346,22 @@
                 <!-- 中央 6x2 區域 -->
                 <div id="center-board-area" class="col-start-2 col-span-6 row-start-2 row-span-2 bg-white/95 rounded-2xl border-4 border-chch-green shadow-xl relative overflow-hidden flex justify-between p-2 z-10">
                     
-                    <!-- 左邊一半：玩家圖像及名稱 / 弱勢扶助題目區塊 / 機會選擇區塊 -->
-                    <div class="w-1/2 h-full border-r-4 border-chch-green/20 flex flex-col items-center justify-center p-3 bg-gradient-to-br from-chch-lightGreen/50 to-amber-50/50 rounded-l-xl relative">
+                    <!-- 調整 1：中央區域左半邊【顯示頭像 + 名稱 + 分數】 -->
+                    <div class="w-1/2 h-full border-r-4 border-chch-green/20 flex flex-col items-center justify-center p-2 bg-gradient-to-br from-chch-lightGreen/50 to-amber-50/50 rounded-l-xl relative">
                         
-                        <div id="player-info-container" class="flex flex-col items-center justify-center w-full h-full">
-                            <span class="text-xs font-black text-chch-darkGreen bg-white px-3 py-1 rounded-full border border-chch-green/30 mb-2 shadow-sm">當前回合參賽者</span>
-                            <div id="current-player-avatar" class="text-7xl md:text-7xl animate-bounce my-2 drop-shadow-md">🦌</div>
-                            <div id="current-player-name" class="text-2xl md:text-3xl font-black text-slate-800 tracking-wider">參賽者名稱</div>
+                        <div id="player-info-container" class="flex flex-col items-center justify-center w-full h-full space-y-1">
+                            <span class="text-xs font-black text-chch-darkGreen bg-white px-3 py-0.5 rounded-full border border-chch-green/30 shadow-sm">當前回合參賽者</span>
+                            
+                            <!-- 參賽者圖示 -->
+                            <div id="current-player-avatar" class="text-6xl md:text-7xl animate-bounce my-1 drop-shadow-md">🦌</div>
+                            
+                            <!-- 參賽者名稱 -->
+                            <div id="current-player-name" class="text-xl md:text-2xl font-black text-slate-800 tracking-wider truncate max-w-full">參賽者名稱</div>
+                            
+                            <!-- 參賽者當前分數標籤 -->
+                            <div id="current-player-score-badge" class="bg-chch-orange/10 border-2 border-chch-orange/40 text-chch-orange px-4 py-0.5 rounded-full font-black text-lg md:text-xl shadow-sm">
+                                0 分
+                            </div>
                         </div>
 
                         <!-- 弱勢扶助問答關卡區塊 -->
@@ -364,7 +373,7 @@
                             </div>
                         </div>
 
-                        <!-- 調整 4：中央區域左半邊同步顯示「機會」選項 -->
+                        <!-- 中央區域左半邊「機會」選項 -->
                         <div id="center-chance-box" class="hidden absolute inset-0 bg-emerald-50 p-6 rounded-l-xl flex flex-col items-center justify-center text-center shadow-inner border-r-2 border-emerald-300 z-20">
                             <span class="text-xs md:text-sm font-black text-chch-green bg-emerald-200/80 px-4 py-1 rounded-full border border-emerald-400 mb-4 shadow-sm">❓ 機會選擇（成功率 30%）</span>
                             <div class="grid grid-cols-2 gap-3 w-full">
@@ -403,12 +412,13 @@
 
                 </div>
 
-                <!-- 中央全螢幕 80% 觸動格子通知窗格 -->
-                <div id="tile-notice-overlay" class="hidden absolute inset-0 z-40 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6">
+                <!-- 調整 3 & 4：中央全螢幕【背景透明度 75%】+【顯示 4 秒】+【左側圖示放大 20%】 -->
+                <div id="tile-notice-overlay" class="hidden absolute inset-0 z-40 bg-black/75 backdrop-blur-md flex items-center justify-center p-6">
                     <div id="notice-box" class="w-[80%] h-[80%] bg-white/95 rounded-3xl border-4 border-chch-green shadow-2xl p-6 flex items-center justify-between overflow-hidden relative">
+                        <!-- 調整 4：左半邊上下兩個圖示放大 20% (由 text-[7rem] 放大至 text-[8.5rem]) -->
                         <div class="w-1/2 h-full flex flex-col items-center justify-around border-r-2 border-chch-green/20 p-4">
-                            <span id="notice-icon-1" class="text-[7rem]">🚨</span>
-                            <span id="notice-icon-2" class="text-[7rem]">🍲</span>
+                            <span id="notice-icon-1" class="text-[8.5rem]">🚨</span>
+                            <span id="notice-icon-2" class="text-[8.5rem]">🍲</span>
                         </div>
                         <div class="w-1/2 h-full flex flex-col justify-between p-6 text-left">
                             <div class="w-full flex-grow flex flex-col justify-start">
@@ -443,7 +453,6 @@
 
                 <div id="result-four-grid" class="grid grid-cols-4 gap-4 flex-grow my-2">
                     
-                    <!-- 第 1 名區塊 -->
                     <div id="rank-card-1" class="bg-gradient-to-b from-amber-100 via-amber-50 to-amber-200/90 rounded-2xl border-4 border-amber-400 p-3 flex flex-col items-center justify-between text-center relative shadow-xl overflow-visible">
                         <div class="absolute -top-14 md:-top-16 text-8xl md:text-9xl drop-shadow-[0_10px_25px_rgba(245,158,11,0.9)] animate-super-crown z-0 pointer-events-none">
                             👑
@@ -499,7 +508,6 @@
     <script>
         const animalAvatars = ['🦌', '🐱', '🐷', '🌸'];
 
-        // 調整 1：弱勢扶助正確答案標準對應表
         const weakAgeCategories = ["0-3歲", "3-15歲", "65-80歲", "80歲以上"];
         const weakBoxTypes = ["嬰兒物資箱", "膳糧食物箱", "長青食物箱", "松柏食物箱"];
         
@@ -751,11 +759,9 @@
                 bgm.play().catch(() => {});
             }
 
-            // 調整 2：開始時進入 3 秒倒數計時與提示第一位參賽者請準備
             runStartCountdownAnimation();
         }
 
-        // 調整 2：倒數計時 3、2、1 邏輯
         function runStartCountdownAnimation() {
             const overlay = document.getElementById('start-countdown-overlay');
             const numEl = document.getElementById('countdown-num');
@@ -905,6 +911,7 @@
         let ballPhysicsAnimFrame = null;
         let speedBoostTimer = null;
 
+        // 調整 1：中央左半邊【顯示當前玩家頭像 + 名稱 + 分數】
         function nextTurn() {
             if (!isGameRunning) return;
 
@@ -923,6 +930,7 @@
 
             document.getElementById('current-player-avatar').innerText = p.avatar;
             document.getElementById('current-player-name').innerText = p.name;
+            document.getElementById('current-player-score-badge').innerText = `${p.score} 分`;
 
             const readyOverlay = document.getElementById('ready-prompt-overlay');
             document.getElementById('ready-player-text').innerText = `${p.name} 請準備`;
@@ -1202,22 +1210,24 @@
             }
         }
 
-        // 調整 3：第二圈開始，經過起點+20分，剛好踩中起點+30分 (不再疊加經過分數)
+        // 調整 2：第二圈起點精確加分邏輯 (經過+20，踩中+30不重疊)
         function handleDiceMove(playerId, number) {
             const p = players.find(player => player.id === playerId);
             if (!p) return;
 
             let stepCount = 0;
-            let passedStartLineThisMove = false;
+            let startPassed = false;
 
             const moveInterval = setInterval(() => {
+                const oldIndex = p.tileIndex;
                 p.tileIndex = (p.tileIndex + 1) % 20;
                 stepCount++;
 
+                // 跨過 0 號起點格子判定
                 if (p.tileIndex === 0) {
                     p.laps++;
                     if (p.laps >= 2) {
-                        passedStartLineThisMove = true;
+                        startPassed = true;
                     }
                 }
 
@@ -1226,16 +1236,18 @@
                 if (stepCount >= number) {
                     clearInterval(moveInterval);
                     
+                    // 第二圈起算加分
                     if (p.laps >= 2) {
                         if (p.tileIndex === 0) {
-                            // 剛好踩中起點，只加 30 分
+                            // 剛好停在起點，加 30 分
                             p.score += 30;
-                        } else if (passedStartLineThisMove) {
-                            // 僅經過起點，加 20 分
+                        } else if (startPassed) {
+                            // 經過起點，加 20 分
                             p.score += 20;
                         }
                     }
 
+                    document.getElementById('current-player-score-badge').innerText = `${p.score} 分`;
                     setTimeout(() => triggerTileEvent(p), 500);
                 }
             }, 300);
@@ -1255,7 +1267,6 @@
                     showNoticeOverlay("起點", "起點，第一圈尚未開始累積過點分數。", 0, "🚩", "加油！繼續向前跑！");
                 }
             } else if (tile.type === '機會') {
-                // 調整 4：機會邏輯 (無機會與手機/中央區域同步)
                 if (p.score < 50) {
                     showNoticeOverlay("機會", "無機會（本身無 50 以上積分）。", 0, "❓", "積分還不夠 50 分，這次先進入無機會喔！");
                 } else {
@@ -1298,25 +1309,23 @@
                 }
                 updatePlayerPositionsUI();
             } else if (tile.type === '命運') {
-                // 調整 5：命運機率配比 30%、30%、30%、10%
                 const rand = Math.random();
-                if (rand < 0.3) { // 30% 機率
+                if (rand < 0.3) {
                     const highest = [...players].sort((a,b) => b.score - a.score)[0];
                     const tempScore = p.score; p.score = highest.score; highest.score = tempScore;
                     showNoticeOverlay("命運", "與最高積分參賽者對換分數！", 0, "🔮", "哇！跟你跟最高分的小朋友交換分數囉！");
-                } else if (rand < 0.6) { // 30% 機率
+                } else if (rand < 0.6) {
                     players.forEach(player => player.score = Math.max(0, player.score - 50));
                     showNoticeOverlay("命運", "全部參賽者積分減少 50 分！", -50, "🔮", "大家一起扣 50 分，繼續加油！");
-                } else if (rand < 0.9) { // 30% 機率
+                } else if (rand < 0.9) {
                     const avg = Math.floor(players.reduce((s, player) => s + player.score, 0) / players.length);
                     players.forEach(player => player.score = avg);
                     showNoticeOverlay("命運", "全部參賽者積分平均！", 0, "🔮", "大家的分數變成一樣多囉！");
-                } else { // 10% 機率 (0.9 ~ 1.0)
+                } else {
                     showNoticeOverlay("命運", "平安無事，平安是福。", 0, "🔮", "好幸運！什麼事都沒有發生～");
                 }
                 updatePlayerPositionsUI();
             } else if (tile.type === '弱勢扶助') {
-                // 調整 1：弱勢扶助題目組合與邏輯
                 const chosenAge = weakAgeCategories[Math.floor(Math.random() * weakAgeCategories.length)];
                 
                 let chosenBox = "";
@@ -1367,7 +1376,7 @@
                 document.getElementById('center-chance-box').classList.add('hidden');
                 document.getElementById('player-info-container').classList.remove('hidden');
 
-                const isSuccess = Math.random() < 0.3; // 調整 4：30% 成功機率
+                const isSuccess = Math.random() < 0.3;
                 if (choice === 'give') {
                     if (isSuccess) {
                         const otherPlayers = players.filter(player => player.id !== p.id);
@@ -1409,9 +1418,11 @@
                 }
             }
 
+            document.getElementById('current-player-score-badge').innerText = `${p.score} 分`;
             updatePlayerPositionsUI();
         }
 
+        // 調整 3 & 4：通知窗格顯示時間降為 4 秒 (4000ms)
         function showNoticeOverlay(title, text, scoreDelta, icon1, childText, icon2 = "🍲") {
             const overlay = document.getElementById('tile-notice-overlay');
             const scoreEl = document.getElementById('score-change-text');
@@ -1442,10 +1453,11 @@
                 if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200, 100, 200]);
             } catch(e){}
 
+            // 調整 4：改為 4000 毫秒 (4 秒)
             setTimeout(() => {
                 overlay.classList.add('hidden');
                 checkGameEndConditions();
-            }, 5000);
+            }, 4000);
         }
 
         function checkGameEndConditions() {
