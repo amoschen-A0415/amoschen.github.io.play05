@@ -78,7 +78,7 @@
             box-shadow: 0 2px 4px rgba(217, 119, 6, 0.2);
         }
 
-        /* 專屬加分文字震動與爆炸彈出動畫 */
+        /* 加分文字爆破動畫 */
         @keyframes score-explode-vibrate {
             0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
             40% { transform: scale(1.3) rotate(5deg); opacity: 1; }
@@ -102,10 +102,6 @@
 
         .animate-vibrate-score {
             animation: score-continuous-vibrate 0.3s infinite;
-        }
-
-        .gyro-ball {
-            transition: transform 0.05s linear;
         }
     </style>
 </head>
@@ -163,7 +159,7 @@
                                 <i class="fa-solid fa-circle-info"></i> 遊戲規則指南
                             </div>
                             <ul class="list-disc list-inside space-y-1 text-xs text-slate-700 font-medium">
-                                <li>輪到您的回合時，請透過手機陀螺儀移動小球，碰撞 1-6 號號碼球移動！</li>
+                                <li>輪到參賽者時，大螢幕跳出 1-6 號球，請操作手機移動碰撞數字球前進！</li>
                                 <li>解決路途上的各種情況獲取積分、道具，並觸發機會與命運。</li>
                             </ul>
                         </div>
@@ -175,7 +171,6 @@
                             <i class="fa-solid fa-sliders"></i> 遊戲設定選單
                         </h3>
                         <div class="grid grid-cols-3 gap-2">
-                            <!-- 初賽題數條件 -->
                             <div class="flex flex-col gap-1">
                                 <label for="select-round-mode" class="text-xs text-chch-darkGreen font-bold">初賽題數(跑幾圈)</label>
                                 <select id="select-round-mode" onchange="toggleScoreMenu()" class="bg-white text-slate-700 font-bold p-1.5 rounded-xl border border-chch-green/40 outline-none focus:border-chch-green cursor-pointer shadow-sm text-xs">
@@ -185,7 +180,6 @@
                                     <option value="score">分數制</option>
                                 </select>
                             </div>
-                            <!-- 決賽題數條件 -->
                             <div id="score-menu-box" class="hidden flex-col gap-1">
                                 <label for="select-target-score" class="text-xs text-chch-darkGreen font-bold">決賽題數(總分數)</label>
                                 <select id="select-target-score" class="bg-white text-slate-700 font-bold p-1.5 rounded-xl border border-chch-green/40 outline-none focus:border-chch-green cursor-pointer shadow-sm text-xs">
@@ -195,7 +189,6 @@
                                     <option value="999">999 分</option>
                                 </select>
                             </div>
-                            <!-- AI 參賽人數 -->
                             <div class="flex flex-col gap-1">
                                 <label for="select-ai-count" class="text-xs text-chch-darkGreen font-bold">AI參賽人數</label>
                                 <select id="select-ai-count" class="bg-white text-slate-700 font-bold p-1.5 rounded-xl border border-chch-green/40 outline-none focus:border-chch-green cursor-pointer shadow-sm text-xs">
@@ -218,18 +211,26 @@
             </div>
         </div>
 
-        <!-- 手機端 - 控制與陀螺儀移動端 (每次輪到參賽者時觸發) -->
+        <!-- 手機端 - 參賽者控制端 (參照物資接接接模式：佔半個螢幕大小圖示) -->
         <div id="view-player-mobile" class="hidden fixed inset-0 z-50 bg-slate-50 p-4 flex-col justify-between overflow-hidden">
-            <div id="mobile-top-bar" class="text-center space-y-1 flex-shrink-0 pt-2">
-                <span class="text-4xl">🍲</span>
-                <h2 class="text-2xl font-black text-chch-darkGreen">安得烈惜食大富翁</h2>
-                <p id="player-mobile-name" class="text-chch-orange font-bold text-base">正在連線大螢幕...</p>
-                <div id="mobile-avatar-display" class="hidden text-6xl py-2 animate-bounce">
+            
+            <!-- 上半個螢幕 (50% 空間)：顯示角色圖示與大字提醒 -->
+            <div id="mobile-half-display" class="w-full h-[48%] bg-gradient-to-b from-chch-lightGreen to-emerald-100 rounded-3xl border-4 border-chch-green shadow-xl flex flex-col items-center justify-center p-4 relative overflow-hidden">
+                <span class="text-xs font-black text-chch-darkGreen bg-white px-3 py-1 rounded-full border border-chch-green/30 absolute top-3">參賽者名片</span>
+                
+                <div id="mobile-avatar-display" class="text-8xl my-2 animate-bounce">
                     🐱
+                </div>
+                <div id="player-mobile-name" class="text-2xl font-black text-slate-800">連線中...</div>
+
+                <!-- 輪到自己時顯示「請移動」三個大字 -->
+                <div id="mobile-move-alert" class="hidden absolute inset-0 bg-amber-500/90 backdrop-blur-sm flex items-center justify-center text-white text-6xl font-black tracking-widest animate-pulse border-4 border-white rounded-3xl z-30 shadow-2xl">
+                    請移動
                 </div>
             </div>
 
-            <div id="mobile-join-form" class="space-y-4 bg-white/90 p-6 rounded-3xl border-2 border-chch-green/30 my-auto shadow-xl backdrop-blur-md">
+            <!-- 輸入暱稱連線區塊 -->
+            <div id="mobile-join-form" class="space-y-4 bg-white/90 p-6 rounded-3xl border-2 border-chch-green/30 my-auto shadow-xl backdrop-blur-md w-full">
                 <input type="text" id="mobile-name-input" maxlength="8" placeholder="請輸入參賽者暱稱..." 
                     class="w-full bg-chch-lightGreen/50 border-2 border-chch-green/40 p-4 rounded-2xl text-center text-slate-800 text-xl font-bold focus:border-chch-green outline-none shadow-inner">
                 <button id="btn-mobile-join" class="w-full py-4 bg-gradient-to-r from-chch-green to-emerald-700 text-white font-black text-xl rounded-2xl shadow-lg border-2 border-white">
@@ -237,21 +238,17 @@
                 </button>
             </div>
 
-            <!-- 手機端陀螺儀控制區域 (修正：每次輪到該參賽者時皆會呈現) -->
-            <div id="mobile-gyro-panel" class="hidden relative w-full h-80 bg-slate-100 rounded-3xl border-4 border-chch-green shadow-xl overflow-hidden my-auto">
-                <div class="absolute top-2 left-0 right-0 text-center text-sm font-black text-chch-darkGreen bg-white/80 py-1 z-10">
-                    🎯 傾斜手機移動小球，碰撞 1-6 號號碼球！
+            <!-- 下半個螢幕 (50% 空間)：指尖觸控/傾斜操作 Touchpad 區域 -->
+            <div id="mobile-controls-area" class="hidden w-full h-[48%] bg-slate-800 rounded-3xl border-4 border-chch-green shadow-xl relative overflow-hidden touch-none select-none flex flex-col items-center justify-center">
+                <div class="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:16px_16px] opacity-40 pointer-events-none"></div>
+                <div id="touchpad-hint" class="text-slate-300 font-bold text-sm pointer-events-none z-10 flex flex-col items-center gap-1">
+                    <i class="fa-solid fa-hand-pointer text-3xl text-emerald-400 animate-bounce"></i>
+                    <span>滑動或傾斜手機以碰撞大螢幕 1-6 號球</span>
                 </div>
-                <!-- 玩家移動球 -->
-                <div id="player-ball" class="absolute w-10 h-10 bg-amber-500 rounded-full flex items-center justify-center text-white text-xl font-black shadow-md z-20 transition-transform duration-75">
-                    ⚽
-                </div>
-                <!-- 1-6 號小球容器 -->
-                <div id="target-balls-container" class="w-full h-full relative"></div>
             </div>
 
             <!-- 手機端機會／弱勢扶助選擇按鈕 -->
-            <div id="mobile-choice-panel" class="hidden flex-col items-center justify-center space-y-4 bg-white border-2 border-chch-green/40 p-6 rounded-3xl shadow-xl my-auto w-full">
+            <div id="mobile-choice-panel" class="hidden flex-col items-center justify-center space-y-4 bg-white border-2 border-chch-green/40 p-6 rounded-3xl shadow-xl my-auto w-full z-40">
                 <div id="choice-title" class="text-xl font-black text-slate-800 text-center">請選擇行動</div>
                 <div id="choice-buttons" class="grid grid-cols-2 gap-4 w-full">
                     <button onclick="submitMobileChoice('give')" class="py-4 bg-chch-green text-white font-black text-lg rounded-2xl shadow">給予 50 分</button>
@@ -263,7 +260,7 @@
                 </div>
             </div>
 
-            <div id="mobile-status-text" class="text-center text-chch-darkGreen font-bold py-2 text-sm flex-shrink-0 bg-white/60 rounded-full my-2 border border-chch-green/30">
+            <div id="mobile-status-text" class="text-center text-chch-darkGreen font-bold py-1.5 text-xs flex-shrink-0 bg-white/80 rounded-full my-1 border border-chch-green/30">
                 連線成功！請輸入暱稱完成登錄
             </div>
         </div>
@@ -300,40 +297,50 @@
             <!-- 大富翁走格子畫面 -->
             <div class="col-span-10 relative bg-emerald-50/60 rounded-2xl border-2 border-chch-green/30 p-2 grid grid-cols-8 grid-rows-4 gap-2 h-full shadow-inner">
                 
-                <!-- 20 個大富翁格子動態注入 -->
-
                 <!-- 中間小螢幕 -->
                 <div class="col-start-2 col-span-6 row-start-2 row-span-2 bg-white/95 rounded-2xl border-2 border-chch-green shadow-xl p-4 flex items-center justify-between z-10">
-                    <!-- 左半邊 50%：目前參賽者圖示 -->
                     <div class="w-1/2 h-full border-r-2 border-chch-green/20 flex flex-col items-center justify-center p-2">
                         <span class="text-xs font-black text-chch-darkGreen bg-chch-lightGreen px-3 py-1 rounded-full mb-1 border border-chch-green/30">目前參賽者</span>
                         <div id="current-player-avatar" class="text-7xl animate-bounce my-1">🐱</div>
                         <div id="current-player-name" class="text-2xl font-black text-slate-800">參賽者名稱</div>
                     </div>
 
-                    <!-- 右半邊 50%：大骰子 / 巨大數字點數 -->
                     <div class="w-1/2 h-full flex flex-col items-center justify-center p-2">
                         <span class="text-xs font-black text-chch-orange bg-chch-lightOrange px-3 py-1 rounded-full mb-1 border border-amber-300">碰撞步數點數</span>
                         <div id="dice-display" class="text-7xl font-black text-chch-orange my-1">🎲</div>
-                        <div id="dice-step-text" class="text-xl font-extrabold text-slate-700">等待碰撞號碼球...</div>
+                        <div id="dice-step-text" class="text-xl font-extrabold text-slate-700">等待碰撞 1-6 號球...</div>
                     </div>
                 </div>
 
-                <!-- 中央全螢幕 80% 觸動格子通知窗格 (修正：取消窗格震動，改於+20分放大紅色爆炸與震動) -->
+                <!-- 1-6 號碰撞球大螢幕彈出窗格 (參照物資接接接碰撞模式) -->
+                <div id="ball-select-overlay" class="hidden absolute inset-0 z-30 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6">
+                    <div class="w-[80%] h-[80%] bg-white/95 rounded-3xl border-4 border-chch-green shadow-2xl p-4 flex flex-col items-center justify-between relative overflow-hidden">
+                        <div class="text-2xl font-black text-chch-darkGreen bg-chch-lightGreen px-6 py-1.5 rounded-full border border-chch-green/30 shadow-sm flex-shrink-0">
+                            🎯 請參賽者操作手機，碰撞 1 - 6 號球決定步數！
+                        </div>
+                        
+                        <!-- 6 顆號碼球區域 -->
+                        <div id="board-ball-container" class="w-full h-full relative my-2 rounded-2xl bg-slate-100 border-2 border-slate-200 overflow-hidden">
+                            <!-- 參賽者專屬球體 (由手機操作) -->
+                            <div id="active-player-ball" class="absolute w-14 h-14 bg-amber-500 rounded-full flex items-center justify-center text-3xl shadow-xl z-20 transition-transform duration-75 border-2 border-white">
+                                ⚽
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 中央全螢幕 80% 觸動格子通知窗格 -->
                 <div id="tile-notice-overlay" class="hidden absolute inset-0 z-40 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6">
                     <div id="notice-box" class="w-[80%] h-[80%] bg-white/95 rounded-3xl border-4 border-chch-green shadow-2xl p-6 flex items-center justify-between overflow-hidden relative">
-                        <!-- 左半邊 50%：示意圖 2 張 -->
                         <div class="w-1/2 h-full flex flex-col items-center justify-around border-r-2 border-chch-green/20 p-4">
                             <span id="notice-icon-1" class="text-[7rem]">🚨</span>
                             <span id="notice-icon-2" class="text-[7rem]">🍲</span>
                         </div>
-                        <!-- 右半邊 50%：右上說明文字與放大爆炸+20分，右下國小生口吻換句話說 -->
                         <div class="w-1/2 h-full flex flex-col justify-between p-6 text-left">
                             <div class="w-full flex-grow flex flex-col justify-start">
                                 <div id="notice-title" class="text-3xl md:text-4xl font-black text-chch-darkGreen mb-2">急難救助</div>
                                 <div id="notice-original-text" class="text-xl md:text-2xl font-extrabold text-slate-700 leading-snug">發生重大生命事件，安得烈即刻救援。</div>
                                 
-                                <!-- 修正要求：加分放大、紅色、爆炸效果與獨立震動 -->
                                 <div class="my-4 flex items-center justify-start">
                                     <span id="score-change-text" class="text-6xl md:text-7xl font-black text-rose-600 tracking-wider drop-shadow-lg inline-block">
                                         +20分
@@ -341,7 +348,6 @@
                                 </div>
                             </div>
 
-                            <!-- 右下國小生口吻換句話說 -->
                             <div class="w-full bg-chch-lightOrange border-2 border-amber-300 rounded-2xl p-4 flex-shrink-0">
                                 <div class="text-xs font-black text-chch-orange mb-1">💡 小朋友白話解說：</div>
                                 <div id="notice-child-text" class="text-lg md:text-xl font-bold text-amber-950 leading-normal">遇到超級危險的事情時，安得烈叔叔阿姨會馬上跑過來幫忙喔！</div>
@@ -450,13 +456,11 @@
             return audioCtx;
         }
 
-        // 播放爆炸/加分合成音效
         function playScoreExplodeSound() {
             try {
                 const ctx = getAudioContext();
                 const now = ctx.currentTime;
                 
-                // 振盪器 - 頻率下滑擬真爆炸聲與音階
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
 
@@ -547,8 +551,9 @@
                             if (players.length < 4) {
                                 addPlayer(data.name, conn, data.playerId);
                             }
-                        } else if (data.type === 'DICE_RESULT') {
-                            handleDiceMove(data.playerId, data.number);
+                        } else if (data.type === 'MOVE') {
+                            // 收到參賽者手機端的移動向量資料
+                            handlePlayerMoveData(data.playerId, data.deltaX, data.deltaY);
                         } else if (data.type === 'CHOICE_RESULT') {
                             handlePlayerChoice(data.playerId, data.choice);
                         }
@@ -771,7 +776,11 @@
             nextTurn();
         }
 
-        // 修正 1：每一次輪到參賽者時，皆通知參賽者手機端跳出陀螺儀操控與小球面板
+        let ballTargetList = [];
+        let playerBallPos = { x: 150, y: 150 };
+        let activeCollisionListener = false;
+
+        // 輪到參賽者時，大螢幕跳出 1-6 號小球碰撞視窗，並通知參賽者手機顯示「請移動」
         function nextTurn() {
             if (!isGameRunning) return;
 
@@ -787,19 +796,86 @@
             document.getElementById('current-player-avatar').innerText = p.avatar;
             document.getElementById('current-player-name').innerText = p.name;
             document.getElementById('dice-display').innerText = '🎲';
-            document.getElementById('dice-step-text').innerText = '等待碰撞號碼球...';
+            document.getElementById('dice-step-text').innerText = '等待碰撞 1-6 號球...';
+
+            // 通知所有參賽者，只有輪到自己時顯示「請移動」三個大字
+            players.forEach(player => {
+                if (player.conn) {
+                    player.conn.send({ 
+                        type: 'TURN_STATUS', 
+                        isYourTurn: player.id === p.id 
+                    });
+                }
+            });
 
             if (p.isAI) {
                 setTimeout(() => {
                     const simulatedNum = Math.floor(Math.random() * 6) + 1;
                     handleDiceMove(p.id, simulatedNum);
-                }, 1500);
+                }, 2000);
             } else {
-                if (p.conn) {
-                    // 發送回合通知給當前參賽者手機端
-                    p.conn.send({ type: 'YOUR_TURN' });
-                }
+                startBoardBallCollisionPhase(p);
             }
+        }
+
+        // 大螢幕生成 1-6 號球與參賽者碰撞球
+        function startBoardBallCollisionPhase(p) {
+            const overlay = document.getElementById('ball-select-overlay');
+            const container = document.getElementById('board-ball-container');
+            overlay.classList.remove('hidden');
+
+            // 移除舊有小球
+            const oldBalls = container.querySelectorAll('.target-num-ball');
+            oldBalls.forEach(b => b.remove());
+
+            const playerBall = document.getElementById('active-player-ball');
+            playerBall.innerText = p.avatar;
+
+            // 設置參賽者初始位置於中央
+            playerBallPos = { x: container.clientWidth / 2 - 28, y: container.clientHeight / 2 - 28 };
+            playerBall.style.left = `${playerBallPos.x}px`;
+            playerBall.style.top = `${playerBallPos.y}px`;
+
+            ballTargetList = [];
+            // 生成 1-6 號球
+            for (let i = 1; i <= 6; i++) {
+                const ball = document.createElement('div');
+                ball.className = 'target-num-ball absolute w-14 h-14 bg-chch-green text-white font-black text-2xl rounded-full flex items-center justify-center shadow-lg border-2 border-white';
+                const rx = Math.floor(Math.random() * (container.clientWidth - 70)) + 10;
+                const ry = Math.floor(Math.random() * (container.clientHeight - 70)) + 10;
+                ball.style.left = `${rx}px`;
+                ball.style.top = `${ry}px`;
+                ball.innerText = i;
+                container.appendChild(ball);
+                ballTargetList.push({ num: i, x: rx, y: ry, el: ball });
+            }
+
+            activeCollisionListener = true;
+        }
+
+        // 處理參賽者手機端傳來的 Touchpad / 傾斜移動資料 (參照物資接接接)
+        function handlePlayerMoveData(playerId, deltaX, deltaY) {
+            const p = players[currentTurnIndex];
+            if (!activeCollisionListener || !p || p.id !== playerId) return;
+
+            const container = document.getElementById('board-ball-container');
+            const playerBall = document.getElementById('active-player-ball');
+
+            playerBallPos.x = Math.max(0, Math.min(container.clientWidth - 56, playerBallPos.x + deltaX * 300));
+            playerBallPos.y = Math.max(0, Math.min(container.clientHeight - 56, playerBallPos.y + deltaY * 300));
+
+            playerBall.style.left = `${playerBallPos.x}px`;
+            playerBall.style.top = `${playerBallPos.y}px`;
+
+            // 碰撞檢測
+            ballTargetList.forEach(tb => {
+                const dist = Math.hypot(playerBallPos.x - tb.x, playerBallPos.y - tb.y);
+                if (dist < 45) { // 成功碰撞 1-6 號號碼球
+                    activeCollisionListener = false;
+                    document.getElementById('ball-select-overlay').classList.add('hidden');
+                    handleDiceMove(p.id, tb.num);
+                }
+            });
         }
 
         function initMobileController(hostId) {
@@ -817,10 +893,13 @@
                         myAvatar = data.avatar;
                         const avatarEl = document.getElementById('mobile-avatar-display');
                         avatarEl.innerText = myAvatar;
-                        avatarEl.classList.remove('hidden');
-                    } else if (data.type === 'YOUR_TURN') {
-                        // 修正 1：收到 YOUR_TURN 訊息即刻喚醒陀螺儀移動小球
-                        startGyroMeasurement();
+                    } else if (data.type === 'TURN_STATUS') {
+                        const alertEl = document.getElementById('mobile-move-alert');
+                        if (data.isYourTurn) {
+                            alertEl.classList.remove('hidden');
+                        } else {
+                            alertEl.classList.add('hidden');
+                        }
                     } else if (data.type === 'SHOW_CHOICE') {
                         showMobileChoiceUI(data.kind, data.extra);
                     } else if (data.type === 'FINAL_RESULT') {
@@ -837,88 +916,61 @@
                     hostConn.send({ type: 'JOIN', name: name, playerId: myPlayerId });
                     document.getElementById('player-mobile-name').innerText = `參賽者：${name}`;
                     document.getElementById('mobile-join-form').classList.add('hidden');
+                    document.getElementById('mobile-controls-area').classList.remove('hidden');
                     document.getElementById('mobile-status-text').innerText = '已成功進入遊戲，等待您的回合...';
+                    
+                    initMobileTouchAndGyro();
                 }
             });
         }
 
-        // 每次輪到玩家時跳出的陀螺儀操控機制
-        function startGyroMeasurement() {
-            const panel = document.getElementById('mobile-gyro-panel');
-            panel.classList.remove('hidden');
+        // 初始化手機端指尖觸控與傾斜傳輸功能 (物資接接接操控模式)
+        function initMobileTouchAndGyro() {
+            const area = document.getElementById('mobile-controls-area');
+            let isTouching = false;
+            let lastX = 0, lastY = 0;
 
-            const container = document.getElementById('target-balls-container');
-            container.innerHTML = '';
+            area.addEventListener('touchstart', (e) => {
+                if (e.touches.length > 0) {
+                    isTouching = true;
+                    lastX = e.touches[0].clientX;
+                    lastY = e.touches[0].clientY;
+                }
+            }, { passive: true });
 
-            const playerBall = document.getElementById('player-ball');
-            let ballX = 140, ballY = 120;
-            playerBall.style.left = `${ballX}px`;
-            playerBall.style.top = `${ballY}px`;
+            area.addEventListener('touchmove', (e) => {
+                if (!isTouching || e.touches.length === 0) return;
+                const clientX = e.touches[0].clientX;
+                const clientY = e.touches[0].clientY;
 
-            const targetBalls = [];
-            for (let i = 1; i <= 6; i++) {
-                const ball = document.createElement('div');
-                ball.className = 'absolute w-12 h-12 bg-chch-green text-white font-black text-xl rounded-full flex items-center justify-center shadow-lg border-2 border-white';
-                const rx = Math.floor(Math.random() * 220) + 10;
-                const ry = Math.floor(Math.random() * 200) + 30;
-                ball.style.left = `${rx}px`;
-                ball.style.top = `${ry}px`;
-                ball.innerText = i;
-                container.appendChild(ball);
-                targetBalls.push({ num: i, x: rx, y: ry, el: ball });
-            }
+                const deltaX = (clientX - lastX) * 0.005;
+                const deltaY = (clientY - lastY) * 0.005;
 
-            let gyroHandler = null;
+                lastX = clientX;
+                lastY = clientY;
 
-            function updateGyro(event) {
-                const tiltX = event.gamma || 0;
-                const tiltY = event.beta || 0;
+                if (hostConn && hostConn.open) {
+                    hostConn.send({ type: 'MOVE', playerId: myPlayerId, deltaX: deltaX, deltaY: deltaY });
+                }
+            }, { passive: true });
 
-                ballX = Math.max(0, Math.min(270, ballX + tiltX * 0.2));
-                ballY = Math.max(0, Math.min(250, ballY + tiltY * 0.2));
+            area.addEventListener('touchend', () => { isTouching = false; }, { passive: true });
 
-                playerBall.style.left = `${ballX}px`;
-                playerBall.style.top = `${ballY}px`;
-
-                targetBalls.forEach(tb => {
-                    const dist = Math.hypot(ballX - tb.x, ballY - tb.y);
-                    if (dist < 35) {
-                        window.removeEventListener('deviceorientation', gyroHandler);
-                        panel.classList.add('hidden');
-
+            // 陀螺儀支援
+            if (window.DeviceOrientationEvent) {
+                window.addEventListener('deviceorientation', (e) => {
+                    const gamma = e.gamma || 0; // 左右
+                    const beta = e.beta || 0;   // 前後
+                    if (Math.abs(gamma) > 2 || Math.abs(beta) > 2) {
                         if (hostConn && hostConn.open) {
-                            hostConn.send({ type: 'DICE_RESULT', playerId: myPlayerId, number: tb.num });
+                            hostConn.send({
+                                type: 'MOVE',
+                                playerId: myPlayerId,
+                                deltaX: (gamma / 30) * 0.02,
+                                deltaY: (beta / 30) * 0.02
+                            });
                         }
                     }
-                });
-            }
-
-            if (window.DeviceOrientationEvent) {
-                if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                    DeviceOrientationEvent.requestPermission().then(state => {
-                        if (state === 'granted') {
-                            gyroHandler = updateGyro;
-                            window.addEventListener('deviceorientation', gyroHandler);
-                        } else {
-                            fallbackClickSelection();
-                        }
-                    }).catch(() => fallbackClickSelection());
-                } else {
-                    gyroHandler = updateGyro;
-                    window.addEventListener('deviceorientation', gyroHandler);
-                }
-            } else {
-                fallbackClickSelection();
-            }
-
-            function fallbackClickSelection() {
-                targetBalls.forEach(tb => {
-                    tb.el.addEventListener('click', () => {
-                        panel.classList.add('hidden');
-                        if (hostConn && hostConn.open) {
-                            hostConn.send({ type: 'DICE_RESULT', playerId: myPlayerId, number: tb.num });
-                        }
-                    });
                 });
             }
         }
@@ -1099,7 +1151,6 @@
             updatePlayerPositionsUI();
         }
 
-        // 修正 2：取消 notice-box 的震動，改將「+20分」分數標籤放大、紅色、爆炸特效與音效
         function showNoticeOverlay(title, text, scoreDelta, icon1, childText, icon2 = "🍲") {
             const overlay = document.getElementById('tile-notice-overlay');
             const scoreEl = document.getElementById('score-change-text');
@@ -1110,17 +1161,14 @@
             document.getElementById('notice-original-text').innerText = text;
             document.getElementById('notice-child-text').innerText = childText;
 
-            // 設置紅色與巨大放大字體
             scoreEl.innerText = scoreDelta >= 0 ? `+${scoreDelta}分` : `${scoreDelta}分`;
             scoreEl.className = "text-6xl md:text-7xl font-black text-rose-600 tracking-wider drop-shadow-lg inline-block animate-score-explode animate-vibrate-score";
 
             overlay.classList.remove('hidden');
 
-            // 觸發加分/爆炸特效與專屬音效 (5秒效果)
             if (scoreDelta > 0) {
                 playScoreExplodeSound();
                 
-                // 發射爆炸粒子特效
                 confetti({
                     particleCount: 80,
                     spread: 100,
@@ -1133,7 +1181,6 @@
                 if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200, 100, 200]);
             } catch(e){}
 
-            // 8 秒後自動關閉通知窗格
             setTimeout(() => {
                 overlay.classList.add('hidden');
                 checkGameEndConditions();
@@ -1206,8 +1253,8 @@
         }
 
         function showMobileFinalResult(data) {
-            document.getElementById('mobile-top-bar').classList.add('hidden');
-            document.getElementById('mobile-gyro-panel').classList.add('hidden');
+            document.getElementById('mobile-half-display').classList.add('hidden');
+            document.getElementById('mobile-controls-area').classList.add('hidden');
             document.getElementById('mobile-choice-panel').classList.add('hidden');
             document.getElementById('mobile-status-text').classList.add('hidden');
 
