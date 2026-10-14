@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>方形水果餐刀時鐘 & 世界風景</title>
+  <title>全螢幕滿版水果餐刀時鐘 & 世界風景</title>
   <style>
     * {
       box-sizing: border-box;
@@ -41,30 +41,30 @@
       opacity: 1;
     }
 
-    /* 方形時鐘容器：底部 100% 完全透明，無邊框 */
+    /* 滿版時鐘容器：100% 覆蓋整個視窗，底部完全透明 */
     .clock-container {
       position: relative;
-      width: min(88vw, 88vh);
-      height: min(88vw, 88vh);
-      background: transparent; /* 完全透明 */
+      width: 100vw;
+      height: 100vh;
+      background: transparent;
       border: none;
       box-shadow: none;
       z-index: 2;
     }
 
-    /* 中心點 */
+    /* 時鐘中心固定點 */
     .center-dot {
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 16px;
-      height: 16px;
+      width: 18px;
+      height: 18px;
       background: #ffffff;
-      border: 2px solid rgba(0, 0, 0, 0.4);
+      border: 3px solid rgba(0, 0, 0, 0.5);
       border-radius: 50%;
       transform: translate(-50%, -50%);
       z-index: 10;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      box-shadow: 0 0 12px rgba(0,0,0,0.6);
     }
 
     /* 水果圖示元件 */
@@ -77,23 +77,23 @@
       justify-content: center;
       align-items: center;
       transform: translate(-50%, -50%);
-      filter: drop-shadow(0px 6px 12px rgba(0, 0, 0, 0.7));
+      filter: drop-shadow(0px 6px 12px rgba(0, 0, 0, 0.8));
       z-index: 3;
     }
 
-    /* 外側數字 (1-12) 元件 */
+    /* 螢幕四周貼邊數字 (1-12) */
     .number-item {
       position: absolute;
-      width: max(4vw, 4vh);
-      height: max(4vw, 4vh);
-      font-size: max(3vw, 3vh);
+      width: max(4.5vw, 4.5vh);
+      height: max(4.5vw, 4.5vh);
+      font-size: max(3.5vw, 3.5vh);
       font-weight: 900;
       color: #ffffff;
       display: flex;
       justify-content: center;
       align-items: center;
       transform: translate(-50%, -50%);
-      text-shadow: 0 2px 8px rgba(0,0,0,0.9), 0 0 12px rgba(0,0,0,0.7);
+      text-shadow: 0 3px 10px rgba(0,0,0,0.9), 0 0 15px rgba(0,0,0,0.8);
       z-index: 4;
     }
 
@@ -108,33 +108,33 @@
       pointer-events: none;
     }
 
-    /* SVG 刀子圖片 */
+    /* SVG 刀子圖片的旋轉基準點 */
     .hand svg {
       position: absolute;
       left: 50%;
       bottom: 50%;
       transform-origin: 50% 100%;
-      filter: drop-shadow(3px 6px 10px rgba(0,0,0,0.7));
+      filter: drop-shadow(4px 8px 12px rgba(0,0,0,0.7));
     }
 
     /* 時針 - 主餐刀 */
     .hour-hand svg {
       width: max(2.8vw, 2.8vh);
-      height: calc(min(88vw, 88vh) * 0.25);
+      height: calc(min(100vw, 100vh) * 0.28);
       margin-left: calc(-1 * max(1.4vw, 1.4vh));
     }
 
     /* 分針 - 牛排刀 */
     .minute-hand svg {
       width: max(2.4vw, 2.4vh);
-      height: calc(min(88vw, 88vh) * 0.36);
+      height: calc(min(100vw, 100vh) * 0.38);
       margin-left: calc(-1 * max(1.2vw, 1.2vh));
     }
 
-    /* 秒針 - 紅色水果刀 */
+    /* 秒針 - 紅色水果切刀 */
     .second-hand svg {
       width: max(1.8vw, 1.8vh);
-      height: calc(min(88vw, 88vh) * 0.42);
+      height: calc(min(100vw, 100vh) * 0.44);
       margin-left: calc(-1 * max(0.9vw, 0.9vh));
     }
   </style>
@@ -145,7 +145,7 @@
   <div id="bg1" class="bg-layer active"></div>
   <div id="bg2" class="bg-layer"></div>
 
-  <!-- 方形超透明水果時鐘 -->
+  <!-- 全螢幕滿版水果時鐘 -->
   <div class="clock-container">
     <div class="center-dot"></div>
     
@@ -212,49 +212,48 @@
       "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1920&q=80"
     ];
 
-    // 方形分佈點位計算 (依百分比 0% 到 100%)
-    // 內圈為水果，外圈為數字
-    const squarePositions = {
-      // 水果座標 (x%, y%) - 沿著方形邊緣內側
+    // 全螢幕邊界座標分佈（以 0% 到 100% 涵蓋整面螢幕）
+    const edgePositions = {
+      // 水果座標 (靠邊內側)
       fruit: {
-        12: { x: 50, y: 18 },
-        1:  { x: 82, y: 18 },
-        2:  { x: 82, y: 34 },
-        3:  { x: 82, y: 50 },
-        4:  { x: 82, y: 66 },
-        5:  { x: 82, y: 82 },
-        6:  { x: 50, y: 82 },
-        7:  { x: 18, y: 82 },
-        8:  { x: 18, y: 66 },
-        9:  { x: 18, y: 50 },
-        10: { x: 18, y: 34 },
-        11: { x: 18, y: 18 }
+        12: { x: 50, y: 14 },
+        1:  { x: 88, y: 14 },
+        2:  { x: 88, y: 32 },
+        3:  { x: 88, y: 50 },
+        4:  { x: 88, y: 68 },
+        5:  { x: 88, y: 86 },
+        6:  { x: 50, y: 86 },
+        7:  { x: 12, y: 86 },
+        8:  { x: 12, y: 68 },
+        9:  { x: 12, y: 50 },
+        10: { x: 12, y: 32 },
+        11: { x: 12, y: 14 }
       },
-      // 外側數字座標 (x%, y%) - 靠近最外邊
+      // 數字座標 (貼齊最外側邊界)
       number: {
-        12: { x: 50, y: 5 },
-        1:  { x: 95, y: 5 },
-        2:  { x: 95, y: 28 },
-        3:  { x: 95, y: 50 },
-        4:  { x: 95, y: 72 },
-        5:  { x: 95, y: 95 },
-        6:  { x: 50, y: 95 },
-        7:  { x: 5,  y: 95 },
-        8:  { x: 5,  y: 72 },
-        9:  { x: 5,  y: 50 },
-        10: { x: 5,  y: 28 },
-        11: { x: 5,  y: 5 }
+        12: { x: 50, y: 4 },
+        1:  { x: 96, y: 4 },
+        2:  { x: 96, y: 27 },
+        3:  { x: 96, y: 50 },
+        4:  { x: 96, y: 73 },
+        5:  { x: 96, y: 96 },
+        6:  { x: 50, y: 96 },
+        7:  { x: 4,  y: 96 },
+        8:  { x: 4,  y: 73 },
+        9:  { x: 4,  y: 50 },
+        10: { x: 4,  y: 27 },
+        11: { x: 4,  y: 4 }
       }
     };
 
-    // 1. 生成方形水果與外側數字
+    // 1. 動態繪製滿版水果與貼邊數字
     const dialContainer = document.getElementById("dial-container");
 
     fruits.forEach((fruit, index) => {
       const hourNum = index + 1;
       
-      // 水果定位
-      const fPos = squarePositions.fruit[hourNum];
+      // 水果元件
+      const fPos = edgePositions.fruit[hourNum];
       const fruitEl = document.createElement("div");
       fruitEl.className = "fruit-item";
       fruitEl.textContent = fruit;
@@ -262,8 +261,8 @@
       fruitEl.style.top = `${fPos.y}%`;
       dialContainer.appendChild(fruitEl);
 
-      // 外側數字定位
-      const nPos = squarePositions.number[hourNum];
+      // 外側貼邊數字元件
+      const nPos = edgePositions.number[hourNum];
       const numEl = document.createElement("div");
       numEl.className = "number-item";
       numEl.textContent = hourNum;
@@ -272,7 +271,7 @@
       dialContainer.appendChild(numEl);
     });
 
-    // 2. 時鐘更新邏輯
+    // 2. 時鐘運作與旋轉計算
     const hourHandSvg = document.querySelector("#hour-hand svg");
     const minuteHandSvg = document.querySelector("#minute-hand svg");
     const secondHandSvg = document.querySelector("#second-hand svg");
@@ -295,7 +294,7 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // 3. 背景 30 秒輪播 (平滑淡入淡出)
+    // 3. 背景 30 秒自動切換 (平滑淡入淡出)
     let currentImageIndex = 0;
     let activeBgIndex = 1;
     const bg1 = document.getElementById("bg1");
