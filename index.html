@@ -126,7 +126,7 @@
             animation: score-continuous-vibrate 0.3s infinite;
         }
 
-        /* 調整 1：交換位置時頭像變大變小閃爍 3 次特效動畫 */
+        /* 交換位置時頭像變大變小閃爍 3 次特效動畫 */
         @keyframes exchange-pulse-3times {
             0% { transform: scale(1); filter: drop-shadow(0 0 0px transparent); }
             16.6% { transform: scale(2.2); filter: drop-shadow(0 0 15px #f59e0b); }
@@ -156,8 +156,9 @@
             </h1>
         </div>
         <div class="flex items-center gap-3">
-            <div id="game-stage-badge" class="px-4 py-1.5 rounded-full text-sm md:text-lg font-bold bg-amber-100 border border-amber-300 text-amber-900 shadow-sm">
-                安得烈善善關懷
+            <!-- 調整 2：右上角改顯示版本號 -->
+            <div id="game-stage-badge" class="px-4 py-1.5 rounded-full text-sm md:text-base font-black bg-slate-100 border border-slate-300 text-slate-700 shadow-sm">
+                版本 2026.10.14.01
             </div>
         </div>
     </header>
@@ -190,14 +191,16 @@
                             </div>
                         </div>
 
-                        <!-- 規則說明區塊 -->
+                        <!-- 調整 1：簡明扼要遊戲規則指南 -->
                         <div id="score-rules-box" class="mt-3 p-3 bg-chch-lightOrange border border-amber-300 rounded-xl text-amber-900 text-sm shadow-sm flex-shrink-0">
                             <div class="font-bold border-b border-amber-300/60 pb-1 mb-1.5 flex items-center gap-1.5 text-chch-orange">
-                                <i class="fa-solid fa-circle-info"></i> 遊戲規則指南
+                                <i class="fa-solid fa-circle-info"></i> 簡明規則指南
                             </div>
-                            <ul class="list-disc list-inside space-y-1 text-xs text-slate-700 font-medium">
-                                <li>輪到參賽者時，中央右側區域產生 1-6 號反彈飄浮球，操作手機碰撞移動前進！</li>
-                                <li>第二圈起經過起點+20分，踩中起點+30分。回答弱勢扶助正確+15分。</li>
+                            <ul class="grid grid-cols-2 gap-1 text-xs text-slate-700 font-bold">
+                                <li>🎯 <b>碰撞擲骰</b>：移動小球選1-6點。</li>
+                                <li>🚩 <b>起點踩中</b>：第2圈起剛好停+30分。</li>
+                                <li>🤝 <b>弱勢扶助</b>：配對正確食物箱+15分。</li>
+                                <li>❓ <b>機會命運</b>：高風險搶奪與對換分數。</li>
                             </ul>
                         </div>
                     </div>
@@ -263,27 +266,11 @@
             
             <div id="mobile-half-display" class="w-full h-[48%] bg-gradient-to-b from-chch-lightGreen to-emerald-100 rounded-3xl border-4 border-chch-green shadow-xl flex flex-col items-center justify-between p-3 relative overflow-hidden">
                 <span class="text-xs font-black text-chch-darkGreen bg-white px-3 py-0.5 rounded-full border border-chch-green/30 flex-shrink-0">
-                    選擇個人專屬頭像
+                    選擇個人專屬頭像 (不重複)
                 </span>
                 
-                <div id="avatar-select-grid" class="grid grid-cols-4 gap-2 w-full my-auto px-1">
-                    <button type="button" onclick="selectMobileAvatar('🦌', '安得鹿')" class="avatar-option-btn active flex flex-col items-center justify-center p-2 bg-white rounded-2xl border-2 border-chch-green shadow-md transition-all">
-                        <span class="text-4xl">🦌</span>
-                        <span class="text-[10px] font-black text-slate-700 mt-1">安得鹿</span>
-                    </button>
-                    <button type="button" onclick="selectMobileAvatar('🐱', '小貓')" class="avatar-option-btn flex flex-col items-center justify-center p-2 bg-white rounded-2xl border-2 border-slate-200 shadow-sm transition-all opacity-70">
-                        <span class="text-4xl">🐱</span>
-                        <span class="text-[10px] font-bold text-slate-700 mt-1">小貓</span>
-                    </button>
-                    <button type="button" onclick="selectMobileAvatar('🐷', '小豬')" class="avatar-option-btn flex flex-col items-center justify-center p-2 bg-white rounded-2xl border-2 border-slate-200 shadow-sm transition-all opacity-70">
-                        <span class="text-4xl">🐷</span>
-                        <span class="text-[10px] font-bold text-slate-700 mt-1">小豬</span>
-                    </button>
-                    <button type="button" onclick="selectMobileAvatar('🌸', '小花')" class="avatar-option-btn flex flex-col items-center justify-center p-2 bg-white rounded-2xl border-2 border-slate-200 shadow-sm transition-all opacity-70">
-                        <span class="text-4xl">🌸</span>
-                        <span class="text-[10px] font-bold text-slate-700 mt-1">小花</span>
-                    </button>
-                </div>
+                <!-- 調整 3：隨機 4 種不重複頭像選項 -->
+                <div id="avatar-select-grid" class="grid grid-cols-4 gap-2 w-full my-auto px-1"></div>
 
                 <div id="player-mobile-name" class="text-xl font-black text-slate-800 flex-shrink-0">連線中...</div>
 
@@ -361,7 +348,7 @@
                 <!-- 中央 6x2 區域 -->
                 <div id="center-board-area" class="col-start-2 col-span-6 row-start-2 row-span-2 bg-white/95 rounded-2xl border-4 border-chch-green shadow-xl relative overflow-hidden flex justify-between p-2 z-10">
                     
-                    <!-- 調整 2：覆蓋整個中央 6x2 區域的提示 overlay (停留 1 秒) -->
+                    <!-- 提示 overlay 涵蓋整個中央區域 -->
                     <div id="ready-prompt-overlay" class="hidden absolute inset-0 bg-amber-400/95 backdrop-blur-md z-40 flex flex-col items-center justify-center p-4 text-center">
                         <span class="text-6xl mb-2 animate-bounce">📢</span>
                         <div id="ready-player-text" class="text-3xl md:text-5xl font-black text-amber-950 tracking-wider drop-shadow">
@@ -370,16 +357,14 @@
                         <div class="text-lg font-bold text-amber-900/90 mt-2">即將開啟碰撞擲骰...</div>
                     </div>
 
-                    <!-- 調整 4：中央區域左半邊【名稱與分數顯示在圖示的左邊】 -->
+                    <!-- 中央區域左半邊：名稱與分數顯示在圖示的左邊 -->
                     <div class="w-1/2 h-full border-r-4 border-chch-green/20 flex items-center justify-center p-3 bg-gradient-to-br from-chch-lightGreen/50 to-amber-50/50 rounded-l-xl relative">
                         
                         <div id="player-info-container" class="flex items-center justify-center w-full h-full gap-4 px-2">
                             <!-- 左邊：名稱與分數 -->
                             <div class="flex flex-col items-end justify-center space-y-2 truncate">
-                                <span class="text-[10px] md:text-xs font-black text-chch-darkGreen bg-white px-2.5 py-0.5 rounded-full border border-chch-green/30 shadow-sm">當前回合</span>
-                                <!-- 參賽者名稱 -->
-                                <div id="current-player-name" class="text-xl md:text-3xl font-black text-slate-800 tracking-wider truncate max-w-[140px] md:max-w-[180px] text-right">參賽者</div>
-                                <!-- 參賽者分數標籤 -->
+                                <span class="text-[10px] md:text-xs font-black text-chch-darkGreen bg-white px-2.5 py-0.5 rounded-full border border-chch-green/30 shadow-sm">當開啟回合</span>
+                                <div id="current-player-name" class="text-xl md:text-2xl font-black text-slate-800 tracking-wider truncate max-w-[150px] md:max-w-[200px] text-right">參賽者</div>
                                 <div id="current-player-score-badge" class="bg-chch-orange/15 border-2 border-chch-orange/50 text-chch-orange px-3 py-0.5 rounded-full font-black text-lg md:text-2xl shadow-sm">
                                     0 分
                                 </div>
@@ -421,6 +406,7 @@
                         <div class="absolute top-2 left-0 right-0 text-center text-xs font-black text-chch-darkGreen bg-white/80 py-0.5 z-10 shadow-sm">
                             🎯 請碰撞 1 - 6 號飄浮球決定步數！
                         </div>
+                        <!-- 調整 5：小球圖像動態顯示當前參賽者頭像 -->
                         <div id="active-player-ball" class="absolute w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center text-2xl shadow-xl z-20 border-2 border-white pointer-events-none">
                             ⚽
                         </div>
@@ -428,7 +414,7 @@
 
                 </div>
 
-                <!-- 調整 3：通知窗格背景透明度改為 25% (bg-black/25) -->
+                <!-- 通知窗格背景透明度 25% (bg-black/25) -->
                 <div id="tile-notice-overlay" class="hidden absolute inset-0 z-40 bg-black/25 backdrop-blur-sm flex items-center justify-center p-6">
                     <div id="notice-box" class="w-[80%] h-[80%] bg-white/95 rounded-3xl border-4 border-chch-green shadow-2xl p-6 flex items-center justify-between overflow-hidden relative">
                         <div class="w-1/2 h-full flex flex-col items-center justify-around border-r-2 border-chch-green/20 p-4">
@@ -468,13 +454,14 @@
 
                 <div id="result-four-grid" class="grid grid-cols-4 gap-4 flex-grow my-2">
                     
+                    <!-- 調整 8：頒獎畫面圖像再放大 20% -->
                     <div id="rank-card-1" class="bg-gradient-to-b from-amber-100 via-amber-50 to-amber-200/90 rounded-2xl border-4 border-amber-400 p-3 flex flex-col items-center justify-between text-center relative shadow-xl overflow-visible">
                         <div class="absolute -top-14 md:-top-16 text-8xl md:text-9xl drop-shadow-[0_10px_25px_rgba(245,158,11,0.9)] animate-super-crown z-0 pointer-events-none">
                             👑
                         </div>
                         <span class="mt-8 text-xs md:text-sm font-black text-amber-950 bg-amber-300 px-3 py-1 rounded-full border border-amber-500 shadow-sm z-10">🥇 冠軍 (第一名)</span>
                         
-                        <div id="rank-1-avatar" class="text-7xl md:text-8xl my-1 drop-shadow-md z-10">🦌</div>
+                        <div id="rank-1-avatar" class="text-8xl md:text-[9.5rem] my-1 drop-shadow-md z-10">🦌</div>
                         <div id="rank-1-name" class="text-xl md:text-2xl font-black text-slate-800 truncate w-full z-10">參賽者</div>
                         
                         <div class="w-full bg-white/90 py-1.5 rounded-xl border border-amber-300 shadow-inner mt-1 z-10">
@@ -484,7 +471,7 @@
 
                     <div id="rank-card-2" class="bg-gradient-to-b from-slate-100 to-slate-200/80 rounded-2xl border-2 border-slate-300 p-3 flex flex-col items-center justify-between text-center shadow-sm overflow-hidden">
                         <span class="text-xs font-black text-slate-800 bg-slate-300 px-3 py-1 rounded-full border border-slate-400 shadow-sm">🥈 亞軍 (第二名)</span>
-                        <div id="rank-2-avatar" class="text-6xl md:text-7xl my-2">🐱</div>
+                        <div id="rank-2-avatar" class="text-7xl md:text-8xl my-2">🐱</div>
                         <div id="rank-2-name" class="text-lg md:text-xl font-bold text-slate-800 truncate w-full">參賽者</div>
                         <div class="w-full bg-white/90 py-1 rounded-xl border border-slate-300 shadow-inner">
                             <span id="rank-2-score" class="text-lg md:text-xl font-bold text-slate-700">0 分</span>
@@ -493,7 +480,7 @@
 
                     <div id="rank-card-3" class="bg-gradient-to-b from-amber-50 to-orange-100/70 rounded-2xl border-2 border-amber-600/40 p-3 flex flex-col items-center justify-between text-center shadow-sm overflow-hidden">
                         <span class="text-xs font-black text-amber-900 bg-amber-200 px-3 py-1 rounded-full border border-amber-400 shadow-sm">🥉 季軍 (第三名)</span>
-                        <div id="rank-3-avatar" class="text-6xl md:text-7xl my-2">🐷</div>
+                        <div id="rank-3-avatar" class="text-7xl md:text-8xl my-2">🐷</div>
                         <div id="rank-3-name" class="text-lg md:text-xl font-bold text-slate-800 truncate w-full">參賽者</div>
                         <div class="w-full bg-white/90 py-1 rounded-xl border border-amber-300 shadow-inner">
                             <span id="rank-3-score" class="text-lg md:text-xl font-bold text-slate-700">0 分</span>
@@ -502,7 +489,7 @@
 
                     <div id="rank-card-4" class="bg-gradient-to-b from-emerald-50 to-emerald-100/60 rounded-2xl border-2 border-chch-green/30 p-3 flex flex-col items-center justify-between text-center shadow-sm overflow-hidden">
                         <span class="text-xs font-bold text-chch-darkGreen bg-chch-lightGreen px-3 py-1 rounded-full border border-chch-green/30 shadow-sm">🏅 殿軍 (第四名)</span>
-                        <div id="rank-4-avatar" class="text-6xl md:text-7xl my-2">🌸</div>
+                        <div id="rank-4-avatar" class="text-7xl md:text-8xl my-2">🌸</div>
                         <div id="rank-4-name" class="text-lg md:text-xl font-bold text-slate-800 truncate w-full">參賽者</div>
                         <div class="w-full bg-white/90 py-1 rounded-xl border border-chch-green/20 shadow-inner">
                             <span id="rank-4-score" class="text-lg md:text-xl font-bold text-slate-700">0 分</span>
@@ -521,7 +508,17 @@
     </footer>
 
     <script>
-        const animalAvatars = ['🦌', '🐱', '🐷', '🌸'];
+        // 內定豐富頭像池（隨機抽 4 個不重複頭像供選擇）
+        const allPossibleAvatars = ['🦌', '🐱', '🐷', '🌸', '🦁', '🐯', '🦊', '🐰', '🐼', '🐨', '🦄', '🐶'];
+        let mobileSessionAvatars = [];
+
+        // 調整 6：AI 參賽內定角色與強度數據
+        const aiCharacterPool = [
+            { name: '小羅羅', minStr: 90, maxStr: 100 },
+            { name: '安得鹿', minStr: 0, maxStr: 60 },
+            { name: '大黑怪', minStr: 0, maxStr: 90 },
+            { name: '寶石公主', minStr: 60, maxStr: 90 }
+        ];
 
         const weakAgeCategories = ["0-3歲", "3-15歲", "65-80歲", "80歲以上"];
         const weakBoxTypes = ["嬰兒物資箱", "膳糧食物箱", "長青食物箱", "松柏食物箱"];
@@ -558,7 +555,7 @@
         let hostConn = null;
         let players = [];
         let myPlayerId = null;
-        let myAvatar = '🦌';
+        let myAvatar = '';
 
         let roundMode = '1';
         let targetScore = 200;
@@ -668,6 +665,9 @@
 
             peer.on('connection', (conn) => {
                 conn.on('open', () => {
+                    // 廣播當前已使用的頭像
+                    broadcastAvatarState();
+
                     conn.on('data', (data) => {
                         if (data.type === 'JOIN') {
                             if (players.length < 4) {
@@ -682,16 +682,31 @@
 
                     conn.on('close', () => {
                         players = players.filter(p => p.conn !== conn);
+                        broadcastAvatarState();
                         renderLobbyPlayers();
                     });
                 });
             });
         }
 
+        function broadcastAvatarState() {
+            const takenAvatars = players.map(p => p.avatar);
+            players.forEach(p => {
+                if (p.conn && p.conn.open) {
+                    p.conn.send({ type: 'AVATAR_UPDATE', takenAvatars: takenAvatars });
+                }
+            });
+        }
+
         function addPlayer(name, conn, playerId, chosenAvatar) {
             if (players.some(p => p.id === playerId)) return;
 
-            const assignedAvatar = chosenAvatar || animalAvatars[players.length % animalAvatars.length];
+            // 確保不重複選取
+            let assignedAvatar = chosenAvatar;
+            const takenAvatars = players.map(p => p.avatar);
+            if (!assignedAvatar || takenAvatars.includes(assignedAvatar)) {
+                assignedAvatar = allPossibleAvatars.find(a => !takenAvatars.includes(a)) || '🦌';
+            }
 
             const p = {
                 id: playerId,
@@ -700,6 +715,7 @@
                 avatar: assignedAvatar,
                 conn: conn,
                 isAI: false,
+                strength: 100,
                 score: 0,
                 tileIndex: 0, 
                 laps: 0,
@@ -711,6 +727,7 @@
                 conn.send({ type: 'ASSIGN_AVATAR', avatar: assignedAvatar });
             }
 
+            broadcastAvatarState();
             renderLobbyPlayers();
         }
 
@@ -739,21 +756,32 @@
             finalizePlayersAndStart();
         });
 
+        // 調整 6：AI 隨機生成與強度分配邏輯 (名稱不重複，25% 概率)
         function finalizePlayersAndStart() {
             roundMode = document.getElementById('select-round-mode').value;
             targetScore = parseInt(document.getElementById('select-target-score').value, 10);
             const aiCount = parseInt(document.getElementById('select-ai-count').value, 10);
 
+            let availableAiChars = [...aiCharacterPool].sort(() => Math.random() - 0.5);
+
             for (let i = 0; i < aiCount; i++) {
-                if (players.length < 4) {
-                    const aiAvatar = animalAvatars[players.length % animalAvatars.length];
+                if (players.length < 4 && availableAiChars.length > 0) {
+                    const aiChar = availableAiChars.pop();
+                    const strength = Math.floor(Math.random() * (aiChar.maxStr - aiChar.minStr + 1)) + aiChar.minStr;
+                    
+                    const takenAvatars = players.map(p => p.avatar);
+                    const aiAvatar = allPossibleAvatars.find(a => !takenAvatars.includes(a)) || '🤖';
+
+                    const aiFullName = `🤖 ${aiChar.name}(${strength}%)`;
+
                     players.push({
                         id: 'ai_' + Date.now() + '_' + i,
-                        name: `🤖 AI選手${i + 1}`,
-                        displayName: `🤖 AI選手${i + 1}`,
+                        name: aiFullName,
+                        displayName: aiFullName,
                         avatar: aiAvatar,
                         conn: null,
                         isAI: true,
+                        strength: strength,
                         score: 0,
                         tileIndex: 0,
                         laps: 0,
@@ -829,6 +857,7 @@
             }
         }
 
+        // 調整 7：顯示在格子上的參賽者頭像改顯示在「外圍框」上並放大 20%
         function renderMapBoard() {
             const container = document.getElementById('view-game').children[1];
             const existingBoardTiles = container.querySelectorAll('.map-tile-grid');
@@ -844,19 +873,20 @@
             mapTiles.forEach((tile, i) => {
                 const pos = coords[i];
                 const tileDiv = document.createElement('div');
-                tileDiv.className = `map-tile-grid col-start-${pos.c} row-start-${pos.r} bg-white rounded-xl border-2 border-chch-green/40 p-1 flex flex-col items-center justify-center relative shadow-md overflow-hidden`;
+                tileDiv.className = `map-tile-grid col-start-${pos.c} row-start-${pos.r} bg-white rounded-xl border-2 border-chch-green/40 p-1 flex flex-col items-center justify-center relative shadow-md overflow-visible`;
                 
                 let formattedTitle = tile.title;
                 if (tile.title.length === 4) {
                     formattedTitle = `${tile.title.substring(0, 2)}<br>${tile.title.substring(2, 4)}`;
                 }
 
+                // 頭像顯示於邊框上邊緣 (外圍框)，圖示由 3xl 放大至 4xl / 5xl (+20%)
                 tileDiv.innerHTML = `
                     <div class="flex items-center justify-center gap-1 w-full h-full p-1 text-center">
                         <span class="text-3xl md:text-5xl flex-shrink-0">${tile.icon}</span>
                         <span class="text-base md:text-2xl font-black text-chch-darkGreen leading-tight flex-grow">${formattedTitle}</span>
                     </div>
-                    <div id="tile-players-${i}" class="absolute bottom-0 right-0 flex gap-0.5 text-3xl md:text-4xl z-20"></div>
+                    <div id="tile-players-${i}" class="absolute -top-3 -right-2 flex gap-0.5 text-4xl md:text-5xl z-20 pointer-events-none drop-shadow-xl"></div>
                 `;
                 container.appendChild(tileDiv);
             });
@@ -875,7 +905,7 @@
                 if (holder) {
                     const avatarSpan = document.createElement('span');
                     avatarSpan.id = `player-tile-avatar-${p.id}`;
-                    avatarSpan.className = 'animate-bounce opacity-80 drop-shadow-lg inline-block transition-transform';
+                    avatarSpan.className = 'animate-bounce opacity-95 drop-shadow-2xl inline-block transition-transform';
                     avatarSpan.innerText = p.avatar;
                     holder.appendChild(avatarSpan);
                 }
@@ -927,7 +957,6 @@
         let ballPhysicsAnimFrame = null;
         let speedBoostTimer = null;
 
-        // 調整 2：「XX參賽者請準備」提示涵蓋整個中央區域，停留 1 秒
         function nextTurn() {
             if (!isGameRunning) return;
 
@@ -961,7 +990,6 @@
                 }
             });
 
-            // 調整 2：靜止停留 1 秒 (1000 毫秒) 再開啟碰撞骰子
             setTimeout(() => {
                 readyOverlay.classList.add('hidden');
                 
@@ -976,6 +1004,7 @@
             }, 1000);
         }
 
+        // 調整 5：碰撞骰子時的小球圖像更正為「參賽者頭像」
         function startBoardBallCollisionPhase(p) {
             const container = document.getElementById('center-ball-container');
             
@@ -986,7 +1015,7 @@
             oldBalls.forEach(b => b.remove());
 
             const playerBall = document.getElementById('active-player-ball');
-            playerBall.innerText = p.avatar;
+            playerBall.innerText = p.avatar; // 顯示參賽者專屬頭像
 
             playerBallPos = { x: container.clientWidth / 2 - 24, y: container.clientHeight / 2 - 24 };
             playerBall.style.left = `${playerBallPos.x}px`;
@@ -1093,16 +1122,41 @@
             });
         }
 
-        function selectMobileAvatar(avatarChar, avatarName) {
-            myAvatar = avatarChar;
-            const btns = document.querySelectorAll('.avatar-option-btn');
-            btns.forEach(btn => {
-                btn.classList.remove('active', 'border-chch-green', 'opacity-100');
-                btn.classList.add('border-slate-200', 'opacity-70');
-            });
+        // 調整 3：生成 4 種隨機不重複頭像按鈕
+        function renderMobileAvatarOptions(takenAvatars = []) {
+            const grid = document.getElementById('avatar-select-grid');
+            if (!grid) return;
 
-            event.currentTarget.classList.add('active', 'border-chch-green', 'opacity-100');
-            event.currentTarget.classList.remove('border-slate-200', 'opacity-70');
+            if (mobileSessionAvatars.length === 0) {
+                mobileSessionAvatars = [...allPossibleAvatars].sort(() => Math.random() - 0.5).slice(0, 4);
+                myAvatar = mobileSessionAvatars[0];
+            }
+
+            grid.innerHTML = '';
+            mobileSessionAvatars.forEach(av => {
+                const isTaken = takenAvatars.includes(av) && av !== myAvatar;
+                const isSelected = av === myAvatar;
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.disabled = isTaken;
+                btn.onclick = () => selectMobileAvatar(av, btn);
+                btn.className = `avatar-option-btn flex flex-col items-center justify-center p-2 bg-white rounded-2xl border-2 shadow-sm transition-all ${
+                    isSelected ? 'active border-chch-green opacity-100 shadow-md ring-2 ring-chch-green' : 
+                    isTaken ? 'border-slate-200 opacity-30 bg-slate-100 cursor-not-allowed' : 'border-slate-200 opacity-70'
+                }`;
+
+                btn.innerHTML = `
+                    <span class="text-4xl">${av}</span>
+                    <span class="text-[10px] font-black text-slate-700 mt-1">${isTaken ? '已被選擇' : (isSelected ? '已選擇' : '可選擇')}</span>
+                `;
+                grid.appendChild(btn);
+            });
+        }
+
+        function selectMobileAvatar(avatarChar, btnEl) {
+            myAvatar = avatarChar;
+            renderMobileAvatarOptions([]);
         }
 
         function initMobileController(hostId) {
@@ -1113,11 +1167,15 @@
 
                 hostConn.on('open', () => {
                     document.getElementById('player-mobile-name').innerText = "已連線至大螢幕";
+                    renderMobileAvatarOptions();
                 });
 
                 hostConn.on('data', (data) => {
                     if (data.type === 'ASSIGN_AVATAR') {
                         myAvatar = data.avatar;
+                        renderMobileAvatarOptions();
+                    } else if (data.type === 'AVATAR_UPDATE') {
+                        renderMobileAvatarOptions(data.takenAvatars || []);
                     } else if (data.type === 'TURN_STATUS') {
                         const alertEl = document.getElementById('mobile-move-alert');
                         if (data.isYourTurn) {
@@ -1227,12 +1285,12 @@
             }
         }
 
+        // 調整 4：起點更改為只有「剛好踩上去」才獲得 30 分
         function handleDiceMove(playerId, number) {
             const p = players.find(player => player.id === playerId);
             if (!p) return;
 
             let stepCount = 0;
-            let startPassed = false;
 
             const moveInterval = setInterval(() => {
                 p.tileIndex = (p.tileIndex + 1) % 20;
@@ -1240,9 +1298,6 @@
 
                 if (p.tileIndex === 0) {
                     p.laps++;
-                    if (p.laps >= 2) {
-                        startPassed = true;
-                    }
                 }
 
                 updatePlayerPositionsUI();
@@ -1250,12 +1305,9 @@
                 if (stepCount >= number) {
                     clearInterval(moveInterval);
                     
-                    if (p.laps >= 2) {
-                        if (p.tileIndex === 0) {
-                            p.score += 30;
-                        } else if (startPassed) {
-                            p.score += 20;
-                        }
+                    // 只有第二圈以上且剛好停留於 0 號起點才加 30 分
+                    if (p.laps >= 2 && p.tileIndex === 0) {
+                        p.score += 30;
                     }
 
                     document.getElementById('current-player-score-badge').innerText = `${p.score} 分`;
@@ -1299,7 +1351,6 @@
                         targetPlayer = [...players].sort((a, b) => b.laps - a.laps)[1];
                     }
                     
-                    // 調整 1：觸發交換時，雙方頭像放大縮小閃爍 3 次
                     triggerExchangeFlashAnimation(p.id, targetPlayer.id, () => {
                         const tempTile = p.tileIndex;
                         p.tileIndex = targetPlayer.tileIndex;
@@ -1314,7 +1365,6 @@
                         targetPlayer = [...players].sort((a, b) => a.laps - b.laps)[1];
                     }
 
-                    // 調整 1：觸發交換時，雙方頭像放大縮小閃爍 3 次
                     triggerExchangeFlashAnimation(p.id, targetPlayer.id, () => {
                         const tempTile = p.tileIndex;
                         p.tileIndex = targetPlayer.tileIndex;
@@ -1368,7 +1418,10 @@
                 qBox.classList.remove('hidden');
 
                 if (p.isAI) {
-                    const aiUserChoice = Math.random() < 0.7 ? (pendingWeakIsCorrectCombo ? 'correct' : 'wrong') : 'wrong';
+                    // AI 答題依據強度 (strength) 計算正確率
+                    const aiAccuracy = (p.strength || 80) / 100;
+                    const isAiRight = Math.random() < aiAccuracy;
+                    const aiUserChoice = isAiRight ? (pendingWeakIsCorrectCombo ? 'correct' : 'wrong') : (pendingWeakIsCorrectCombo ? 'wrong' : 'correct');
                     handlePlayerChoice(p.id, aiUserChoice);
                 } else if (p.conn) {
                     p.conn.send({ 
@@ -1385,7 +1438,6 @@
             }
         }
 
-        // 調整 1：兩位玩家頭像放大縮小閃爍 3 次特效執行函式
         function triggerExchangeFlashAnimation(p1Id, p2Id, callback) {
             const avatar1 = document.getElementById(`player-tile-avatar-${p1Id}`);
             const avatar2 = document.getElementById(`player-tile-avatar-${p2Id}`);
