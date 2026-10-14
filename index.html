@@ -78,6 +78,16 @@
             box-shadow: 0 2px 4px rgba(217, 119, 6, 0.2);
         }
 
+        /* 號碼球被撞擊巨大化爆破動畫 */
+        @keyframes ball-hit-explode {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(2.2); opacity: 0.9; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+        .animate-ball-explode {
+            animation: ball-hit-explode 0.5s ease-out forwards;
+        }
+
         /* 加分文字爆破動畫 */
         @keyframes score-explode-vibrate {
             0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
@@ -159,7 +169,7 @@
                                 <i class="fa-solid fa-circle-info"></i> 遊戲規則指南
                             </div>
                             <ul class="list-disc list-inside space-y-1 text-xs text-slate-700 font-medium">
-                                <li>輪到參賽者時，大螢幕跳出 1-6 號球，請操作手機移動碰撞數字球前進！</li>
+                                <li>輪到參賽者時，中央產生 1-6 號反彈飄浮球，操作手機碰撞移動前進！</li>
                                 <li>解決路途上的各種情況獲取積分、道具，並觸發機會與命運。</li>
                             </ul>
                         </div>
@@ -211,7 +221,7 @@
             </div>
         </div>
 
-        <!-- 手機端 - 參賽者控制端 (參照物資接接接模式：佔半個螢幕大小圖示) -->
+        <!-- 手機端 - 參賽者控制端 (半個螢幕大小圖示 + 「請移動」) -->
         <div id="view-player-mobile" class="hidden fixed inset-0 z-50 bg-slate-50 p-4 flex-col justify-between overflow-hidden">
             
             <!-- 上半個螢幕 (50% 空間)：顯示角色圖示與大字提醒 -->
@@ -243,7 +253,7 @@
                 <div class="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:16px_16px] opacity-40 pointer-events-none"></div>
                 <div id="touchpad-hint" class="text-slate-300 font-bold text-sm pointer-events-none z-10 flex flex-col items-center gap-1">
                     <i class="fa-solid fa-hand-pointer text-3xl text-emerald-400 animate-bounce"></i>
-                    <span>滑動或傾斜手機以碰撞大螢幕 1-6 號球</span>
+                    <span>滑動或傾斜手機以碰撞地圖中央 1-6 號球</span>
                 </div>
             </div>
 
@@ -297,34 +307,25 @@
             <!-- 大富翁走格子畫面 -->
             <div class="col-span-10 relative bg-emerald-50/60 rounded-2xl border-2 border-chch-green/30 p-2 grid grid-cols-8 grid-rows-4 gap-2 h-full shadow-inner">
                 
-                <!-- 中間小螢幕 -->
-                <div class="col-start-2 col-span-6 row-start-2 row-span-2 bg-white/95 rounded-2xl border-2 border-chch-green shadow-xl p-4 flex items-center justify-between z-10">
-                    <div class="w-1/2 h-full border-r-2 border-chch-green/20 flex flex-col items-center justify-center p-2">
-                        <span class="text-xs font-black text-chch-darkGreen bg-chch-lightGreen px-3 py-1 rounded-full mb-1 border border-chch-green/30">目前參賽者</span>
-                        <div id="current-player-avatar" class="text-7xl animate-bounce my-1">🐱</div>
-                        <div id="current-player-name" class="text-2xl font-black text-slate-800">參賽者名稱</div>
-                    </div>
-
-                    <div class="w-1/2 h-full flex flex-col items-center justify-center p-2">
-                        <span class="text-xs font-black text-chch-orange bg-chch-lightOrange px-3 py-1 rounded-full mb-1 border border-amber-300">碰撞步數點數</span>
-                        <div id="dice-display" class="text-7xl font-black text-chch-orange my-1">🎲</div>
-                        <div id="dice-step-text" class="text-xl font-extrabold text-slate-700">等待碰撞 1-6 號球...</div>
-                    </div>
-                </div>
-
-                <!-- 1-6 號碰撞球大螢幕彈出窗格 (參照物資接接接碰撞模式) -->
-                <div id="ball-select-overlay" class="hidden absolute inset-0 z-30 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6">
-                    <div class="w-[80%] h-[80%] bg-white/95 rounded-3xl border-4 border-chch-green shadow-2xl p-4 flex flex-col items-center justify-between relative overflow-hidden">
-                        <div class="text-2xl font-black text-chch-darkGreen bg-chch-lightGreen px-6 py-1.5 rounded-full border border-chch-green/30 shadow-sm flex-shrink-0">
-                            🎯 請參賽者操作手機，碰撞 1 - 6 號球決定步數！
+                <!-- 調整修改：格子圍繞之全部中央區域 (佔中央 6x2 空間)，做為號碼球移動與碰撞場景 -->
+                <div id="center-board-area" class="col-start-2 col-span-6 row-start-2 row-span-2 bg-white/90 rounded-2xl border-4 border-chch-green shadow-xl relative overflow-hidden flex flex-col justify-between p-2 z-10">
+                    
+                    <!-- 中央頂部提示資訊欄 -->
+                    <div id="center-info-bar" class="w-full flex items-center justify-between px-3 py-1 bg-chch-lightGreen/90 rounded-xl border border-chch-green/30 z-20">
+                        <div class="flex items-center gap-2">
+                            <span id="current-player-avatar" class="text-2xl animate-bounce">🐱</span>
+                            <span id="current-player-name" class="text-base font-black text-slate-800">當前玩家</span>
                         </div>
-                        
-                        <!-- 6 顆號碼球區域 -->
-                        <div id="board-ball-container" class="w-full h-full relative my-2 rounded-2xl bg-slate-100 border-2 border-slate-200 overflow-hidden">
-                            <!-- 參賽者專屬球體 (由手機操作) -->
-                            <div id="active-player-ball" class="absolute w-14 h-14 bg-amber-500 rounded-full flex items-center justify-center text-3xl shadow-xl z-20 transition-transform duration-75 border-2 border-white">
-                                ⚽
-                            </div>
+                        <div id="center-status-hint" class="text-xs md:text-sm font-extrabold text-chch-orange">
+                            🎯 請操控碰撞 1 - 6 號飄浮球決定步數！
+                        </div>
+                    </div>
+
+                    <!-- 中央 1-6 號小球與參賽者專屬球移動撞擊容器 -->
+                    <div id="center-ball-container" class="w-full flex-grow relative overflow-hidden my-1 rounded-xl bg-slate-100/80 border-2 border-slate-200">
+                        <!-- 參賽者專屬球體 (由手機移動操控) -->
+                        <div id="active-player-ball" class="absolute w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center text-2xl shadow-xl z-20 border-2 border-white pointer-events-none">
+                            ⚽
                         </div>
                     </div>
                 </div>
@@ -552,7 +553,6 @@
                                 addPlayer(data.name, conn, data.playerId);
                             }
                         } else if (data.type === 'MOVE') {
-                            // 收到參賽者手機端的移動向量資料
                             handlePlayerMoveData(data.playerId, data.deltaX, data.deltaY);
                         } else if (data.type === 'CHOICE_RESULT') {
                             handlePlayerChoice(data.playerId, data.choice);
@@ -779,8 +779,9 @@
         let ballTargetList = [];
         let playerBallPos = { x: 150, y: 150 };
         let activeCollisionListener = false;
+        let ballPhysicsAnimFrame = null;
 
-        // 輪到參賽者時，大螢幕跳出 1-6 號小球碰撞視窗，並通知參賽者手機顯示「請移動」
+        // 輪到參賽者時，直接在格子圍繞的中央全部區域展開 1-6 號號碼球
         function nextTurn() {
             if (!isGameRunning) return;
 
@@ -795,10 +796,8 @@
 
             document.getElementById('current-player-avatar').innerText = p.avatar;
             document.getElementById('current-player-name').innerText = p.name;
-            document.getElementById('dice-display').innerText = '🎲';
-            document.getElementById('dice-step-text').innerText = '等待碰撞 1-6 號球...';
+            document.getElementById('center-status-hint').innerText = '🎯 請操控碰撞 1 - 6 號飄浮球決定步數！';
 
-            // 通知所有參賽者，只有輪到自己時顯示「請移動」三個大字
             players.forEach(player => {
                 if (player.conn) {
                     player.conn.send({ 
@@ -818,62 +817,121 @@
             }
         }
 
-        // 大螢幕生成 1-6 號球與參賽者碰撞球
+        // 中央區域生成 1-6 號移動與反彈球體
         function startBoardBallCollisionPhase(p) {
-            const overlay = document.getElementById('ball-select-overlay');
-            const container = document.getElementById('board-ball-container');
-            overlay.classList.remove('hidden');
-
-            // 移除舊有小球
+            const container = document.getElementById('center-ball-container');
+            
+            // 清除舊球體與動畫
+            if (ballPhysicsAnimFrame) cancelAnimationFrame(ballPhysicsAnimFrame);
             const oldBalls = container.querySelectorAll('.target-num-ball');
             oldBalls.forEach(b => b.remove());
 
             const playerBall = document.getElementById('active-player-ball');
             playerBall.innerText = p.avatar;
 
-            // 設置參賽者初始位置於中央
-            playerBallPos = { x: container.clientWidth / 2 - 28, y: container.clientHeight / 2 - 28 };
+            playerBallPos = { x: container.clientWidth / 2 - 24, y: container.clientHeight / 2 - 24 };
             playerBall.style.left = `${playerBallPos.x}px`;
             playerBall.style.top = `${playerBallPos.y}px`;
 
             ballTargetList = [];
-            // 生成 1-6 號球
+            // 生成 1-6 號帶動量小球
             for (let i = 1; i <= 6; i++) {
                 const ball = document.createElement('div');
-                ball.className = 'target-num-ball absolute w-14 h-14 bg-chch-green text-white font-black text-2xl rounded-full flex items-center justify-center shadow-lg border-2 border-white';
-                const rx = Math.floor(Math.random() * (container.clientWidth - 70)) + 10;
-                const ry = Math.floor(Math.random() * (container.clientHeight - 70)) + 10;
+                ball.className = 'target-num-ball absolute w-12 h-12 bg-chch-green text-white font-black text-xl rounded-full flex items-center justify-center shadow-lg border-2 border-white transition-transform';
+                const rx = Math.floor(Math.random() * (container.clientWidth - 60)) + 10;
+                const ry = Math.floor(Math.random() * (container.clientHeight - 60)) + 10;
+                
+                // 亂數設定慢速向量 (vx, vy)
+                const vx = (Math.random() - 0.5) * 1.8;
+                const vy = (Math.random() - 0.5) * 1.8;
+
                 ball.style.left = `${rx}px`;
                 ball.style.top = `${ry}px`;
                 ball.innerText = i;
                 container.appendChild(ball);
-                ballTargetList.push({ num: i, x: rx, y: ry, el: ball });
+
+                ballTargetList.push({ num: i, x: rx, y: ry, vx: vx, vy: vy, el: ball, hit: false });
             }
 
             activeCollisionListener = true;
+            runBallPhysicsLoop();
         }
 
-        // 處理參賽者手機端傳來的 Touchpad / 傾斜移動資料 (參照物資接接接)
+        // 1-6 號小球慢慢移動與邊界反彈動畫循環
+        function runBallPhysicsLoop() {
+            if (!activeCollisionListener) return;
+
+            const container = document.getElementById('center-ball-container');
+            const cw = container.clientWidth;
+            const ch = container.clientHeight;
+
+            ballTargetList.forEach(tb => {
+                if (tb.hit) return;
+
+                tb.x += tb.vx;
+                tb.y += tb.vy;
+
+                // 碰到框線快速反彈
+                if (tb.x <= 0) { tb.x = 0; tb.vx = Math.abs(tb.vx) * 1.2; }
+                if (tb.x >= cw - 48) { tb.x = cw - 48; tb.vx = -Math.abs(tb.vx) * 1.2; }
+                if (tb.y <= 0) { tb.y = 0; tb.vy = Math.abs(tb.vy) * 1.2; }
+                if (tb.y >= ch - 48) { tb.y = ch - 48; tb.vy = -Math.abs(tb.vy) * 1.2; }
+
+                // 限制最高與最低速
+                const speed = Math.hypot(tb.vx, tb.vy);
+                if (speed > 4) { tb.vx *= 0.95; tb.vy *= 0.95; }
+                if (speed < 0.8) { tb.vx *= 1.1; tb.vy *= 1.1; }
+
+                tb.el.style.left = `${tb.x}px`;
+                tb.el.style.top = `${tb.y}px`;
+            });
+
+            ballPhysicsAnimFrame = requestAnimationFrame(runBallPhysicsLoop);
+        }
+
+        // 處理參賽者移動資料與撞擊放大爆炸特效
         function handlePlayerMoveData(playerId, deltaX, deltaY) {
             const p = players[currentTurnIndex];
             if (!activeCollisionListener || !p || p.id !== playerId) return;
 
-            const container = document.getElementById('board-ball-container');
+            const container = document.getElementById('center-ball-container');
             const playerBall = document.getElementById('active-player-ball');
 
-            playerBallPos.x = Math.max(0, Math.min(container.clientWidth - 56, playerBallPos.x + deltaX * 300));
-            playerBallPos.y = Math.max(0, Math.min(container.clientHeight - 56, playerBallPos.y + deltaY * 300));
+            playerBallPos.x = Math.max(0, Math.min(container.clientWidth - 48, playerBallPos.x + deltaX * 280));
+            playerBallPos.y = Math.max(0, Math.min(container.clientHeight - 48, playerBallPos.y + deltaY * 280));
 
             playerBall.style.left = `${playerBallPos.x}px`;
             playerBall.style.top = `${playerBallPos.y}px`;
 
             // 碰撞檢測
             ballTargetList.forEach(tb => {
+                if (tb.hit) return;
+
                 const dist = Math.hypot(playerBallPos.x - tb.x, playerBallPos.y - tb.y);
-                if (dist < 45) { // 成功碰撞 1-6 號號碼球
+                if (dist < 40) { // 撞擊成功
+                    tb.hit = true;
                     activeCollisionListener = false;
-                    document.getElementById('ball-select-overlay').classList.add('hidden');
-                    handleDiceMove(p.id, tb.num);
+                    if (ballPhysicsAnimFrame) cancelAnimationFrame(ballPhysicsAnimFrame);
+
+                    // 被撞擊的數字球巨大化與爆炸動畫
+                    tb.el.classList.add('animate-ball-explode');
+                    playScoreExplodeSound();
+
+                    // 施放爆炸 Confetti 粒子
+                    confetti({
+                        particleCount: 60,
+                        spread: 80,
+                        origin: {
+                            x: (tb.x + 24) / window.innerWidth,
+                            y: (tb.y + 100) / window.innerHeight
+                        },
+                        colors: ['#f59e0b', '#ef4444', '#10b981', '#ffffff']
+                    });
+
+                    // 0.5 秒爆炸動畫完結後移動步數
+                    setTimeout(() => {
+                        handleDiceMove(p.id, tb.num);
+                    }, 500);
                 }
             });
         }
@@ -924,7 +982,6 @@
             });
         }
 
-        // 初始化手機端指尖觸控與傾斜傳輸功能 (物資接接接操控模式)
         function initMobileTouchAndGyro() {
             const area = document.getElementById('mobile-controls-area');
             let isTouching = false;
@@ -956,11 +1013,10 @@
 
             area.addEventListener('touchend', () => { isTouching = false; }, { passive: true });
 
-            // 陀螺儀支援
             if (window.DeviceOrientationEvent) {
                 window.addEventListener('deviceorientation', (e) => {
-                    const gamma = e.gamma || 0; // 左右
-                    const beta = e.beta || 0;   // 前後
+                    const gamma = e.gamma || 0;
+                    const beta = e.beta || 0;
                     if (Math.abs(gamma) > 2 || Math.abs(beta) > 2) {
                         if (hostConn && hostConn.open) {
                             hostConn.send({
@@ -1008,8 +1064,7 @@
             const p = players.find(player => player.id === playerId);
             if (!p) return;
 
-            document.getElementById('dice-display').innerText = `${number}`;
-            document.getElementById('dice-step-text').innerText = `前進 ${number} 格`;
+            document.getElementById('center-status-hint').innerText = `💥 成功撞擊 ${number} 號球！前進 ${number} 格`;
 
             let stepCount = 0;
             const moveInterval = setInterval(() => {
