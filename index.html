@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>安得烈食物銀行知識大亂鬥 - 喊名字動物賽跑</title>
+    <title>安得烈食物銀行知識大亂鬥 - 動物音量賽跑</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- PeerJS & QRCode.js -->
@@ -48,7 +48,7 @@
         }
 
         .animal-racer {
-            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
             will-change: transform;
         }
     </style>
@@ -60,7 +60,7 @@
         <div class="flex items-center space-x-3">
             <span class="text-3xl">🍞</span>
             <h1 class="text-2xl md:text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-neon-purple to-neon-pink">
-                安得烈食物銀行知識大亂鬥 - 喊名字動物大亂鬥
+                安得烈食物銀行知識大亂鬥 - 動物音量賽跑
             </h1>
         </div>
     </header>
@@ -78,16 +78,17 @@
                     <div class="p-4 bg-gradient-to-br from-cyan-400 via-purple-500 to-pink-500 rounded-2xl shadow-[0_0_50px_rgba(0,243,255,0.4)] my-auto">
                         <div id="qrcode" class="bg-white p-3 rounded-xl flex items-center justify-center shadow-inner"></div>
                     </div>
-                    <p class="text-xs text-slate-400 mt-3 text-center">連線後直接對手機喊出【動物名字】<br>聲音越大聲，移動距離越遠！</p>
+                    <p class="text-xs text-slate-400 mt-3 text-center">點擊手機上的【動物圖示】啟動 2 秒錄音<br>喊叫一次發送一次位移！</p>
                 </div>
 
                 <!-- 右側：4條動物賽道 (大螢幕) -->
                 <div class="md:col-span-8 flex flex-col justify-center h-full space-y-4 px-2">
                     <h2 class="text-2xl font-black text-neon-yellow flex items-center gap-2 mb-2">
-                        <span>🏁</span> 動物競技場 (喊名字即時移動)
+                        <span>🏁</span> 動物競技場 (喊一次走一次)
                     </h2>
 
                     <div id="race-tracks" class="space-y-3 w-full bg-slate-950/80 p-4 rounded-2xl border border-slate-800">
+                        <!-- 0: 獅子 -->
                         <div class="relative w-full bg-slate-900 border border-slate-800 rounded-xl p-2 h-16 flex items-center overflow-hidden">
                             <div class="absolute right-3 text-slate-600 font-black text-sm z-0">終點 🏁</div>
                             <div id="track-animal-0" class="animal-racer relative z-10 flex items-center gap-2 text-4xl" style="transform: translateX(0px);">
@@ -95,6 +96,7 @@
                             </div>
                         </div>
 
+                        <!-- 1: 兔子 -->
                         <div class="relative w-full bg-slate-900 border border-slate-800 rounded-xl p-2 h-16 flex items-center overflow-hidden">
                             <div class="absolute right-3 text-slate-600 font-black text-sm z-0">終點 🏁</div>
                             <div id="track-animal-1" class="animal-racer relative z-10 flex items-center gap-2 text-4xl" style="transform: translateX(0px);">
@@ -102,6 +104,7 @@
                             </div>
                         </div>
 
+                        <!-- 2: 猴子 -->
                         <div class="relative w-full bg-slate-900 border border-slate-800 rounded-xl p-2 h-16 flex items-center overflow-hidden">
                             <div class="absolute right-3 text-slate-600 font-black text-sm z-0">終點 🏁</div>
                             <div id="track-animal-2" class="animal-racer relative z-10 flex items-center gap-2 text-4xl" style="transform: translateX(0px);">
@@ -109,6 +112,7 @@
                             </div>
                         </div>
 
+                        <!-- 3: 大象 -->
                         <div class="relative w-full bg-slate-900 border border-slate-800 rounded-xl p-2 h-16 flex items-center overflow-hidden">
                             <div class="absolute right-3 text-slate-600 font-black text-sm z-0">終點 🏁</div>
                             <div id="track-animal-3" class="animal-racer relative z-10 flex items-center gap-2 text-4xl" style="transform: translateX(0px);">
@@ -125,47 +129,42 @@
         <div id="view-player-mobile" class="hidden fixed inset-0 z-50 bg-slate-950 p-6 flex-col justify-between overflow-hidden">
             <div class="text-center space-y-2 flex-shrink-0">
                 <span class="text-4xl">🍞</span>
-                <h2 class="text-2xl font-black text-neon-blue">語音感應控制器</h2>
-                <p id="mobile-status-text" class="text-neon-yellow font-bold text-base">正在連接大螢幕...</p>
+                <h2 class="text-2xl font-black text-neon-blue">音量控制器</h2>
+                <p id="mobile-status-text" class="text-neon-yellow font-bold text-base">點擊動物開啟 2 秒大喊收音！</p>
             </div>
 
-            <div class="space-y-3 my-auto w-full">
-                <div class="text-center text-slate-400 font-bold text-sm">對手機大喊下列動物名字：</div>
-                <div id="mobile-animals-grid" class="grid grid-cols-2 gap-4 w-full p-2">
-                    <div class="bg-slate-900 border-2 border-blue-500/60 rounded-2xl p-4 flex flex-col items-center justify-center space-y-1">
-                        <span class="text-5xl">🦁</span>
-                        <span class="text-lg font-black text-blue-400">喊「獅子」</span>
-                    </div>
-                    <div class="bg-slate-900 border-2 border-pink-500/60 rounded-2xl p-4 flex flex-col items-center justify-center space-y-1">
-                        <span class="text-5xl">🐰</span>
-                        <span class="text-lg font-black text-pink-400">喊「兔子」</span>
-                    </div>
-                    <div class="bg-slate-900 border-2 border-yellow-500/60 rounded-2xl p-4 flex flex-col items-center justify-center space-y-1">
-                        <span class="text-5xl">🐵</span>
-                        <span class="text-lg font-black text-yellow-400">喊「猴子」</span>
-                    </div>
-                    <div class="bg-slate-900 border-2 border-green-500/60 rounded-2xl p-4 flex flex-col items-center justify-center space-y-1">
-                        <span class="text-5xl">🐘</span>
-                        <span class="text-lg font-black text-green-400">喊「大象」</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="space-y-4 w-full flex-shrink-0">
-                <button id="btn-start-speech" onclick="startSpeechAndAudio()" class="w-full py-4 bg-gradient-to-r from-neon-green to-neon-blue text-slate-950 font-black text-xl rounded-2xl shadow-lg border-2 border-white/40 active:scale-95 transition">
-                    🎙️ 開始語音感應賽跑
+            <!-- 手機 4 個動物選擇按鈕 -->
+            <div id="mobile-animals-grid" class="grid grid-cols-2 gap-4 w-full my-auto p-2">
+                <button id="btn-animal-0" onclick="trigger2SecListening(0)" class="animal-btn bg-slate-900 hover:bg-slate-800 border-2 border-blue-500 rounded-2xl p-5 flex flex-col items-center justify-center space-y-2 active:scale-95 transition-all shadow-lg">
+                    <span class="text-6xl">🦁</span>
+                    <span class="text-lg font-black text-blue-400">獅子</span>
                 </button>
+                <button id="btn-animal-1" onclick="trigger2SecListening(1)" class="animal-btn bg-slate-900 hover:bg-slate-800 border-2 border-pink-500 rounded-2xl p-5 flex flex-col items-center justify-center space-y-2 active:scale-95 transition-all shadow-lg">
+                    <span class="text-6xl">🐰</span>
+                    <span class="text-lg font-black text-pink-400">兔子</span>
+                </button>
+                <button id="btn-animal-2" onclick="trigger2SecListening(2)" class="animal-btn bg-slate-900 hover:bg-slate-800 border-2 border-yellow-500 rounded-2xl p-5 flex flex-col items-center justify-center space-y-2 active:scale-95 transition-all shadow-lg">
+                    <span class="text-6xl">🐵</span>
+                    <span class="text-lg font-black text-yellow-400">猴子</span>
+                </button>
+                <button id="btn-animal-3" onclick="trigger2SecListening(3)" class="animal-btn bg-slate-900 hover:bg-slate-800 border-2 border-green-500 rounded-2xl p-5 flex flex-col items-center justify-center space-y-2 active:scale-95 transition-all shadow-lg">
+                    <span class="text-6xl">🐘</span>
+                    <span class="text-lg font-black text-green-400">大象</span>
+                </button>
+            </div>
 
-                <div id="volume-meter-container" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col space-y-2">
-                    <div class="flex justify-between items-center text-xs font-bold text-slate-300">
-                        <span>辨識結果：<span id="speech-result-text" class="text-neon-yellow">等待開口...</span></span>
-                        <span id="volume-val-text" class="text-neon-green font-black">0 %</span>
-                    </div>
-                    <div class="w-full bg-slate-950 h-4 rounded-full overflow-hidden border border-slate-800">
-                        <div id="volume-bar" class="h-full bg-gradient-to-r from-neon-blue via-neon-green to-neon-pink w-0 transition-all duration-75"></div>
-                    </div>
-                    <!-- 連線發送狀態觸發提示 -->
-                    <div id="send-log-text" class="text-center text-xs text-neon-blue font-extrabold h-4"></div>
+            <!-- 2秒倒數與音量狀態顯示區 -->
+            <div id="volume-meter-container" class="w-full bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col space-y-2 flex-shrink-0">
+                <div class="flex justify-between items-center text-xs font-bold text-slate-300">
+                    <span>收音狀態：<span id="listening-status-text" class="text-slate-400">待命</span></span>
+                    <span id="timer-countdown-text" class="text-neon-pink font-black text-sm"></span>
+                </div>
+                <div class="w-full bg-slate-950 h-4 rounded-full overflow-hidden border border-slate-800">
+                    <div id="volume-bar" class="h-full bg-gradient-to-r from-neon-blue via-neon-green to-neon-pink w-0 transition-all duration-75"></div>
+                </div>
+                <div class="flex justify-between text-[10px] text-slate-400 font-bold">
+                    <span id="result-log-text" class="text-neon-green font-extrabold text-xs">準備點擊動物...</span>
+                    <span>超過 60 自動 -60</span>
                 </div>
             </div>
         </div>
@@ -174,10 +173,10 @@
 
     <script>
         const animalsConfig = [
-            { id: 0, name: "獅子", keywords: ["獅子", "獅"], icon: "🦁" },
-            { id: 1, name: "兔子", keywords: ["兔子", "兔"], icon: "🐰" },
-            { id: 2, name: "猴子", keywords: ["猴子", "猴"], icon: "🐵" },
-            { id: 3, name: "大象", keywords: ["大象", "象"], icon: "🐘" }
+            { id: 0, name: "獅子", icon: "🦁" },
+            { id: 1, name: "兔子", icon: "🐰" },
+            { id: 2, name: "猴子", icon: "🐵" },
+            { id: 3, name: "大象", icon: "🐘" }
         ];
 
         let animalPositions = [0, 0, 0, 0];
@@ -187,9 +186,10 @@
         let audioContext = null;
         let analyser = null;
         let microphone = null;
-        let recognition = null;
-        let currentPeakVolume = 0;
-        let isStarted = false;
+        let isRecording = false;
+        let maxVolumeIn2Sec = 0;
+        let recordTimer = null;
+        let countdownInterval = null;
 
         window.onload = () => {
             const urlParams = new URLSearchParams(window.location.search);
@@ -206,6 +206,7 @@
             }
         };
 
+        // --- 大螢幕（Host）邏輯 ---
         function initHostPeer() {
             peer = new Peer();
             peer.on('open', (id) => {
@@ -231,7 +232,6 @@
             animalPositions[index] += step;
             const el = document.getElementById(`track-animal-${index}`);
             if (el) {
-                // 強制套用移動
                 el.style.transform = `translateX(${animalPositions[index]}px)`;
                 const label = el.querySelector('span');
                 if (label) {
@@ -240,6 +240,7 @@
             }
         }
 
+        // --- 手機端（Client）邏輯 ---
         function initMobileController(hostId) {
             peer = new Peer();
             peer.on('open', () => {
@@ -247,85 +248,92 @@
                 hostConn.on('open', () => {
                     document.getElementById('mobile-status-text').innerText = "🟢 已成功連線至大螢幕！";
                 });
-                hostConn.on('error', (err) => {
-                    document.getElementById('mobile-status-text').innerText = "❌ 連線失敗，請重新掃碼！";
-                });
             });
         }
 
-        async function startSpeechAndAudio() {
-            if (isStarted) return;
+        // 觸發 2 秒收音判定
+        async function trigger2SecListening(animalIndex) {
+            if (isRecording) return; // 錄音中不重複觸發
 
-            try {
-                // 1. 收音
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioContext.createAnalyser();
-                microphone = audioContext.createMediaStreamSource(stream);
-                analyser.fftSize = 256;
-                microphone.connect(analyser);
-
-                trackVolumePeak();
-
-                // 2. 語音辨識
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                if (!SpeechRecognition) {
-                    alert("手機瀏覽器不支援 Web Speech 語音辨識！請使用 Chrome 瀏覽器開啓！");
+            // 1. 初始化麥克風
+            if (!audioContext) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    analyser = audioContext.createAnalyser();
+                    microphone = audioContext.createMediaStreamSource(stream);
+                    analyser.fftSize = 256;
+                    microphone.connect(analyser);
+                } catch (err) {
+                    alert("無法取得麥克風權限，請於瀏覽器允許存取麥克風。");
                     return;
                 }
-
-                recognition = new SpeechRecognition();
-                recognition.lang = 'zh-TW';
-                recognition.continuous = true;
-                recognition.interimResults = true;
-
-                recognition.onresult = (event) => {
-                    for (let i = event.resultIndex; i < event.results.length; ++i) {
-                        const transcript = event.results[i][0].transcript.trim();
-                        document.getElementById('speech-result-text').innerText = `「${transcript}」`;
-
-                        animalsConfig.forEach((animal) => {
-                            const isMatched = animal.keywords.some(kw => transcript.includes(kw));
-                            if (isMatched) {
-                                // 將音量映射至 10 - 60 px 之間
-                                const normalized = Math.min(1, Math.max(0, currentPeakVolume / 100));
-                                const step = Math.round(10 + normalized * (60 - 10));
-
-                                if (hostConn && hostConn.open) {
-                                    hostConn.send({
-                                        type: 'MOVE_ANIMAL',
-                                        animalIndex: animal.id,
-                                        step: step
-                                    });
-                                    document.getElementById('send-log-text').innerText = `🚀 已送出【${animal.name}】前進 +${step}px`;
-                                    setTimeout(() => { document.getElementById('send-log-text').innerText = ''; }, 1500);
-                                } else {
-                                    document.getElementById('send-log-text').innerText = `⚠️ 尚未連線至大螢幕`;
-                                }
-                            }
-                        });
-                    }
-                };
-
-                recognition.onend = () => {
-                    if (isStarted) {
-                        try { recognition.start(); } catch(e) {}
-                    }
-                };
-
-                recognition.start();
-                isStarted = true;
-
-                document.getElementById('btn-start-speech').innerText = "🎙️ 語音感應中...請大喊！";
-                document.getElementById('btn-start-speech').classList.replace('from-neon-green', 'from-emerald-600');
-
-            } catch (err) {
-                alert("無法存取麥克風，請檢查瀏覽器設定！");
-                console.error(err);
             }
+
+            isRecording = true;
+            maxVolumeIn2Sec = 0;
+            setButtonsDisabled(true);
+
+            const animalName = animalsConfig[animalIndex].name;
+            document.getElementById('listening-status-text').innerText = `🎙️ 收音中【${animalName}】`;
+            document.getElementById('mobile-status-text').innerText = `🗣️ 快大喊！！（倒數 2 秒）`;
+
+            // 倒數計時顯示
+            let timeLeft = 2.0;
+            document.getElementById('timer-countdown-text').innerText = `⏱️ ${timeLeft.toFixed(1)}s`;
+            
+            countdownInterval = setInterval(() => {
+                timeLeft -= 0.1;
+                if (timeLeft > 0) {
+                    document.getElementById('timer-countdown-text').innerText = `⏱️ ${timeLeft.toFixed(1)}s`;
+                } else {
+                    clearInterval(countdownInterval);
+                }
+            }, 100);
+
+            // 開始 2 秒音量取樣
+            sampleVolume();
+
+            // 2 秒時間到結算位移量
+            setTimeout(() => {
+                isRecording = false;
+                clearInterval(countdownInterval);
+                document.getElementById('timer-countdown-text').innerText = ``;
+
+                // **計算位移量** (將 Peak 映射到 10 ~ 120 的音量值)
+                let calculatedVolume = Math.round((maxVolumeIn2Sec / 128) * 120);
+                
+                // 設最低喊叫基本分
+                if (calculatedVolume < 10) calculatedVolume = 10;
+
+                // **核心邏輯：若音量超過 60 則減去 60**
+                let finalStep = calculatedVolume;
+                if (finalStep > 60) {
+                    finalStep = finalStep - 60;
+                }
+
+                // 傳送指令至大螢幕 (喊一次走一次)
+                if (hostConn && hostConn.open) {
+                    hostConn.send({
+                        type: 'MOVE_ANIMAL',
+                        animalIndex: animalIndex,
+                        step: finalStep
+                    });
+                }
+
+                document.getElementById('listening-status-text').innerText = `✅ 完成發送`;
+                document.getElementById('mobile-status-text').innerText = `點擊動物再次大喊！`;
+                document.getElementById('result-log-text').innerText = `測得音量:${calculatedVolume} -> 最終位移:+${finalStep}px`;
+
+                // 恢復按鈕可點擊狀態
+                setButtonsDisabled(false);
+            }, 2000);
         }
 
-        function trackVolumePeak() {
+        // 2 秒內持續抓取最大音量 Peak
+        function sampleVolume() {
+            if (!isRecording) return;
+
             const dataArray = new Uint8Array(analyser.frequencyBinCount);
             analyser.getByteFrequencyData(dataArray);
 
@@ -335,17 +343,30 @@
             }
             let avgVolume = sum / dataArray.length;
 
-            if (avgVolume > currentPeakVolume) {
-                currentPeakVolume = avgVolume;
-            } else {
-                currentPeakVolume = Math.max(0, currentPeakVolume - 1);
+            // 更新這 2 秒內的最高音量
+            if (avgVolume > maxVolumeIn2Sec) {
+                maxVolumeIn2Sec = avgVolume;
             }
 
+            // 更新當前 UI 音量條
             const percent = Math.min(100, Math.round((avgVolume / 128) * 100));
             document.getElementById('volume-bar').style.width = `${percent}%`;
-            document.getElementById('volume-val-text').innerText = `${percent} %`;
 
-            requestAnimationFrame(trackVolumePeak);
+            requestAnimationFrame(sampleVolume);
+        }
+
+        function setButtonsDisabled(disabled) {
+            for (let i = 0; i < 4; i++) {
+                const btn = document.getElementById(`btn-animal-${i}`);
+                if (btn) {
+                    btn.disabled = disabled;
+                    if (disabled) {
+                        btn.classList.add('opacity-40', 'cursor-not-allowed');
+                    } else {
+                        btn.classList.remove('opacity-40', 'cursor-not-allowed');
+                    }
+                }
+            }
         }
     </script>
 </body>
