@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>全螢幕滿版水果餐刀時鐘 & 世界風景</title>
+  <title>極限滿版精準對齊水果餐刀時鐘 & 世界風景</title>
   <style>
     * {
       box-sizing: border-box;
@@ -70,9 +70,9 @@
     /* 水果圖示元件 */
     .fruit-item {
       position: absolute;
-      width: max(7vw, 7vh);
-      height: max(7vw, 7vh);
-      font-size: max(5.5vw, 5.5vh);
+      width: max(6.5vw, 6.5vh);
+      height: max(6.5vw, 6.5vh);
+      font-size: max(5vw, 5vh);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -81,7 +81,7 @@
       z-index: 3;
     }
 
-    /* 螢幕四周貼邊數字 (1-12) */
+    /* 外側貼邊數字 (1-12) */
     .number-item {
       position: absolute;
       width: max(4.5vw, 4.5vh);
@@ -145,8 +145,8 @@
   <div id="bg1" class="bg-layer active"></div>
   <div id="bg2" class="bg-layer"></div>
 
-  <!-- 全螢幕滿版水果時鐘 -->
-  <div class="clock-container">
+  <!-- 全螢幕滿版時鐘 -->
+  <div class="clock-container" id="clock-container">
     <div class="center-dot"></div>
     
     <!-- 水果與數字容器 -->
@@ -212,66 +212,71 @@
       "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1920&q=80"
     ];
 
-    // 全螢幕邊界座標分佈（以 0% 到 100% 涵蓋整面螢幕）
-    const edgePositions = {
-      // 水果座標 (靠邊內側)
-      fruit: {
-        12: { x: 50, y: 14 },
-        1:  { x: 88, y: 14 },
-        2:  { x: 88, y: 32 },
-        3:  { x: 88, y: 50 },
-        4:  { x: 88, y: 68 },
-        5:  { x: 88, y: 86 },
-        6:  { x: 50, y: 86 },
-        7:  { x: 12, y: 86 },
-        8:  { x: 12, y: 68 },
-        9:  { x: 12, y: 50 },
-        10: { x: 12, y: 32 },
-        11: { x: 12, y: 14 }
-      },
-      // 數字座標 (貼齊最外側邊界)
-      number: {
-        12: { x: 50, y: 4 },
-        1:  { x: 96, y: 4 },
-        2:  { x: 96, y: 27 },
-        3:  { x: 96, y: 50 },
-        4:  { x: 96, y: 73 },
-        5:  { x: 96, y: 96 },
-        6:  { x: 50, y: 96 },
-        7:  { x: 4,  y: 96 },
-        8:  { x: 4,  y: 73 },
-        9:  { x: 4,  y: 50 },
-        10: { x: 4,  y: 27 },
-        11: { x: 4,  y: 4 }
-      }
-    };
-
-    // 1. 動態繪製滿版水果與貼邊數字
     const dialContainer = document.getElementById("dial-container");
 
-    fruits.forEach((fruit, index) => {
-      const hourNum = index + 1;
-      
-      // 水果元件
-      const fPos = edgePositions.fruit[hourNum];
-      const fruitEl = document.createElement("div");
-      fruitEl.className = "fruit-item";
-      fruitEl.textContent = fruit;
-      fruitEl.style.left = `${fPos.x}%`;
-      fruitEl.style.top = `${fPos.y}%`;
-      dialContainer.appendChild(fruitEl);
+    // 根據角度與螢幕邊界，動態計算精準對齊座標
+    function renderDial() {
+      dialContainer.innerHTML = "";
+      const W = window.innerWidth;
+      const H = window.innerHeight;
 
-      // 外側貼邊數字元件
-      const nPos = edgePositions.number[hourNum];
-      const numEl = document.createElement("div");
-      numEl.className = "number-item";
-      numEl.textContent = hourNum;
-      numEl.style.left = `${nPos.x}%`;
-      numEl.style.top = `${nPos.y}%`;
-      dialContainer.appendChild(numEl);
-    });
+      // 數字與水果貼邊保留邊距 (Margin)
+      const numMarginX = Math.max(W * 0.035, 24);
+      const numMarginY = Math.max(H * 0.035, 24);
+      const fruitMarginOffset = Math.min(W, H) * 0.12; 
 
-    // 2. 時鐘運作與旋轉計算
+      fruits.forEach((fruit, index) => {
+        const hourNum = index + 1;
+        // 精確角度 calculation: 12點為 0度/360度
+        const angleDeg = hourNum * 30;
+        const angleRad = (angleDeg - 90) * (Math.PI / 180);
+
+        const cosA = Math.cos(angleRad);
+        const sinA = Math.sin(angleRad);
+
+        // 螢幕半寬與半高
+        const halfW = W / 2 - numMarginX;
+        const halfH = H / 2 - numMarginY;
+
+        // 計算射線與矩形邊界的精準交點
+        let distToEdge;
+        if (Math.abs(cosA) * halfH > Math.abs(sinA) * halfW) {
+          distToEdge = halfW / Math.abs(cosA);
+        } else {
+          distToEdge = halfH / Math.abs(sinA);
+        }
+
+        // 數字座標 (最靠近螢幕邊緣)
+        const nx = W / 2 + distToEdge * cosA;
+        const ny = H / 2 + distToEdge * sinA;
+
+        // 水果座標 (順著同一條射線往內退)
+        const fx = W / 2 + (distToEdge - fruitMarginOffset) * cosA;
+        const fy = H / 2 + (distToEdge - fruitMarginOffset) * sinA;
+
+        // 渲染水果
+        const fruitEl = document.createElement("div");
+        fruitEl.className = "fruit-item";
+        fruitEl.textContent = fruit;
+        fruitEl.style.left = `${fx}px`;
+        fruitEl.style.top = `${fy}px`;
+        dialContainer.appendChild(fruitEl);
+
+        // 渲染對應數字
+        const numEl = document.createElement("div");
+        numEl.className = "number-item";
+        numEl.textContent = hourNum;
+        numEl.style.left = `${nx}px`;
+        numEl.style.top = `${ny}px`;
+        dialContainer.appendChild(numEl);
+      });
+    }
+
+    // 縮放視窗時自動重新計算極限對齊位置
+    window.addEventListener("resize", renderDial);
+    renderDial();
+
+    // 2. 時鐘轉動運算
     const hourHandSvg = document.querySelector("#hour-hand svg");
     const minuteHandSvg = document.querySelector("#minute-hand svg");
     const secondHandSvg = document.querySelector("#second-hand svg");
@@ -294,7 +299,7 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // 3. 背景 30 秒自動切換 (平滑淡入淡出)
+    // 3. 背景 30 秒自動輪播 (平滑淡入淡出)
     let currentImageIndex = 0;
     let activeBgIndex = 1;
     const bg1 = document.getElementById("bg1");
