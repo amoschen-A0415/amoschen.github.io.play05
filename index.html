@@ -88,12 +88,12 @@
             animation: ball-hit-explode 0.5s ease-out forwards;
         }
 
-        /* 超大突破性皇冠閃耀旋轉動畫 */
+        /* 超大皇冠閃耀旋轉動畫 */
         @keyframes crown-shimmer-vibrate {
             0% { transform: scale(1) rotate(-5deg); filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.9)); }
-            25% { transform: scale(1.15) rotate(5deg); filter: drop-shadow(0 0 30px rgba(245, 158, 11, 1)); }
+            25% { transform: scale(1.1) rotate(5deg); filter: drop-shadow(0 0 30px rgba(245, 158, 11, 1)); }
             50% { transform: scale(1) rotate(-3deg); filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.9)); }
-            75% { transform: scale(1.18) rotate(4deg); filter: drop-shadow(0 0 35px rgba(245, 158, 11, 1)); }
+            75% { transform: scale(1.12) rotate(4deg); filter: drop-shadow(0 0 35px rgba(245, 158, 11, 1)); }
             100% { transform: scale(1) rotate(-5deg); filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.9)); }
         }
         .animate-super-crown {
@@ -283,15 +283,16 @@
                 </div>
             </div>
 
+            <!-- 手機端回應面板（包含「正確」、「錯誤」按鈕） -->
             <div id="mobile-choice-panel" class="hidden flex-col items-center justify-center space-y-4 bg-white border-2 border-chch-green/40 p-6 rounded-3xl shadow-xl my-auto w-full z-40">
-                <div id="choice-title" class="text-xl font-black text-slate-800 text-center">請選擇行動</div>
+                <div id="choice-title" class="text-xl font-black text-slate-800 text-center leading-snug">請選擇行動</div>
                 <div id="choice-buttons" class="grid grid-cols-2 gap-4 w-full">
                     <button onclick="submitMobileChoice('give')" class="py-4 bg-chch-green text-white font-black text-lg rounded-2xl shadow">給予 50 分</button>
                     <button onclick="submitMobileChoice('rob')" class="py-4 bg-rose-600 text-white font-black text-lg rounded-2xl shadow">搶奪 50 分</button>
                 </div>
                 <div id="weak-buttons" class="hidden grid-cols-2 gap-4 w-full">
-                    <button onclick="submitMobileChoice('correct')" class="py-4 bg-chch-green text-white font-black text-2xl rounded-2xl shadow">正確</button>
-                    <button onclick="submitMobileChoice('wrong')" class="py-4 bg-rose-600 text-white font-black text-2xl rounded-2xl shadow">錯誤</button>
+                    <button onclick="submitMobileChoice('correct')" class="py-4 bg-chch-green text-white font-black text-2xl rounded-2xl shadow border-2 border-emerald-600">正確</button>
+                    <button onclick="submitMobileChoice('wrong')" class="py-4 bg-rose-600 text-white font-black text-2xl rounded-2xl shadow border-2 border-rose-700">錯誤</button>
                 </div>
             </div>
 
@@ -344,8 +345,9 @@
                             <div id="current-player-name" class="text-2xl md:text-3xl font-black text-slate-800 tracking-wider">參賽者名稱</div>
                         </div>
 
-                        <div id="center-question-box" class="hidden absolute inset-0 bg-amber-50 p-6 rounded-l-xl flex flex-col items-center justify-center text-center shadow-inner border-r-2 border-amber-300">
-                            <span class="text-xs md:text-sm font-black text-chch-orange bg-amber-200/80 px-4 py-1 rounded-full border border-amber-400 mb-4 shadow-sm">❓ 弱勢扶助問答關卡</span>
+                        <!-- 弱勢扶助觸發時題目區塊 -->
+                        <div id="center-question-box" class="hidden absolute inset-0 bg-amber-50 p-6 rounded-l-xl flex flex-col items-center justify-center text-center shadow-inner border-r-2 border-amber-300 z-20">
+                            <span class="text-xs md:text-sm font-black text-chch-orange bg-amber-200/80 px-4 py-1 rounded-full border border-amber-400 mb-3 shadow-sm">❓ 弱勢扶助問答關卡</span>
                             <div class="flex flex-col space-y-2 text-slate-900 font-black">
                                 <div id="center-question-line1" class="text-2xl md:text-3xl tracking-wide text-amber-900">0-3歲給予</div>
                                 <div id="center-question-line2" class="text-2xl md:text-3xl tracking-wide text-chch-darkGreen">嬰兒物資箱提供協助</div>
@@ -354,8 +356,18 @@
 
                     </div>
 
-                    <!-- 右邊一半：1-6 號號碼球碰撞區 -->
-                    <div id="center-ball-container" class="w-1/2 h-full relative overflow-hidden rounded-r-xl bg-slate-100/90 border-l-2 border-slate-200">
+                    <!-- 右邊一半：1-6 號號碼球碰撞區 / 換人準備提示區 -->
+                    <div id="center-ball-container" class="w-1/2 h-full relative overflow-hidden rounded-r-xl bg-slate-100/90 border-l-2 border-slate-200 flex items-center justify-center">
+                        
+                        <!-- 調整 3：換下一位參賽者時，於中央顯示「XX參賽者請準備」靜止 0.5 秒 -->
+                        <div id="ready-prompt-overlay" class="absolute inset-0 bg-amber-400/95 backdrop-blur-sm z-30 flex flex-col items-center justify-center p-4 text-center">
+                            <span class="text-4xl mb-2 animate-bounce">📢</span>
+                            <div id="ready-player-text" class="text-2xl md:text-3xl font-black text-amber-950 tracking-wider">
+                                參賽者 請準備
+                            </div>
+                            <div class="text-sm font-bold text-amber-900/80 mt-1">即將開啟碰撞擲骰...</div>
+                        </div>
+
                         <div class="absolute top-2 left-0 right-0 text-center text-xs font-black text-chch-darkGreen bg-white/80 py-0.5 z-10 shadow-sm">
                             🎯 請碰撞 1 - 6 號飄浮球決定步數！
                         </div>
@@ -396,7 +408,7 @@
             </div>
         </div>
 
-        <!-- 調整 1：頒獎典禮通知窗格 (移除溢出隱藏，第一名呈現突破性超大璀璨皇冠 👑) -->
+        <!-- 頒獎典禮通知窗格 (調整 2：皇冠向上微移且層級調後，不阻擋第一名資訊) -->
         <div id="view-result" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6">
             <div id="result-notice-box" class="w-[85%] h-[85%] bg-white/95 border-4 border-chch-green rounded-3xl p-6 flex flex-col justify-between shadow-2xl relative">
                 
@@ -406,18 +418,18 @@
 
                 <div id="result-four-grid" class="grid grid-cols-4 gap-4 flex-grow my-2">
                     
-                    <!-- 第 1 名區塊 (突破框線的超大亮炫皇冠) -->
-                    <div id="rank-card-1" class="bg-gradient-to-b from-amber-100 via-amber-50 to-amber-200/90 rounded-2xl border-4 border-amber-400 p-3 flex flex-col items-center justify-between text-center relative shadow-xl">
-                        <!-- 調整 1：無邊框阻擋之突破性超大皇冠，附帶金色芒閃耀效果 -->
-                        <div class="absolute -top-12 md:-top-16 text-8xl md:text-9xl drop-shadow-[0_10px_25px_rgba(245,158,11,0.9)] animate-super-crown z-30 pointer-events-none">
+                    <!-- 第 1 名區塊 (皇冠位於頭像與名次背後，不遮擋文字) -->
+                    <div id="rank-card-1" class="bg-gradient-to-b from-amber-100 via-amber-50 to-amber-200/90 rounded-2xl border-4 border-amber-400 p-3 flex flex-col items-center justify-between text-center relative shadow-xl overflow-visible">
+                        <!-- 調整 2：皇冠定位極致優化，置於襯底背後 z-0，不干擾視覺 -->
+                        <div class="absolute -top-14 md:-top-16 text-8xl md:text-9xl drop-shadow-[0_10px_25px_rgba(245,158,11,0.9)] animate-super-crown z-0 pointer-events-none">
                             👑
                         </div>
-                        <span class="mt-10 text-xs md:text-sm font-black text-amber-950 bg-amber-300 px-3 py-1 rounded-full border border-amber-500 shadow-sm z-10">🥇 冠軍 (第一名)</span>
+                        <span class="mt-8 text-xs md:text-sm font-black text-amber-950 bg-amber-300 px-3 py-1 rounded-full border border-amber-500 shadow-sm z-10">🥇 冠軍 (第一名)</span>
                         
-                        <div id="rank-1-avatar" class="text-7xl md:text-8xl my-2 drop-shadow-md">🦌</div>
-                        <div id="rank-1-name" class="text-xl md:text-2xl font-black text-slate-800 truncate w-full">參賽者</div>
+                        <div id="rank-1-avatar" class="text-7xl md:text-8xl my-1 drop-shadow-md z-10">🦌</div>
+                        <div id="rank-1-name" class="text-xl md:text-2xl font-black text-slate-800 truncate w-full z-10">參賽者</div>
                         
-                        <div class="w-full bg-white/90 py-1.5 rounded-xl border border-amber-300 shadow-inner mt-1">
+                        <div class="w-full bg-white/90 py-1.5 rounded-xl border border-amber-300 shadow-inner mt-1 z-10">
                             <span id="rank-1-score" class="text-xl md:text-2xl font-black text-chch-orange">0 分</span>
                         </div>
                     </div>
@@ -463,12 +475,16 @@
     <script>
         const animalAvatars = ['🦌', '🐱', '🐷', '🌸'];
 
-        const weakAssistanceList = [
-            { age: "0-3歲", box: "嬰兒物資箱" },
-            { age: "3-15歲", box: "膳糧食物箱" },
-            { age: "65-80歲", box: "長青食物箱" },
-            { age: "80歲以上", box: "松柏食物箱" }
-        ];
+        // 調整 1：弱勢扶助標準對應表（4種年齡層標準對應之食物箱）
+        const weakAgeCategories = ["0-3歲", "3-15歲", "65-80歲", "80歲以上"];
+        const weakBoxTypes = ["嬰兒物資箱", "膳糧食物箱", "長青食物箱", "松柏食物箱"];
+        
+        const weakCorrectAnswersMap = {
+            "0-3歲": "嬰兒物資箱",
+            "3-15歲": "膳糧食物箱",
+            "65-80歲": "長青食物箱",
+            "80歲以上": "松柏食物箱"
+        };
 
         const eventDefinitions = {
             "急難救助": [
@@ -840,6 +856,7 @@
         let ballPhysicsAnimFrame = null;
         let speedBoostTimer = null;
 
+        // 調整 3：換下位參賽者時跳出提示並停留 0.5 秒
         function nextTurn() {
             if (!isGameRunning) return;
 
@@ -858,6 +875,11 @@
             document.getElementById('current-player-avatar').innerText = p.avatar;
             document.getElementById('current-player-name').innerText = p.name;
 
+            // 顯示「XX 參賽者請準備」Overlay
+            const readyOverlay = document.getElementById('ready-prompt-overlay');
+            document.getElementById('ready-player-text').innerText = `${p.name} 請準備`;
+            readyOverlay.classList.remove('hidden');
+
             players.forEach(player => {
                 if (player.conn) {
                     player.conn.send({ 
@@ -867,14 +889,19 @@
                 }
             });
 
-            if (p.isAI) {
-                setTimeout(() => {
-                    const simulatedNum = Math.floor(Math.random() * 6) + 1;
-                    handleDiceMove(p.id, simulatedNum);
-                }, 2000);
-            } else {
-                startBoardBallCollisionPhase(p);
-            }
+            // 靜止停留 0.5 秒 (500 毫秒) 再顯示並進入擲骰子/碰撞號碼球階段
+            setTimeout(() => {
+                readyOverlay.classList.add('hidden');
+                
+                if (p.isAI) {
+                    setTimeout(() => {
+                        const simulatedNum = Math.floor(Math.random() * 6) + 1;
+                        handleDiceMove(p.id, simulatedNum);
+                    }, 1500);
+                } else {
+                    startBoardBallCollisionPhase(p);
+                }
+            }, 500);
         }
 
         function startBoardBallCollisionPhase(p) {
@@ -1114,7 +1141,7 @@
                 choiceBtns.classList.add('grid');
                 weakBtns.classList.add('hidden');
             } else if (kind === 'weak') {
-                titleEl.innerText = `弱勢扶助：${extra.age} 應給予 ${extra.box}？`;
+                titleEl.innerText = `弱勢扶助：${extra.age}給予 ${extra.box}提供協助？`;
                 choiceBtns.classList.add('hidden');
                 weakBtns.classList.remove('hidden');
                 weakBtns.classList.add('grid');
@@ -1157,7 +1184,7 @@
         }
 
         let pendingEventPlayer = null;
-        let pendingWeakCorrectChoice = false;
+        let pendingWeakIsCorrectCombo = false;
 
         function triggerTileEvent(p) {
             pendingEventPlayer = p;
@@ -1177,10 +1204,8 @@
                     }
                 }
             } else if (tile.type === '休息') {
-                // 調整 2：修復「休息格子與最快/最慢參賽者交換位置」無效修復
                 const rand = Math.random();
                 if (rand < 0.2) {
-                    // 尋找圈數最大（最快）的參賽者
                     let targetPlayer = [...players].sort((a, b) => b.laps - a.laps)[0];
                     if (targetPlayer.id === p.id && players.length > 1) {
                         targetPlayer = [...players].sort((a, b) => b.laps - a.laps)[1];
@@ -1192,7 +1217,6 @@
 
                     showNoticeOverlay("休息", `與最快參賽者 ${targetPlayer.name} 交換位置！`, 0, "☕", "跟跑最快的小朋友交換地圖位置囉！");
                 } else if (rand < 0.4) {
-                    // 尋找圈數最小（最慢）的參賽者
                     let targetPlayer = [...players].sort((a, b) => a.laps - b.laps)[0];
                     if (targetPlayer.id === p.id && players.length > 1) {
                         targetPlayer = [...players].sort((a, b) => a.laps - b.laps)[1];
@@ -1225,26 +1249,39 @@
                 }
                 updatePlayerPositionsUI();
             } else if (tile.type === '弱勢扶助') {
-                const randItem = weakAssistanceList[Math.floor(Math.random() * weakAssistanceList.length)];
-                const isCorrectPair = Math.random() < 0.5;
-                pendingWeakCorrectChoice = isCorrectPair;
+                // 調整 1：弱勢扶助隨機配對與正確性檢驗邏輯
+                const chosenAge = weakAgeCategories[Math.floor(Math.random() * weakAgeCategories.length)];
+                
+                // 50% 機率組合正確答案，50% 機率組合隨機答案
+                let chosenBox = "";
+                const makeCorrect = Math.random() < 0.5;
+
+                if (makeCorrect) {
+                    chosenBox = weakCorrectAnswersMap[chosenAge];
+                    pendingWeakIsCorrectCombo = true;
+                } else {
+                    const wrongBoxes = weakBoxTypes.filter(b => b !== weakCorrectAnswersMap[chosenAge]);
+                    chosenBox = wrongBoxes[Math.floor(Math.random() * wrongBoxes.length)];
+                    pendingWeakIsCorrectCombo = false;
+                }
 
                 document.getElementById('player-info-container').classList.add('hidden');
                 const qBox = document.getElementById('center-question-box');
                 
-                document.getElementById('center-question-line1').innerText = `${randItem.age}給予`;
-                document.getElementById('center-question-line2').innerText = `${randItem.box}提供協助`;
+                document.getElementById('center-question-line1').innerText = `${chosenAge}給予`;
+                document.getElementById('center-question-line2').innerText = `${chosenBox}提供協助`;
                 
                 qBox.classList.remove('hidden');
 
                 if (p.isAI) {
-                    const aiChoice = Math.random() < 0.7 ? (isCorrectPair ? 'correct' : 'wrong') : 'wrong';
-                    handlePlayerChoice(p.id, aiChoice);
+                    // AI 70% 概率選擇真實答案
+                    const aiUserChoice = Math.random() < 0.7 ? (pendingWeakIsCorrectCombo ? 'correct' : 'wrong') : 'wrong';
+                    handlePlayerChoice(p.id, aiUserChoice);
                 } else if (p.conn) {
                     p.conn.send({ 
                         type: 'SHOW_CHOICE', 
                         kind: 'weak', 
-                        extra: { age: randItem.age, box: randItem.box } 
+                        extra: { age: chosenAge, box: chosenBox } 
                     });
                 }
             } else if (eventDefinitions[tile.type]) {
@@ -1288,12 +1325,14 @@
                 document.getElementById('center-question-box').classList.add('hidden');
                 document.getElementById('player-info-container').classList.remove('hidden');
 
-                const userChoiceBool = (choice === 'correct');
-                if (userChoiceBool === pendingWeakCorrectChoice) {
+                const isPlayerChoiceCorrectBtn = (choice === 'correct');
+
+                // 比對玩家選擇與畫面上的配對是否一致
+                if (isPlayerChoiceCorrectBtn === pendingWeakIsCorrectCombo) {
                     p.score += 15;
-                    showNoticeOverlay("弱勢扶助", "回應正確！獲得 15 分。", 15, "🤝", "答對囉！成功把正確的食物箱送給需要的人！");
+                    showNoticeOverlay("弱勢扶助", "回應正確！獲得 15 分。", 15, "🤝", "答對囉！成功把正確的食物箱送給最需要的人！");
                 } else {
-                    showNoticeOverlay("弱勢扶助", "回應錯誤！獲得 0 分。", 0, "🤝", "答錯囉，下次要看清楚年齡跟食物箱喔！");
+                    showNoticeOverlay("弱勢扶助", "回應錯誤！獲得 0 分。", 0, "🤝", "答錯囉，下次要看清楚年齡層與正確的食物箱名稱喔！");
                 }
             }
 
