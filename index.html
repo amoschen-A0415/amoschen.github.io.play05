@@ -19,14 +19,14 @@
             theme: {
                 extend: {
                     colors: {
-                        chch: {
-                            green: '#2e7d32',
-                            lightGreen: '#f1f8e9',
-                            orange: '#f57c00',
-                            lightOrange: '#fff3e0',
-                            yellow: '#fbc02d',
-                            red: '#d32f2f',
-                            warmBg: '#fefce8'
+                        chua: {
+                            red: '#c0392b',
+                            warmOrange: '#e67e22',
+                            yellow: '#f39c12',
+                            green: '#27ae60',
+                            lightBg: '#fdfbf7',
+                            cardBg: '#fffaf0',
+                            border: '#e8d8c8'
                         }
                     }
                 }
@@ -37,8 +37,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
         body {
             font-family: 'Noto Sans TC', sans-serif;
-            background: linear-gradient(135deg, #eef2f3 0%, #8e9eab 100%);
-            color: #1e293b;
+            background: linear-gradient(135deg, #fdfbf7 0%, #faecd9 50%, #f5f0eb 100%);
+            color: #2c3e50;
             user-select: none;
             overflow: hidden;
         }
@@ -49,8 +49,6 @@
         }
         *::-webkit-scrollbar {
             display: none !important;
-            width: 0 !important;
-            height: 0 !important;
         }
 
         #qrcode canvas, #qrcode img {
@@ -60,122 +58,109 @@
             height: auto;
         }
 
-        .music-speed-btn {
-            background-color: #ffffff;
-            color: #d97706;
-            border: 2px solid #fcd34d;
-            transition: all 0.2s ease;
+        /* 大富翁棋盤格子樣式 */
+        .grid-cell {
+            border: 2px solid #e8d8c8;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 4px;
+            box-shadow: inset 0 0 8px rgba(230, 126, 34, 0.08);
+            border-radius: 12px;
+            transition: all 0.3s ease;
         }
-        .music-speed-btn:hover {
-            background-color: #fef3c7;
-            color: #b45309;
-        }
-        .music-speed-btn.active {
-            background-color: #f59e0b;
-            color: #ffffff;
-            border-color: #d97706;
-            box-shadow: 0 2px 4px rgba(217, 119, 6, 0.2);
+        .grid-cell-corner {
+            background: linear-gradient(135deg, #ffe0b2 0%, #ffcc80 100%);
+            border: 3px solid #e67e22;
         }
 
-        @keyframes pulse-vibrate {
-            0% { transform: scale(1); }
-            25% { transform: scale(1.05) rotate(2deg); }
-            50% { transform: scale(0.98) rotate(-2deg); }
-            75% { transform: scale(1.03) rotate(1deg); }
-            100% { transform: scale(1); }
-        }
-        .animate-vibrate {
-            animation: pulse-vibrate 0.3s infinite;
+        /* 棋子動畫與樣式 */
+        .token {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col justify-between overflow-hidden bg-slate-100">
+<body class="h-screen w-screen flex flex-col justify-between overflow-hidden">
 
     <!-- 背景音樂：Two_Coins_Left.mp3 -->
     <audio id="bgm" loop preload="auto" src="Two_Coins_Left.mp3"></audio>
 
     <!-- 頂部 Header -->
-    <header id="main-header" class="w-full px-6 py-3 border-b border-emerald-700/20 bg-white/90 backdrop-blur-md flex justify-between items-center z-10 flex-shrink-0 shadow-sm">
+    <header id="main-header" class="w-full px-6 py-2.5 border-b border-amber-200/80 bg-white/80 backdrop-blur-md flex justify-between items-center z-10 flex-shrink-0 shadow-sm">
         <div class="flex items-center space-x-3">
-            <span class="text-3xl">🍲</span>
-            <h1 class="text-2xl md:text-3xl font-black tracking-wider text-emerald-800">
+            <span class="text-3xl">🎲</span>
+            <h1 class="text-2xl md:text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-red-700 via-amber-600 to-emerald-700">
                 安得烈食物銀行惜食大富翁
             </h1>
         </div>
         <div class="flex items-center gap-3">
-            <div id="game-stage-badge" class="px-4 py-1.5 rounded-full text-sm md:text-lg font-bold bg-amber-100 border border-amber-300 text-amber-800 shadow-sm">
-                初賽階段
+            <div id="game-stage-badge" class="px-4 py-1 rounded-full text-sm md:text-base font-black bg-amber-100 border border-amber-300 text-amber-900 shadow-sm">
+                大廳準備中
             </div>
         </div>
     </header>
 
     <!-- 主要內容區域 -->
-    <main class="flex-grow flex items-center justify-center p-2 md:p-4 relative overflow-hidden">
+    <main class="flex-grow flex items-center justify-center p-2 md:p-3 relative overflow-hidden">
 
         <!-- 大螢幕 - 遊戲大廳 / 掃碼進入 -->
-        <div id="view-lobby" class="w-full max-w-[96vw] h-full max-h-[90vh] bg-white/90 border-2 border-emerald-600/30 rounded-3xl p-4 md:p-6 shadow-xl backdrop-blur-xl relative flex flex-col justify-between overflow-hidden">
+        <div id="view-lobby" class="w-full max-w-[96vw] h-full max-h-[90vh] bg-white/90 border-2 border-amber-200 rounded-3xl p-4 md:p-6 shadow-2xl backdrop-blur-xl relative flex flex-col justify-between overflow-hidden">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center h-full">
                 
-                <!-- 左側：QR Code (來自知識大亂鬥 QR 聯網模式) -->
-                <div class="md:col-span-6 lg:col-span-7 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-emerald-100 pr-0 md:pr-6 pb-2 md:pb-0 text-center h-full overflow-hidden">
-                    <div class="p-5 bg-gradient-to-br from-emerald-500 via-amber-400 to-emerald-600 rounded-3xl shadow-lg my-auto transition-transform hover:scale-[1.02] duration-300 border-2 border-white">
-                        <div id="qrcode" class="bg-white p-4 rounded-2xl border-2 border-emerald-100 flex items-center justify-center shadow-inner"></div>
+                <!-- 左側：QR Code -->
+                <div class="md:col-span-6 lg:col-span-7 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-amber-200/80 pr-0 md:pr-6 pb-2 md:pb-0 text-center h-full overflow-hidden">
+                    <div class="p-5 bg-gradient-to-br from-amber-200 via-orange-200 to-red-200 rounded-3xl shadow-lg my-auto transition-transform hover:scale-[1.01] duration-300 border-2 border-white">
+                        <div id="qrcode" class="bg-white p-4 rounded-2xl border-2 border-amber-100 flex items-center justify-center shadow-inner"></div>
                     </div>
                 </div>
 
                 <!-- 右側：玩家名單 & 設定選項 & 開始按鈕 -->
                 <div class="md:col-span-6 lg:col-span-5 flex flex-col justify-between h-full overflow-hidden pl-0 md:pl-2">
                     <div class="flex-grow flex flex-col overflow-hidden">
-                        <h2 class="text-2xl md:text-3xl font-bold text-emerald-800 mb-4 flex items-center justify-between flex-shrink-0">
-                            <span class="flex items-center gap-2"><i class="fa-solid fa-users"></i> 已加入人員名單 (至多4位)</span>
-                            <span id="player-count-badge" class="text-xl bg-emerald-100 text-emerald-800 px-4 py-1.5 rounded-full font-black border border-emerald-300 shadow-sm">0 / 4 人</span>
+                        <h2 class="text-2xl md:text-3xl font-bold text-red-800 mb-3 flex items-center justify-between flex-shrink-0">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-users"></i> 已加入參賽者</span>
+                            <span id="player-count-badge" class="text-xl bg-red-100 text-red-900 px-4 py-1 rounded-full font-black border border-red-300">0 / 4 人</span>
                         </h2>
 
-                        <div id="player-list-lobby" class="grid grid-cols-2 gap-2.5 overflow-hidden flex-grow content-start">
-                            <div class="col-span-full text-emerald-700/60 text-center py-12 font-bold border-2 border-dashed border-emerald-300/60 rounded-2xl text-lg bg-emerald-50/50">
-                                尚無玩家連線，請掃描左側 QR Code 加入...
+                        <div id="player-list-lobby" class="grid grid-cols-2 gap-3 overflow-hidden flex-grow content-start">
+                            <div class="col-span-full text-amber-800/70 text-center py-10 font-bold border-2 border-dashed border-amber-300 rounded-2xl text-lg bg-amber-50/50">
+                                掃描左側 QR Code 加入遊戲 (至多 4 人)...
                             </div>
-                        </div>
-
-                        <!-- 規則說明區塊 (參照知識大亂鬥規則說明) -->
-                        <div id="score-rules-box" class="mt-3 p-3 bg-amber-50/90 border border-amber-200 rounded-xl text-amber-900 text-sm shadow-sm flex-shrink-0">
-                            <div class="font-bold border-b border-amber-200 pb-1 mb-1.5 flex items-center gap-1.5 text-amber-800">
-                                <i class="fa-solid fa-circle-info"></i> 規則說明
-                            </div>
-                            <ul class="list-disc list-inside space-y-1 text-xs text-slate-700 font-medium">
-                                <li>輪到參賽者時，請對手機出聲發音，依聲音分貝決定大富翁移動格數。</li>
-                                <li>地圖格子包含弱勢扶助、急難救助、災害援助、教育推廣及機會命運事件！</li>
-                            </ul>
                         </div>
                     </div>
 
-                    <!-- 遊戲模式設定區塊 (參照知識大亂鬥選單設定) -->
-                    <div class="w-full pt-3 flex-shrink-0 bg-emerald-50/80 border border-emerald-200 rounded-2xl p-3 my-2 shadow-inner">
-                        <h3 class="text-emerald-900 font-bold text-base mb-2 flex items-center gap-2">
+                    <!-- 遊戲模式與規則設定區 -->
+                    <div class="w-full pt-2 flex-shrink-0 bg-amber-50/90 border border-amber-200 rounded-2xl p-3 my-2 shadow-inner">
+                        <h3 class="text-amber-900 font-bold text-sm mb-2 flex items-center gap-2">
                             <i class="fa-solid fa-sliders"></i> 遊戲模式設定
                         </h3>
                         <div class="grid grid-cols-3 gap-2">
                             <div class="flex flex-col gap-1">
-                                <label for="select-round-mode" class="text-xs text-emerald-900 font-bold">初賽回合條件</label>
-                                <select id="select-round-mode" onchange="toggleScoreMenu()" class="bg-white text-slate-700 font-bold p-1.5 rounded-xl border border-emerald-300 outline-none focus:border-emerald-500 cursor-pointer shadow-sm text-xs">
+                                <label for="select-round-mode" class="text-xs text-amber-900 font-bold">初賽回合設定</label>
+                                <select id="select-round-mode" onchange="toggleScoreMenu()" class="bg-white text-slate-800 font-bold p-1.5 rounded-xl border border-amber-300 outline-none text-xs cursor-pointer shadow-sm">
                                     <option value="1" selected>跑 1 圈</option>
                                     <option value="3">跑 3 圈</option>
                                     <option value="5">跑 5 圈</option>
                                     <option value="score">分數制</option>
                                 </select>
                             </div>
-                            <div id="score-menu-box" class="hidden flex-col gap-1">
-                                <label for="select-target-score" class="text-xs text-emerald-900 font-bold">決賽總分數</label>
-                                <select id="select-target-score" class="bg-white text-slate-700 font-bold p-1.5 rounded-xl border border-emerald-300 outline-none focus:border-emerald-500 cursor-pointer shadow-sm text-xs">
+
+                            <div id="box-target-score" class="flex flex-col gap-1 opacity-40 pointer-events-none">
+                                <label for="select-target-score" class="text-xs text-amber-900 font-bold">決賽總分數</label>
+                                <select id="select-target-score" class="bg-white text-slate-800 font-bold p-1.5 rounded-xl border border-amber-300 outline-none text-xs cursor-pointer shadow-sm">
                                     <option value="200" selected>200 分</option>
                                     <option value="400">400 分</option>
                                     <option value="600">600 分</option>
                                     <option value="999">999 分</option>
                                 </select>
                             </div>
+
                             <div class="flex flex-col gap-1">
-                                <label for="select-ai-count" class="text-xs text-emerald-900 font-bold">AI參賽人數</label>
-                                <select id="select-ai-count" class="bg-white text-slate-700 font-bold p-1.5 rounded-xl border border-emerald-300 outline-none focus:border-emerald-500 cursor-pointer shadow-sm text-xs">
+                                <label for="select-ai-count" class="text-xs text-amber-900 font-bold">A1 參賽人數(AI)</label>
+                                <select id="select-ai-count" class="bg-white text-slate-800 font-bold p-1.5 rounded-xl border border-amber-300 outline-none text-xs cursor-pointer shadow-sm">
                                     <option value="0" selected>0 人</option>
                                     <option value="1">1 人</option>
                                     <option value="2">2 人</option>
@@ -186,8 +171,8 @@
                     </div>
 
                     <div id="lobby-start-box" class="w-full pt-1 flex-shrink-0">
-                        <button id="btn-start-game" class="w-full py-3.5 text-2xl font-black text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl shadow-lg hover:brightness-105 active:scale-95 transition-all border-2 border-white">
-                            🎮 開始遊戲
+                        <button id="btn-start-game" class="w-full py-3.5 text-2xl font-black text-white bg-gradient-to-r from-red-600 via-amber-600 to-emerald-600 rounded-2xl shadow-lg hover:brightness-105 active:scale-95 transition-all border-2 border-white">
+                            🎲 開始大富翁遊戲
                         </button>
                     </div>
                 </div>
@@ -195,243 +180,251 @@
             </div>
         </div>
 
-        <!-- 手機端 - 控制與語音輸入端 -->
-        <div id="view-player-mobile" class="hidden fixed inset-0 z-50 bg-slate-50 p-4 flex-col justify-between overflow-hidden">
+        <!-- 手機端 - 遙控控制器與陀螺儀小球 -->
+        <div id="view-player-mobile" class="hidden fixed inset-0 z-50 bg-gradient-to-b from-amber-50 via-orange-50 to-red-50 p-4 flex-col justify-between overflow-hidden">
             <div id="mobile-top-bar" class="text-center space-y-1 flex-shrink-0 pt-2">
-                <span class="text-4xl">🍲</span>
-                <h2 class="text-2xl font-black text-emerald-800">安得烈惜食大富翁</h2>
-                <p id="player-mobile-name" class="text-amber-700 font-bold text-base">正在連線大螢幕...</p>
-                <div id="mobile-avatar-display" class="hidden text-6xl py-2 animate-bounce">
-                    🐱
-                </div>
+                <span class="text-4xl">🎲</span>
+                <h2 class="text-2xl font-black text-red-800">惜食大富翁 控制器</h2>
+                <p id="player-mobile-name" class="text-amber-800 font-bold text-base">連線中...</p>
+                <div id="mobile-avatar-display" class="hidden text-6xl py-2 animate-bounce">🐶</div>
             </div>
 
-            <div id="mobile-join-form" class="space-y-4 bg-white/90 p-6 rounded-3xl border-2 border-emerald-200 my-auto shadow-xl backdrop-blur-md">
-                <input type="text" id="mobile-name-input" maxlength="8" placeholder="請輸入您的暱稱..." 
-                    class="w-full bg-emerald-50/50 border-2 border-emerald-300 p-4 rounded-2xl text-center text-slate-800 text-xl font-bold focus:border-emerald-500 outline-none shadow-inner">
-                <button id="btn-mobile-join" class="w-full py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-xl rounded-2xl shadow-lg border-2 border-white">
-                    確認參賽
+            <!-- 輸入暱稱進入 -->
+            <div id="mobile-join-form" class="space-y-4 bg-white/90 p-6 rounded-3xl border-2 border-amber-200 my-auto shadow-xl backdrop-blur-md">
+                <input type="text" id="mobile-name-input" maxlength="8" placeholder="請輸入參賽暱稱..." 
+                    class="w-full bg-amber-50/50 border-2 border-amber-300 p-4 rounded-2xl text-center text-slate-800 text-xl font-bold focus:border-red-500 outline-none shadow-inner">
+                <button id="btn-mobile-join" class="w-full py-4 bg-gradient-to-r from-red-600 to-amber-600 text-white font-black text-xl rounded-2xl shadow-lg border-2 border-white">
+                    確認加入遊戲
                 </button>
             </div>
 
-            <!-- 手機端語音分貝發聲面板 -->
-            <div id="mobile-voice-panel" class="hidden flex-col items-center justify-center space-y-4 bg-white border-2 border-emerald-300 p-6 rounded-3xl shadow-xl my-auto">
-                <div id="voice-turn-status" class="text-2xl font-black text-amber-600 animate-pulse text-center">
-                    📢 請喊出聲音前進！
+            <!-- 手機陀螺儀碰撞小球區域 -->
+            <div id="mobile-gyro-area" class="hidden flex-col items-center justify-center gap-3 w-full my-auto">
+                <div class="text-center bg-white/80 p-3 rounded-2xl border border-amber-300 w-full shadow-sm">
+                    <p id="mobile-turn-status" class="text-lg font-black text-red-700">輪到您擲骰了！請傾斜手機讓小球撞擊</p>
                 </div>
-                <div class="text-sm font-bold text-slate-500">倒數計時 2 秒測量音量</div>
-                <div id="mobile-timer-display" class="text-6xl font-black text-emerald-600">2.0</div>
-                <div id="mobile-decibel-display" class="text-3xl font-black text-slate-700">音量：0 dB</div>
-                <div class="w-full bg-slate-200 h-4 rounded-full overflow-hidden border border-slate-300">
-                    <div id="decibel-bar" class="h-full bg-emerald-500 w-0 transition-all duration-75"></div>
+
+                <div id="ball-canvas-box" class="w-full h-64 bg-slate-900 rounded-3xl border-4 border-amber-400 relative overflow-hidden shadow-2xl flex items-center justify-center">
+                    <canvas id="gyroCanvas" class="w-full h-full"></canvas>
+                    <div id="mobile-dice-overlay" class="hidden absolute inset-0 bg-red-600/90 flex flex-col items-center justify-center text-white animate-pulse z-20">
+                        <span class="text-2xl font-bold">撞擊成功！點數：</span>
+                        <span id="mobile-dice-num" class="text-8xl font-black">6</span>
+                    </div>
+                </div>
+
+                <!-- 機會卡選擇按鈕區 -->
+                <div id="mobile-choice-box" class="hidden grid-cols-2 gap-3 w-full pt-2">
+                    <button onclick="submitChanceChoice(true)" class="py-4 bg-emerald-600 text-white font-black text-xl rounded-2xl shadow-lg border-2 border-white active:scale-95">
+                        👍 確定嘗試 (30%)
+                    </button>
+                    <button onclick="submitChanceChoice(false)" class="py-4 bg-slate-600 text-white font-black text-xl rounded-2xl shadow-lg border-2 border-white active:scale-95">
+                        ✋ 放棄選擇
+                    </button>
+                </div>
+
+                <!-- 弱勢扶助 正確/錯誤 按鈕區 -->
+                <div id="mobile-quiz-box" class="hidden grid-cols-2 gap-3 w-full pt-2">
+                    <button onclick="submitQuizChoice(true)" class="py-4 bg-emerald-600 text-white font-black text-2xl rounded-2xl shadow-lg border-2 border-white active:scale-95">
+                        ⭕ 正確 (+15分)
+                    </button>
+                    <button onclick="submitQuizChoice(false)" class="py-4 bg-rose-600 text-white font-black text-2xl rounded-2xl shadow-lg border-2 border-white active:scale-95">
+                        ❌ 錯誤 (+0分)
+                    </button>
                 </div>
             </div>
 
-            <!-- 手機端機會／弱勢扶助選擇按鈕 -->
-            <div id="mobile-choice-panel" class="hidden flex-col items-center justify-center space-y-4 bg-white border-2 border-emerald-300 p-6 rounded-3xl shadow-xl my-auto w-full">
-                <div id="choice-title" class="text-xl font-black text-slate-800 text-center">請選擇行動</div>
-                <div id="choice-buttons" class="grid grid-cols-2 gap-4 w-full">
-                    <button onclick="submitMobileChoice('give')" class="py-4 bg-emerald-600 text-white font-black text-lg rounded-2xl shadow">給予 50 分</button>
-                    <button onclick="submitMobileChoice('rob')" class="py-4 bg-rose-600 text-white font-black text-lg rounded-2xl shadow">搶奪 50 分</button>
-                </div>
-                <div id="weak-buttons" class="hidden grid-cols-2 gap-4 w-full">
-                    <button onclick="submitMobileChoice('correct')" class="py-4 bg-emerald-600 text-white font-black text-xl rounded-2xl shadow">正確</button>
-                    <button onclick="submitMobileChoice('wrong')" class="py-4 bg-rose-600 text-white font-black text-xl rounded-2xl shadow">錯誤</button>
-                </div>
+            <!-- 手機結算畫面 -->
+            <div id="mobile-final-result" class="hidden my-auto flex-col items-center justify-center space-y-4 text-center bg-white border-2 border-amber-300 p-8 rounded-3xl shadow-2xl w-full">
+                <span class="text-6xl" id="mobile-result-icon">🏆</span>
+                <h2 class="text-2xl font-black text-amber-800">遊戲完成結算</h2>
+                <div class="text-5xl font-black text-slate-800" id="mobile-result-rank">第 - 名</div>
+                <div class="text-2xl font-bold text-slate-700">最終積分：<span id="mobile-result-score" class="text-red-600 font-black">0</span> 分</div>
             </div>
 
-            <div id="mobile-status-text" class="text-center text-emerald-900 font-bold py-2 text-sm flex-shrink-0 bg-white/50 rounded-full my-2 border border-emerald-200">
-                連線成功！請輸入暱稱完成登錄
+            <div id="mobile-status-text" class="text-center text-amber-900 font-bold py-2 text-sm flex-shrink-0 bg-white/60 rounded-full border border-amber-200">
+                連線成功！請輸入暱稱
             </div>
         </div>
 
-        <!-- 大螢幕 - 遊戲主畫面 (橫8格、直4格大富翁地圖) -->
-        <div id="view-game" class="hidden w-full h-full max-h-[96vh] grid grid-cols-12 gap-3 overflow-hidden p-2">
+        <!-- 大螢幕 - 遊戲主畫面 (大富翁 8x4 盤面) -->
+        <div id="view-game" class="hidden w-full h-full max-h-[96vh] grid grid-cols-12 gap-3 overflow-hidden">
             
-            <!-- 最左邊實時積分排行榜 (減少寬度，佔 2 欄) -->
-            <div class="col-span-2 bg-white/90 border-2 border-emerald-600/40 rounded-2xl p-2.5 backdrop-blur-xl flex flex-col justify-between overflow-hidden h-full shadow-lg">
+            <!-- 最左側：實時積分排行榜 (寬度縮小，佔 2/12) & 音樂控制列 -->
+            <div class="col-span-3 lg:col-span-2 bg-white/90 border-2 border-amber-200 rounded-3xl p-2.5 backdrop-blur-xl flex flex-col justify-between overflow-hidden h-full shadow-lg">
                 <div class="overflow-hidden flex flex-col flex-grow min-h-0">
-                    <h3 class="text-emerald-800 text-lg font-black mb-2 flex items-center justify-between border-b border-emerald-200 pb-1.5">
-                        <span>🏆 排行榜</span>
+                    <h3 class="text-red-800 text-base font-black mb-2 flex items-center justify-between border-b border-amber-200 pb-1.5 flex-shrink-0">
+                        <span>🏆 積分排行榜</span>
                     </h3>
                     <div id="players-dashboard" class="flex flex-col space-y-2 overflow-y-auto flex-grow pr-1"></div>
                 </div>
 
-                <!-- 面板顯示在排行榜下方：背景音樂播放控制 (參照物資接接接) -->
-                <div class="mt-2 pt-2 border-t-2 border-emerald-200 flex-shrink-0 bg-emerald-50 rounded-xl p-2 border border-emerald-200">
+                <!-- 排行榜下方：音樂播放器 -->
+                <div class="mt-2 pt-2 border-t-2 border-amber-200/80 flex-shrink-0 bg-amber-50/80 rounded-2xl p-2 border border-amber-200 shadow-inner">
                     <div class="flex items-center justify-between mb-1">
-                        <span class="font-bold text-[10px] text-emerald-900 truncate" title="Two_Coins_Left.mp3">Two_Coins_Left.mp3</span>
-                        <span id="music-status-text" class="text-[9px] bg-emerald-200 text-emerald-900 px-1.5 py-0.5 rounded font-bold">50%</span>
+                        <span class="font-bold text-[11px] text-amber-900 truncate" title="Two_Coins_Left.mp3">Two_Coins_Left.mp3</span>
+                        <span id="music-status-text" class="text-[9px] bg-amber-200 text-amber-900 px-1.5 py-0.5 rounded font-bold">50%</span>
                     </div>
+
                     <audio id="audioPlayerInGame" controls class="w-full h-6 mb-1 rounded opacity-90">
                         <source src="Two_Coins_Left.mp3" type="audio/mpeg">
                     </audio>
+
                     <div class="grid grid-cols-3 gap-1">
-                        <button class="music-speed-btn active py-0.5 text-[9px] font-black rounded" onclick="setMusicSpeed(0.5, this)">50%</button>
-                        <button class="music-speed-btn py-0.5 text-[9px] font-black rounded" onclick="setMusicSpeed(1.0, this)">100%</button>
-                        <button class="music-speed-btn py-0.5 text-[9px] font-black rounded" onclick="setMusicSpeed(1.5, this)">150%</button>
+                        <button class="bg-white text-amber-800 text-[10px] font-bold py-0.5 rounded border border-amber-300 hover:bg-amber-100" onclick="setMusicSpeed(0.5, this)">50%</button>
+                        <button class="bg-amber-500 text-white text-[10px] font-bold py-0.5 rounded border border-amber-600" onclick="setMusicSpeed(1.0, this)">100%</button>
+                        <button class="bg-white text-amber-800 text-[10px] font-bold py-0.5 rounded border border-amber-300 hover:bg-amber-100" onclick="setMusicSpeed(1.5, this)">150%</button>
                     </div>
                 </div>
             </div>
 
-            <!-- 中間與右側大富翁走格子畫面 (佔 10 欄) -->
-            <div class="col-span-10 relative bg-emerald-100/50 rounded-2xl border-2 border-emerald-300 p-2 grid grid-cols-8 grid-rows-4 gap-2 h-full shadow-inner">
+            <!-- 右側：大富翁 8x4 走格子畫面 (佔 10/12) -->
+            <div class="col-span-9 lg:col-span-10 bg-white/60 border-2 border-amber-200 rounded-3xl p-3 shadow-2xl backdrop-blur-xl relative flex flex-col items-center justify-center overflow-hidden h-full">
                 
-                <!-- 20 個大富翁格子將由 JavaScript 動態生成注入 -->
-
-                <!-- 中間小螢幕 (佔中央 6x2 空間)：目前參賽者圖示(50%) 與 大骰子(50%) -->
-                <div class="col-start-2 col-span-6 row-start-2 row-span-2 bg-white/95 rounded-2xl border-2 border-emerald-500 shadow-xl p-4 flex items-center justify-between z-10">
-                    <!-- 左半邊 50%：目前參賽者圖示 -->
-                    <div class="w-1/2 h-full border-r-2 border-emerald-100 flex flex-col items-center justify-center p-2">
-                        <span class="text-xs font-black text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full mb-1">當前回合參賽者</span>
-                        <div id="current-player-avatar" class="text-7xl animate-bounce my-1">🐱</div>
-                        <div id="current-player-name" class="text-2xl font-black text-slate-800">玩家名稱</div>
-                        <div id="current-decibel-text" class="text-sm font-bold text-amber-600 mt-1">分貝測量中...</div>
-                    </div>
-
-                    <!-- 右半邊 50%：大骰子/前進點數 -->
-                    <div class="w-1/2 h-full flex flex-col items-center justify-center p-2">
-                        <span class="text-xs font-black text-amber-700 bg-amber-100 px-3 py-1 rounded-full mb-1">聲音前進步數</span>
-                        <div id="dice-display" class="text-7xl font-black text-amber-600 my-1">🎲</div>
-                        <div id="dice-step-text" class="text-xl font-extrabold text-slate-700">準備擲骰/發聲</div>
-                    </div>
-                </div>
-
-                <!-- 中央全螢幕 80% 觸動格子通知窗格 -->
-                <div id="tile-notice-overlay" class="hidden absolute inset-0 z-40 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6">
-                    <div id="notice-box" class="w-[80%] h-[80%] bg-white/95 rounded-3xl border-4 border-emerald-500 shadow-2xl p-6 flex items-center justify-between overflow-hidden relative">
-                        <!-- 左半邊 50%：示意圖最大化 -->
-                        <div class="w-1/2 h-full flex items-center justify-center border-r-2 border-emerald-100 p-4">
-                            <span id="notice-icon" class="text-[12rem]">🏠</span>
+                <!-- 8x4 大富翁網格 -->
+                <div id="board-grid" class="w-full h-full grid grid-cols-8 grid-rows-4 gap-1.5 relative p-1">
+                    
+                    <!-- 中央小螢幕區域 (佔 8x4 的中間 6x2 格) -->
+                    <div class="col-start-2 col-span-6 row-start-2 row-span-2 bg-amber-50/90 border-2 border-amber-300/80 rounded-2xl p-4 flex items-center justify-between shadow-inner relative overflow-hidden">
+                        
+                        <!-- 左 50%：目前參賽者圖示 -->
+                        <div class="w-1/2 h-full flex flex-col items-center justify-center border-r-2 border-amber-200 pr-2">
+                            <span class="text-xs text-amber-800 font-bold mb-1">當前回合參賽者</span>
+                            <div id="current-player-avatar" class="text-6xl my-1 animate-bounce">🐶</div>
+                            <span id="current-player-name" class="text-xl font-black text-slate-800">等待開始...</span>
                         </div>
-                        <!-- 右半邊 50%：右上說明文字 & 右下國小生口吻換句話說 -->
-                        <div class="w-1/2 h-full flex flex-col justify-between p-6 text-left">
-                            <div>
-                                <div id="notice-title" class="text-3xl font-black text-emerald-800 mb-2">急難救助</div>
-                                <div id="notice-original-text" class="text-2xl font-extrabold text-slate-700 leading-snug">發生重大生命事件，安得烈即刻救援。</div>
-                                <div id="notice-score-anim" class="text-4xl font-black text-amber-500 my-3 flex items-center gap-2">
-                                    <span id="score-change-text">+20分</span>
+
+                        <!-- 右 50%：大骰子區 -->
+                        <div class="w-1/2 h-full flex flex-col items-center justify-center pl-2">
+                            <span class="text-xs text-amber-800 font-bold mb-1">擲骰點數</span>
+                            <div id="big-dice-display" class="w-20 h-20 bg-gradient-to-br from-red-500 to-amber-500 text-white rounded-2xl font-black text-5xl flex items-center justify-center shadow-lg border-2 border-white">
+                                ?
+                            </div>
+                        </div>
+
+                        <!-- 觸動格子時的全螢幕 80% 通知窗格 -->
+                        <div id="trigger-notice-modal" class="hidden absolute inset-0 z-30 bg-white/50 backdrop-blur-sm p-4 flex items-center justify-center">
+                            <div class="w-[90%] h-[90%] bg-white/95 border-4 border-amber-400 rounded-3xl shadow-2xl p-4 flex grid grid-cols-2 gap-4 overflow-hidden">
+                                
+                                <!-- 左半邊 50%：雙示意圖 (上下各1張) -->
+                                <div class="col-span-1 h-full flex flex-col gap-2">
+                                    <div class="h-1/2 w-full bg-amber-100 rounded-2xl border-2 border-amber-200 flex items-center justify-center text-5xl shadow-inner" id="notice-img-1">
+                                        🤝
+                                    </div>
+                                    <div class="h-1/2 w-full bg-amber-100 rounded-2xl border-2 border-amber-200 flex items-center justify-center text-5xl shadow-inner" id="notice-img-2">
+                                        📦
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4">
-                                <div class="text-xs font-black text-amber-800 mb-1">💡 小朋友白話解說：</div>
-                                <div id="notice-child-text" class="text-xl font-bold text-amber-900 leading-normal">遇到超級危險的事情時，安得烈叔叔阿姨會馬上跑過來幫忙喔！</div>
+
+                                <!-- 右半邊 50%：右上說明，右下國小語意通達轉換 -->
+                                <div class="col-span-1 h-full flex flex-col justify-between p-1">
+                                    <!-- 右上：說明名字 & 加分震動音效 -->
+                                    <div class="h-1/2 border-b-2 border-amber-200 pb-2 flex flex-col justify-between">
+                                        <div>
+                                            <span id="notice-title" class="text-2xl font-black text-red-700 block">急難救助</span>
+                                            <p id="notice-desc" class="text-base font-bold text-slate-700 leading-snug mt-1">發生重大生命事件，安得烈即刻救援。</p>
+                                        </div>
+                                        <div id="notice-score-badge" class="text-2xl font-black text-emerald-600 animate-bounce">
+                                            +20分
+                                        </div>
+                                    </div>
+
+                                    <!-- 右下：對象國小學生的白話翻譯 -->
+                                    <div class="h-1/2 pt-2 flex flex-col justify-center bg-amber-50/80 rounded-2xl p-3 border border-amber-200">
+                                        <span class="text-xs font-black text-amber-800 mb-1">💡 小小理解卡：</span>
+                                        <p id="notice-kids-desc" class="text-base font-extrabold text-amber-900 leading-relaxed">
+                                            當身邊的人遇到非常危險或困難的事情時，安得烈叔叔阿姨會立刻帶物資去幫忙他！
+                                        </p>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
+
                     </div>
+
                 </div>
 
             </div>
+
         </div>
 
-        <!-- 大螢幕 - 頒獎典禮畫面 (全螢幕煙火 + 慶祝音樂) -->
+        <!-- 最終頒獎畫面 -->
         <div id="view-result" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-md p-6">
-            <div class="w-full max-w-7xl h-full max-h-[90vh] bg-gradient-to-b from-amber-50 to-orange-50 border-4 border-amber-300 rounded-3xl p-6 md:p-8 flex flex-col justify-between shadow-2xl overflow-hidden relative">
+            <div class="w-full max-w-5xl h-full max-h-[85vh] bg-gradient-to-b from-amber-50 to-orange-50 border-4 border-amber-400 rounded-3xl p-6 flex flex-col justify-between shadow-2xl overflow-hidden relative">
                 
-                <h2 id="result-title" class="text-3xl md:text-5xl font-black text-center text-transparent bg-clip-text bg-gradient-to-r from-amber-600 via-rose-500 to-emerald-600 mb-2 flex-shrink-0 drop-shadow-sm">
-                    🏆 最終頒獎典禮 🏆
+                <h2 class="text-3xl md:text-5xl font-black text-center text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-amber-600 to-emerald-600 mb-2 flex-shrink-0 drop-shadow">
+                    🏆 大富翁頒獎典禮 🏆
                 </h2>
 
-                <div id="result-main-grid" class="grid grid-cols-1 md:grid-cols-12 gap-6 flex-grow overflow-hidden my-2">
-                    <div class="md:col-span-3 bg-white/80 rounded-2xl p-4 border border-amber-200 flex flex-col justify-between overflow-hidden shadow-sm">
-                        <div class="flex justify-between items-center mb-3 border-b border-amber-200 pb-2 flex-shrink-0">
-                            <span class="font-black text-xl md:text-2xl text-amber-800">全場排名 (左)</span>
-                            <span id="result-left-count" class="text-xs bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full font-bold">0 人</span>
-                        </div>
-                        <div id="result-left-list" class="space-y-2 overflow-hidden pr-1 flex-grow overflow-y-auto"></div>
-                    </div>
+                <div id="top3-container" class="w-full flex flex-col items-center space-y-4 my-auto"></div>
 
-                    <div class="md:col-span-6 bg-gradient-to-b from-amber-100/60 to-rose-100/60 border-2 border-amber-300 rounded-2xl p-6 flex flex-col items-center justify-center text-center overflow-hidden shadow-inner">
-                        <div class="w-full flex flex-col items-center h-full justify-center">
-                            <span class="text-amber-800 font-black tracking-widest text-base mb-3 bg-white/80 px-4 py-1 rounded-full border border-amber-300">✨ TOP WINNERS ✨</span>
-                            <div id="top3-container" class="w-full flex flex-col items-center space-y-4 my-auto"></div>
-                        </div>
-                    </div>
-
-                    <div class="md:col-span-3 bg-white/80 rounded-2xl p-4 border border-amber-200 flex flex-col justify-between overflow-hidden shadow-sm">
-                        <div class="flex justify-between items-center mb-3 border-b border-amber-200 pb-2 flex-shrink-0">
-                            <span class="font-black text-xl md:text-2xl text-amber-800">全場排名 (右)</span>
-                            <span id="result-right-count" class="text-xs bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full font-bold">0 人</span>
-                        </div>
-                        <div id="result-right-list" class="space-y-2 overflow-hidden pr-1 flex-grow overflow-y-auto"></div>
-                    </div>
+                <div class="text-center font-black text-amber-900 text-lg">
+                    🎉 感謝大家一起推廣「知福、惜福、感恩與分享」！
                 </div>
-
             </div>
         </div>
 
     </main>
 
-    <footer id="main-footer" class="w-full py-2 px-4 border-t border-emerald-700/20 bg-white/80 text-center text-slate-600 text-sm flex-shrink-0">
-        安得烈食物銀行 關懷弱勢・愛合格不浪費 | 惜食大富翁互動遊戲
+    <footer id="main-footer" class="w-full py-1.5 px-4 border-t border-amber-200/80 bg-white/70 text-center text-slate-600 text-xs flex-shrink-0">
+        社團法人中華安得烈慈善協會 關懷弱勢・愛合格不浪費 | 惜食大富翁
     </footer>
 
     <script>
-        const animalAvatars = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🦄'];
+        // 動物頭像選單
+        const animalAvatars = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵'];
 
-        // 弱勢扶助選項清單
-        const weakAssistanceList = [
-            { age: "0-3歲", box: "嬰兒物資箱", icon: "🍼" },
-            { age: "3-15歲", box: "膳糧食物箱", icon: "📦" },
-            { age: "65-80歲", box: "長青食物箱", icon: "👵" },
-            { age: "80歲以上", box: "松柏食物箱", icon: "👴" }
-        ];
-
-        // 地圖事件事件定義與換句話說解說 (針對國小生)
-        const eventDefinitions = {
-            "急難救助": [
-                { title: "急難救助", text: "發生重大生命事件，安得烈即刻救援。", score: 20, icon: "🚨", childText: "遇到超級危險的事情時，安得烈叔叔阿姨會馬上跑過來幫忙喔！" },
-                { title: "急難救助", text: "解決租屋問題，與地方單位協同。", score: 15, icon: "🏠", childText: "幫忙沒有房子住的小朋友和爸爸媽媽，找一個溫暖安全的新家！" },
-                { title: "急難救助", text: "求援通報，電訪後轉為親訪。", score: 10, icon: "📞", childText: "接到打電話求救後，工作人員會親自走到他們家看望照顧喔！" },
-                { title: "急難救助", text: "急難聯繫後，評估不符合，轉介其它單位。", score: 5, icon: "🤝", childText: "如果我們幫不上忙，也會溫柔地幫忙介紹其他厲害的機構來照顧他！" }
+        // 格子事件類別資料集
+        const tileEvents = {
+            '弱勢扶助': [
+                { age: "0-3歲", food: "嬰兒物資箱", kids: "給小baby喝的奶粉和尿布箱，細心照顧小寶貝長大！" },
+                { age: "3-15歲", food: "膳糧食物箱", kids: "給小朋友吃的營養食物箱，裡面有好多好吃的麵條與罐頭！" },
+                { age: "65-80歲", food: "長青食物箱", kids: "給爺爺奶奶準備的營養食物，幫助長輩身體健健康康！" },
+                { age: "80歲以上", food: "松柏食物箱", kids: "給老爺爺老奶奶容易咀嚼消化的高齡食物箱！" }
             ],
-            "災害援助": [
-                { title: "災害援助", text: "迅期於潛勢地區預備安心食物箱。", score: 20, icon: "⛈️", childText: "颱風大雨來之前，我們先把好吃的食物箱搬到危險地區準備好！" },
-                { title: "災害援助", text: "聯繫地方政府，準備物資進入災區。", score: 15, icon: "🚚", childText: "跟政府好朋友一起開大卡車，把滿滿的餅乾跟乾糧載進災區！" },
-                { title: "災害援助", text: "災後進入捐款與物資，協助復原。", score: 10, icon: "🏗️", childText: "大雨過後，用大家的愛心錢錢跟乾糧，幫忙大家把家裡收拾乾淨！" },
-                { title: "災害援助", text: "重大國外災害，以捐款援助。", score: 5, icon: "🌍", childText: "外國有小朋友遇到地震時，我們也會把愛心錢錢寄過去幫忙！" }
+            '急難救助': [
+                { desc: "發生重大生命事件，安得烈即刻救援。", score: 20, kids: "家裡突發非常危險或困難的事情時，安得烈叔叔阿姨立刻帶物資去幫忙！", img1: "🚨", img2: "📦" },
+                { desc: "解決租屋問題，與地方單位協同。", score: 15, kids: "幫助沒有地方住的家庭找到溫暖安全的新家！", img1: "🏠", img2: "🤝" },
+                { desc: "求援通報，電訪後轉為親訪。", score: 10, kids: "接到打電話求助後，工作人員親自到他家關心給予溫暖！", img1: "📞", img2: "🏃" },
+                { desc: "急難聯繫後，評估不符合，轉介其它單位。", score: 5, kids: "發現對方需要別的幫忙，替他介紹最合適的救助團體！", img1: "📋", img2: "↗️" }
             ],
-            "教育推廣": [
-                { title: "教育推廣", text: "集食行善-幸福一日捐，善果計劃。", score: 20, icon: "🍎", childText: "大家一起把省下來的食物跟餅乾捐出來，當個有愛心的好孩子！" },
-                { title: "教育推廣", text: "活動擺攤，一起推廣「知福、惜福、感恩與分享」。", score: 15, icon: "🎪", childText: "大家一起擺攤宣導，要珍惜飯菜不浪費，還要跟好朋友分享喔！" },
-                { title: "教育推廣", text: "食物箱包裝，培養「愛與分享」。", score: 10, icon: "🎁", childText: "大家親手把好吃的食物裝進箱子裡，學習把愛分享出去！" },
-                { title: "教育推廣", text: "參加宣導，認識安得烈。", score: 5, icon: "🏫", childText: "聽老師講故事，認識安得烈食物銀行是怎麼幫助別人的！" }
+            '災害援助': [
+                { desc: "迅期於潛勢地區預備安心食物箱。", score: 20, kids: "颱風或大雨來之前，先把食物箱送到可能受災的地方預備！", img1: "🌧️", img2: "📦" },
+                { desc: "聯繫地方政府，準備物資進入災區。", score: 15, kids: "和縣市政府一起合作，將滿滿的乾糧送到受災區域！", img1: "🏛️", img2: "🚚" },
+                { desc: "災後進入捐款與物資，協助復原。", score: 10, kids: "災害結束後，大家一起捐錢和物資，幫忙重建美好的家！", img1: "❤️", img2: "🛠️" },
+                { desc: "重大國外災害，以捐款援助。", score: 5, kids: "外國發生可怕地震或天災時，我們也送出滿滿的愛心援助！", img1: "🌍", img2: "💵" }
+            ],
+            '教育推廣': [
+                { desc: "集食行善-幸福一日捐，善果計劃。", score: 20, kids: "大家一起把好吃的食物捐出來，分享給需要的小朋友！", img1: "🍎", img2: "🎁" },
+                { desc: "活動擺攤，一起推廣「知福、惜福、感恩與分享」。", score: 15, kids: "舉辦好玩的擺攤活動，教大家要珍惜食物、感恩擁有！", img1: "🎪", img2: "🌟" },
+                { desc: "食物箱包裝，培養「愛與分享」。", score: 10, kids: "大家一起當小志工幫忙包裝食物箱，把愛裝得滿滿的！", img1: "📦", img2: "💖" },
+                { desc: "參加宣導，認識安得烈。", score: 5, kids: "專心聽故事宣導，了解安得烈是怎麼幫助好多弱勢家庭的！", img1: "📢", img2: "🎓" }
             ]
         };
+
+        // 盤面 8x4 格子配置 (順時針索引 0~23，扣除 4 角後尚有 20 格，其中 16 格放隨機類別)
+        let boardTiles = [];
 
         let peer = null;
         let hostConn = null;
         let players = [];
         let myPlayerId = null;
-        let myAvatar = '🐱';
+        let currentPlayerIndex = 0;
 
-        let roundMode = '1';
+        let roundMode = '1'; 
         let targetScore = 200;
-        let currentTurnIndex = 0;
-        let mapTiles = [];
+        let currentRound = 1;
 
+        let ballCanvas, ballCtx;
+        let ballX = 100, ballY = 100, ballVx = 0, ballVy = 0;
+
+        // 音樂與 Web Audio API
         let audioCtx = null;
-        let isGameRunning = false;
 
         function getAudioContext() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
             return audioCtx;
-        }
-
-        function toggleScoreMenu() {
-            const mode = document.getElementById('select-round-mode').value;
-            const scoreBox = document.getElementById('score-menu-box');
-            if (mode === 'score') {
-                scoreBox.classList.remove('hidden');
-                scoreBox.classList.add('flex');
-            } else {
-                scoreBox.classList.add('hidden');
-            }
         }
 
         function setMusicSpeed(speedRate, buttonEl) {
@@ -439,22 +432,40 @@
             const inGameAudio = document.getElementById('audioPlayerInGame');
             const statusText = document.getElementById('music-status-text');
 
-            if (bgm) {
-                bgm.playbackRate = speedRate;
-                bgm.volume = 0.2; // 初始設定音量為 20%
-            }
-            if (inGameAudio) {
-                inGameAudio.playbackRate = speedRate;
-                inGameAudio.volume = 0.2;
-            }
+            if (bgm) bgm.playbackRate = speedRate;
+            if (inGameAudio) inGameAudio.playbackRate = speedRate;
+            if (statusText) statusText.textContent = `${Math.round(speedRate * 100)}%`;
+        }
 
-            if (statusText) {
-                statusText.textContent = `${Math.round(speedRate * 100)}%`;
-            }
+        function playBeep(freq = 440, duration = 0.2) {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch(e) {}
+        }
 
-            const buttons = document.querySelectorAll('.music-speed-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            if (buttonEl) buttonEl.classList.add('active');
+        function triggerVibration() {
+            if ("vibrate" in navigator) {
+                navigator.vibrate([200, 100, 200]);
+            }
+        }
+
+        function toggleScoreMenu() {
+            const mode = document.getElementById('select-round-mode').value;
+            const scoreBox = document.getElementById('box-target-score');
+            if (mode === 'score') {
+                scoreBox.classList.remove('opacity-40', 'pointer-events-none');
+            } else {
+                scoreBox.classList.add('opacity-40', 'pointer-events-none');
+            }
         }
 
         window.onload = () => {
@@ -475,32 +486,26 @@
 
         function initHostPeer() {
             peer = new Peer();
-            
             peer.on('open', (id) => {
                 const joinUrl = `${window.location.href.split('?')[0]}?host=${id}`;
                 document.getElementById("qrcode").innerHTML = "";
-                
-                new QRCode(document.getElementById("qrcode"), {
-                    text: joinUrl,
-                    width: 480,
-                    height: 480
-                });
+                new QRCode(document.getElementById("qrcode"), { text: joinUrl, width: 420, height: 420 });
             });
 
             peer.on('connection', (conn) => {
                 conn.on('open', () => {
                     conn.on('data', (data) => {
                         if (data.type === 'JOIN') {
-                            if (players.length < 4) {
-                                addPlayer(data.name, conn, data.playerId);
-                            }
-                        } else if (data.type === 'VOICE_RESULT') {
-                            handleVoiceMove(data.playerId, data.decibel);
-                        } else if (data.type === 'CHOICE_RESULT') {
-                            handlePlayerChoice(data.playerId, data.choice);
+                            if (players.length >= 4) return;
+                            addPlayer(data.name, conn, data.playerId);
+                        } else if (data.type === 'DICE_ROLLED') {
+                            handleDiceRoll(data.playerId, data.steps);
+                        } else if (data.type === 'CHANCE_CHOICE') {
+                            resolveChanceChoice(data.playerId, data.choice);
+                        } else if (data.type === 'QUIZ_CHOICE') {
+                            resolveQuizChoice(data.playerId, data.choice);
                         }
                     });
-
                     conn.on('close', () => {
                         players = players.filter(p => p.conn !== conn);
                         renderLobbyPlayers();
@@ -511,27 +516,21 @@
 
         function addPlayer(name, conn, playerId) {
             if (players.some(p => p.id === playerId)) return;
-
-            const assignedAvatar = animalAvatars[players.length % animalAvatars.length];
-
+            const avatar = animalAvatars[players.length % animalAvatars.length];
             const p = {
                 id: playerId,
                 name: name,
-                displayName: name,
-                avatar: assignedAvatar,
+                avatar: avatar,
                 conn: conn,
                 isAI: false,
                 score: 0,
-                tileIndex: 0, 
+                position: 0,
                 laps: 0,
                 skipTurn: false
             };
             players.push(p);
 
-            if (conn) {
-                conn.send({ type: 'ASSIGN_AVATAR', avatar: assignedAvatar });
-            }
-
+            if (conn) conn.send({ type: 'ASSIGN_AVATAR', avatar: avatar });
             renderLobbyPlayers();
         }
 
@@ -540,16 +539,16 @@
             container.innerHTML = '';
             document.getElementById('player-count-badge').innerText = `${players.length} / 4 人`;
 
-            players.forEach(p => {
+            players.forEach((p, idx) => {
                 const item = document.createElement('div');
-                item.className = 'flex justify-between items-center bg-white p-2.5 rounded-xl border border-emerald-200 text-sm shadow-sm';
+                item.className = 'flex justify-between items-center bg-white p-3 rounded-2xl border border-amber-200 shadow-sm';
                 item.innerHTML = `
-                    <div class="flex items-center gap-2 truncate">
-                        <span class="text-2xl">${p.avatar}</span>
-                        <span class="font-bold text-slate-700 truncate">${p.displayName || p.name}</span>
+                    <div class="flex items-center gap-2.5 truncate">
+                        <span class="text-3xl">${p.avatar}</span>
+                        <span class="font-bold text-slate-800 text-base truncate">${p.name}</span>
                     </div>
-                    <span class="text-[10px] ${p.isAI ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'} px-2 py-0.5 rounded font-bold border">
-                        ${p.isAI ? 'AI' : '玩家'}
+                    <span class="text-xs bg-amber-100 text-amber-900 px-2 py-1 rounded-md font-bold border border-amber-300">
+                        ${p.isAI ? 'AI' : `P${idx+1}`}
                     </span>
                 `;
                 container.appendChild(item);
@@ -557,152 +556,163 @@
         }
 
         document.getElementById('btn-start-game').addEventListener('click', () => {
-            finalizePlayersAndStart();
-        });
-
-        function finalizePlayersAndStart() {
+            const aiCount = parseInt(document.getElementById('select-ai-count').value, 10);
             roundMode = document.getElementById('select-round-mode').value;
             targetScore = parseInt(document.getElementById('select-target-score').value, 10);
-            const aiCount = parseInt(document.getElementById('select-ai-count').value, 10);
 
-            // 補足 AI 人數，最多至 4 位參賽者
-            for (let i = 0; i < aiCount; i++) {
-                if (players.length < 4) {
-                    const aiAvatar = animalAvatars[players.length % animalAvatars.length];
-                    players.push({
-                        id: 'ai_' + Date.now() + '_' + i,
-                        name: `🤖 AI選手${i + 1}`,
-                        displayName: `🤖 AI選手${i + 1}`,
-                        avatar: aiAvatar,
-                        conn: null,
-                        isAI: true,
-                        score: 0,
-                        tileIndex: 0,
-                        laps: 0,
-                        skipTurn: false
-                    });
-                }
+            for (let i = 0; i < aiCount && players.length < 4; i++) {
+                const avatar = animalAvatars[players.length % animalAvatars.length];
+                players.push({
+                    id: 'ai_' + Date.now() + '_' + i,
+                    name: `AI 助手 ${i+1}`,
+                    avatar: avatar,
+                    conn: null,
+                    isAI: true,
+                    score: 0,
+                    position: 0,
+                    laps: 0,
+                    skipTurn: false
+                });
             }
 
             if (players.length === 0) {
-                alert('請至少加入 1 位玩家或選擇 AI 參賽者！');
+                alert('請至少加入1位玩家或AI參賽者！');
                 return;
             }
 
-            // 開始遊戲後播放「Two_Coins_Left.mp3」，設定音量 20%
+            // 開始播放 Two_Coins_Left.mp3
             const bgm = document.getElementById('bgm');
+            getAudioContext();
             if (bgm) {
-                bgm.volume = 0.2;
-                bgm.playbackRate = 0.5; // 初始速度 50%
-                bgm.play().catch(() => {});
+                bgm.volume = 0.3; // 淡淡背景音
+                bgm.playbackRate = 0.5; // 音量30%、速度50%
+                bgm.play().catch(()=>{});
             }
 
+            buildBoardGrid();
             startGame();
-        }
+        });
 
-        function buildMapTiles() {
-            // 扣除4個角 (0:起點, 5:機會, 10:休息, 15:命運) 後，隨機投放 16 格 (弱勢扶助4格, 急難救助4格, 災害援助4格, 教育推廣4格)
-            const middleCategories = [
+        // 建立 8x4 大富翁盤面 (順時針 24 格)
+        function buildBoardGrid() {
+            // 準備 16 個隨機分類格
+            let categories = [
                 '弱勢扶助','弱勢扶助','弱勢扶助','弱勢扶助',
                 '急難救助','急難救助','急難救助','急難救助',
                 '災害援助','災害援助','災害援助','災害援助',
                 '教育推廣','教育推廣','教育推廣','教育推廣'
             ].sort(() => Math.random() - 0.5);
 
-            mapTiles = [];
-            let midIdx = 0;
+            boardTiles = [];
+            let catIndex = 0;
 
-            for (let i = 0; i < 20; i++) {
-                if (i === 0) mapTiles.push({ type: '起點', title: '起點', icon: '🚩' });
-                else if (i === 5) mapTiles.push({ type: '機會', title: '機會', icon: '❓' });
-                else if (i === 10) mapTiles.push({ type: '休息', title: '休息', icon: '☕' });
-                else if (i === 15) mapTiles.push({ type: '命運', title: '命運', icon: '🔮' });
+            // 定義 24 個順時針座標 (0-7 頂部, 8-10 右側, 11-18 底部, 19-23 左側)
+            for (let i = 0; i < 24; i++) {
+                if (i === 0) boardTiles.push({ title: '起點', type: 'corner', icon: '🚩' }); // 左上角起點
+                else if (i === 7) boardTiles.push({ title: '機會', type: 'corner', icon: '❓' }); // 右上角機會
+                else if (i === 11) boardTiles.push({ title: '休息', type: 'corner', icon: '☕' }); // 右下角休息
+                else if (i === 18) boardTiles.push({ title: '命運', type: 'corner', icon: '🔮' }); // 左下角命運
                 else {
-                    const cat = middleCategories[midIdx++];
+                    const title = categories[catIndex++];
                     let icon = '📦';
-                    if (cat === '弱勢扶助') icon = '🤝';
-                    else if (cat === '急難救助') icon = '🚨';
-                    else if (cat === '災害援助') icon = '⛈️';
-                    else if (cat === '教育推廣') icon = '🏫';
-
-                    mapTiles.push({ type: cat, title: cat, icon: icon });
+                    if (title === '弱勢扶助') icon = '🤝';
+                    else if (title === '急難救助') icon = '🚨';
+                    else if (title === '災害援助') icon = '🌧️';
+                    else if (title === '教育推廣') icon = '🌱';
+                    
+                    boardTiles.push({ title: title, type: 'normal', icon: icon });
                 }
             }
+
+            renderBoardUI();
         }
 
-        function renderMapBoard() {
-            const container = document.getElementById('view-game').children[1];
-            // 保留中間小螢幕與通知窗格，清空並重建 20 個走格子
-            const existingBoardTiles = container.querySelectorAll('.map-tile-grid');
-            existingBoardTiles.forEach(el => el.remove());
+        function getGridPos(index) {
+            // 返回網格在 8x4 Grid 的 col/row 位置 (1-based)
+            if (index >= 0 && index <= 7) return { col: index + 1, row: 1 };
+            if (index >= 8 && index <= 10) return { col: 8, row: index - 7 + 1 };
+            if (index >= 11 && index <= 18) return { col: 8 - (index - 11), row: 4 };
+            if (index >= 19 && index <= 23) return { col: 1, row: 4 - (index - 18) };
+            return { col: 1, row: 1 };
+        }
 
-            // 橫8格、直4格順時針外圈座標陣列 (20格)
-            const coords = [
-                { r: 1, c: 1 }, { r: 1, c: 2 }, { r: 1, c: 3 }, { r: 1, c: 4 }, { r: 1, c: 5 }, { r: 1, c: 6 }, { r: 1, c: 7 }, { r: 1, c: 8 },
-                { r: 2, c: 8 }, { r: 3, c: 8 }, { r: 4, c: 8 },
-                { r: 4, c: 7 }, { r: 4, c: 6 }, { r: 4, c: 5 }, { r: 4, c: 4 }, { r: 4, c: 3 }, { r: 4, c: 2 }, { r: 4, c: 1 },
-                { r: 3, c: 1 }, { r: 2, c: 1 }
-            ];
+        function renderBoardUI() {
+            const board = document.getElementById('board-grid');
+            // 清除除了中央小螢幕以外的格子
+            const oldCells = board.querySelectorAll('.grid-cell');
+            oldCells.forEach(c => c.remove());
 
-            mapTiles.forEach((tile, i) => {
-                const pos = coords[i];
-                const tileDiv = document.createElement('div');
-                tileDiv.className = `map-tile-grid col-start-${pos.c} row-start-${pos.r} bg-white rounded-xl border-2 border-emerald-400 p-1 flex flex-col items-center justify-center relative shadow-md overflow-hidden`;
-                
-                // 格子內將文字及前方的示意圖放到最大化
-                tileDiv.innerHTML = `
-                    <div class="flex items-center justify-center gap-1 w-full h-full">
-                        <span class="text-3xl md:text-4xl">${tile.icon}</span>
-                        <span class="text-lg md:text-xl font-black text-emerald-900 truncate">${tile.title}</span>
-                    </div>
-                    <div id="tile-players-${i}" class="absolute bottom-0.5 right-0.5 flex gap-0.5 text-base"></div>
+            boardTiles.forEach((tile, idx) => {
+                const pos = getGridPos(idx);
+                const cell = document.createElement('div');
+                cell.id = `tile-${idx}`;
+                cell.style.gridColumn = pos.col;
+                cell.style.gridRow = pos.row;
+
+                const isCorner = tile.type === 'corner';
+                cell.className = `grid-cell ${isCorner ? 'grid-cell-corner' : ''}`;
+
+                // 4字標題必定顯示 2 列，圖示與文字放到最大化
+                let formattedTitle = tile.title;
+                if (tile.title.length === 4) {
+                    formattedTitle = `${tile.title.substring(0, 2)}<br>${tile.title.substring(2, 4)}`;
+                }
+
+                cell.innerHTML = `
+                    <span class="text-2xl md:text-3xl leading-none my-0.5">${tile.icon}</span>
+                    <span class="text-xs md:text-sm font-black text-slate-800 text-center leading-tight tracking-wider">${formattedTitle}</span>
+                    <div id="tokens-on-tile-${idx}" class="absolute bottom-1 left-0 right-0 flex justify-center gap-0.5 flex-wrap px-1"></div>
                 `;
-                container.appendChild(tileDiv);
+                board.appendChild(cell);
             });
 
-            updatePlayerPositionsUI();
+            updatePlayerTokensUI();
         }
 
-        function updatePlayerPositionsUI() {
-            for (let i = 0; i < 20; i++) {
-                const holder = document.getElementById(`tile-players-${i}`);
-                if (holder) holder.innerHTML = '';
+        function updatePlayerTokensUI() {
+            // 清空所有格子上的棋子
+            for (let i = 0; i < 24; i++) {
+                const container = document.getElementById(`tokens-on-tile-${i}`);
+                if (container) container.innerHTML = '';
             }
 
+            // 重新繪製玩家棋子
             players.forEach(p => {
-                const holder = document.getElementById(`tile-players-${p.tileIndex}`);
-                if (holder) {
-                    const avatarSpan = document.createElement('span');
-                    avatarSpan.className = 'animate-bounce';
-                    avatarSpan.innerText = p.avatar;
-                    holder.appendChild(avatarSpan);
+                const container = document.getElementById(`tokens-on-tile-${p.position}`);
+                if (container) {
+                    const token = document.createElement('span');
+                    token.className = 'token text-lg md:text-xl drop-shadow';
+                    token.innerText = p.avatar;
+                    token.title = p.name;
+                    container.appendChild(token);
                 }
             });
 
-            renderPlayersDashboard();
+            renderDashboard();
         }
 
-        function renderPlayersDashboard() {
-            const dashboard = document.getElementById('players-dashboard');
-            dashboard.innerHTML = '';
+        function renderDashboard() {
+            const db = document.getElementById('players-dashboard');
+            db.innerHTML = '';
+            const sorted = [...players].sort((a, b) => b.score - a.score);
 
-            players.forEach((p, idx) => {
+            sorted.forEach((p, rank) => {
                 const card = document.createElement('div');
-                const isCurrent = idx === currentTurnIndex;
-                card.className = `p-2 rounded-xl border-2 ${isCurrent ? 'border-amber-400 bg-amber-50 shadow-md' : 'border-emerald-200 bg-white'} flex flex-col justify-between`;
+                const isCurrent = players[currentPlayerIndex]?.id === p.id;
+                card.className = `p-2 rounded-xl border ${isCurrent ? 'border-red-500 bg-red-50/90 shadow' : 'border-amber-200 bg-white/80'} flex flex-col justify-between`;
                 card.innerHTML = `
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between w-full">
                         <div class="flex items-center gap-1.5 truncate">
                             <span class="text-xl">${p.avatar}</span>
-                            <span class="font-bold text-slate-800 text-sm truncate">${p.name}</span>
+                            <span class="font-bold text-slate-800 text-xs truncate max-w-[80px]">${p.name}</span>
                         </div>
+                        <span class="text-xs font-black text-red-600">#${rank+1}</span>
                     </div>
-                    <div class="text-right mt-1">
-                        <span class="text-amber-700 font-black text-base">${p.score} 分</span>
-                        <span class="text-[10px] text-slate-500 block">已跑 ${p.laps} 圈</span>
+                    <div class="text-right w-full mt-1">
+                        <span class="text-base font-black text-amber-700">${p.score} 分</span>
                     </div>
                 `;
-                dashboard.appendChild(card);
+                db.appendChild(card);
             });
         }
 
@@ -714,44 +724,299 @@
             document.getElementById('view-game').classList.remove('hidden');
             document.getElementById('view-game').classList.add('grid');
 
-            buildMapTiles();
-            renderMapBoard();
+            players.forEach(p => { if (p.conn) p.conn.send({ type: 'GAME_START' }); });
 
-            isGameRunning = true;
-            nextTurn();
+            currentPlayerIndex = 0;
+            startTurn();
         }
 
-        function nextTurn() {
-            if (!isGameRunning) return;
+        function startTurn() {
+            const p = players[currentPlayerIndex];
 
-            const p = players[currentTurnIndex];
-
-            // 檢查暫停一回合處理
+            // 檢查跳過回合
             if (p.skipTurn) {
                 p.skipTurn = false;
-                currentTurnIndex = (currentTurnIndex + 1) % players.length;
+                alert(`${p.name} 本回合暫停一次！`);
                 nextTurn();
                 return;
             }
 
             document.getElementById('current-player-avatar').innerText = p.avatar;
             document.getElementById('current-player-name').innerText = p.name;
-            document.getElementById('current-decibel-text').innerText = '準備音量發聲...';
-            document.getElementById('dice-display').innerText = '🎲';
-            document.getElementById('dice-step-text').innerText = '等待聲音量測';
+            document.getElementById('big-dice-display').innerText = '?';
+
+            renderDashboard();
 
             if (p.isAI) {
                 setTimeout(() => {
-                    const simulatedDecibel = Math.floor(Math.random() * 60) + 10;
-                    handleVoiceMove(p.id, simulatedDecibel);
-                }, 2000);
-            } else {
-                if (p.conn) {
-                    p.conn.send({ type: 'YOUR_TURN' });
-                }
+                    const steps = Math.floor(Math.random() * 6) + 1;
+                    handleDiceRoll(p.id, steps);
+                }, 1500);
+            } else if (p.conn) {
+                p.conn.send({ type: 'YOUR_TURN' });
             }
         }
 
+        function handleDiceRoll(playerId, steps) {
+            const p = players.find(player => player.id === playerId);
+            if (!p) return;
+
+            document.getElementById('big-dice-display').innerText = steps;
+
+            let moveCount = 0;
+            const moveInterval = setInterval(() => {
+                p.position = (p.position + 1) % 24;
+                
+                // 檢查經過起點 (+20分)
+                if (p.position === 0) {
+                    p.laps++;
+                    if (currentRound > 1 || p.laps > 1) { // 第一回合不計分
+                        p.score += 20;
+                    }
+                }
+
+                updatePlayerTokensUI();
+                moveCount++;
+
+                if (moveCount >= steps) {
+                    clearInterval(moveInterval);
+                    
+                    // 剛好停在起點額外+10分
+                    if (p.position === 0 && (currentRound > 1 || p.laps > 1)) {
+                        p.score += 10;
+                    }
+
+                    setTimeout(() => triggerTileEvent(p), 600);
+                }
+            }, 300);
+        }
+
+        function triggerTileEvent(player) {
+            const tile = boardTiles[player.position];
+
+            if (tile.title === '起點') {
+                showNoticeModal('起點', '順利回到起點！加油繼續前進！', 0, '順利繞完一圈回到起點，獲得繼續前進的力量！', '🚩', '✨');
+                setTimeout(finishTurnCheck, 3000);
+            } else if (tile.title === '機會') { // 機會處理
+                if (player.score < 50) {
+                    showNoticeModal('機會事件', '積分不足50分，進入「無機會」。', 0, '因為身上的分數還不夠，這次先休息不能抽機會卡喔！', '❓', '🛑');
+                    setTimeout(finishTurnCheck, 3000);
+                } else if (!player.isAI && player.conn) {
+                    player.conn.send({ type: 'TRIGGER_CHANCE' });
+                } else { // AI 機會自動選擇
+                    resolveChanceChoice(player.id, Math.random() < 0.5);
+                }
+            } else if (tile.title === '休息') { // 休息處理 20%, 20%, 60%
+                const rand = Math.random();
+                if (rand < 0.2) {
+                    // 與最快抵達起點者交換
+                    const fastest = [...players].sort((a,b) => b.laps - a.laps)[0];
+                    const tmp = player.position; player.position = fastest.position; fastest.position = tmp;
+                    showNoticeModal('休息事件', `與最快抵達起點的 ${fastest.name} 交換位置！`, 0, '幸運獲得快速傳送，和跑最快的朋友交換位置！', '☕', '🔄');
+                } else if (rand < 0.4) {
+                    // 與最慢抵達起點者交換
+                    const slowest = [...players].sort((a,b) => a.laps - b.laps)[0];
+                    const tmp = player.position; player.position = slowest.position; slowest.position = tmp;
+                    showNoticeModal('休息事件', `與最慢抵達起點的 ${slowest.name} 交換位置！`, 0, '陪伴跑最慢的朋友，和他互相交換位置！', '☕', '🔄');
+                } else {
+                    showNoticeModal('休息事件', '好好休息一會，無特別事件發生。', 0, '累了嗎？坐在椅子上喝口水休息一下吧！', '☕', '🍵');
+                }
+                updatePlayerTokensUI();
+                setTimeout(finishTurnCheck, 3000);
+            } else if (tile.title === '命運') { // 命運處理 30%, 30%, 30%, 10%
+                const rand = Math.random();
+                if (rand < 0.3) {
+                    // 與最高積分對換
+                    const topP = [...players].sort((a,b) => b.score - a.score)[0];
+                    const tmp = player.score; player.score = topP.score; topP.score = tmp;
+                    showNoticeModal('命運事件', `與最高積分的 ${topP.name} 分數對換！`, 0, '神奇魔術發生了！你的分數和最高分的朋友交換囉！', '🔮', '✨');
+                } else if (rand < 0.6) {
+                    // 全部參賽者積分減50分
+                    players.forEach(p => p.score = Math.max(0, p.score - 50));
+                    showNoticeModal('命運事件', '全部參賽者積分減 50 分！', -50, '大家一起遇到小考驗，所有人的分數都減少 50 分！', '🔮', '📉');
+                } else if (rand < 0.9) {
+                    // 全部參賽者積分平均
+                    const totalScore = players.reduce((s, p) => s + p.score, 0);
+                    const avg = Math.floor(totalScore / players.length);
+                    players.forEach(p => p.score = avg);
+                    showNoticeModal('命運事件', `全部參賽者積分平均，大家皆為 ${avg} 分！`, 0, '發揮好東西分享精神，把大家的得分平均分給大家！', '🔮', '⚖️');
+                } else {
+                    showNoticeModal('命運事件', '無事發生，平安度過。', 0, '平安就是福，這次沒有事情發生喔！', '🔮', '🍀');
+                }
+                renderDashboard();
+                setTimeout(finishTurnCheck, 3000);
+            } else if (tile.title === '弱勢扶助') { // 弱勢扶助正確/錯誤選擇
+                const item = tileEvents['弱勢扶助'][Math.floor(Math.random() * 4)];
+                player.currentQuizItem = item;
+                if (!player.isAI && player.conn) {
+                    player.conn.send({ type: 'TRIGGER_QUIZ', age: item.age, food: item.food });
+                } else {
+                    resolveQuizChoice(player.id, Math.random() < 0.8);
+                }
+            } else { // 急難救助、災害援助、教育推廣
+                const pool = tileEvents[tile.title];
+                const item = pool[Math.floor(Math.random() * pool.length)];
+                player.score += item.score;
+                showNoticeModal(tile.title, item.desc, item.score, item.kids, item.img1, item.img2);
+                renderDashboard();
+                setTimeout(finishTurnCheck, 8000); // 7. 通知窗格顯示8秒
+            }
+        }
+
+        function resolveChanceChoice(playerId, isAccepted) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+
+            if (!isAccepted) {
+                showNoticeModal('機會選擇', '選擇放棄嘗試。', 0, '你決定保守一點，不參加這次的機會考驗！', '❓', '✋');
+            } else {
+                const isSuccess = Math.random() < 0.3; // 30% 機率成功
+                const isGive = Math.random() < 0.5;
+
+                if (isGive) { // 給予事件
+                    if (isSuccess) {
+                        player.score = player.score - 50 + 125;
+                        const other = players.filter(p => p.id !== player.id)[Math.floor(Math.random()*(players.length-1))];
+                        if (other) other.score += 50;
+                        showNoticeModal('機會-給予成功', '成功分享50分給他人，本身獲得125分！', 125, '太有愛心了！你分享分數給朋友，自己獲得大大的獎勵加分！', '🎁', '🎉');
+                    } else {
+                        player.skipTurn = true; // 失敗停止一回合
+                        showNoticeModal('機會-給予失敗', '給予失敗，停止一回合！', 0, '不小心失敗了，下一回合要在旁邊休息一下喔！', '🛑', '😴');
+                    }
+                } else { // 搶奪事件
+                    if (isSuccess) {
+                        player.score += 50;
+                        const other = players.filter(p => p.id !== player.id)[Math.floor(Math.random()*(players.length-1))];
+                        if (other) other.score = Math.max(0, other.score - 50);
+                        showNoticeModal('機會-搶奪成功', '搶奪成功！增加 50 分！', 50, '幸運地從對手那裡獲得了 50 分！', '💥', '🏆');
+                    } else {
+                        player.score = Math.max(0, player.score - 25); // 失敗減少25分
+                        showNoticeModal('機會-搶奪失敗', '搶奪失敗，減少 25 分！', -25, '考驗挑戰失敗，失去 25 分！', '💔', '📉');
+                    }
+                }
+            }
+            renderDashboard();
+            setTimeout(finishTurnCheck, 8000);
+        }
+
+        function resolveQuizChoice(playerId, isCorrect) {
+            const player = players.find(p => p.id === playerId);
+            if (!player) return;
+
+            const item = player.currentQuizItem || tileEvents['弱勢扶助'][0];
+
+            if (isCorrect) {
+                player.score += 15; // 正確+15分
+                showNoticeModal('弱勢扶助 (正確)', `${item.age} 給予 ${item.food} 提供協助。`, 15, item.kids, '🤝', '⭕');
+            } else {
+                showNoticeModal('弱勢扶助 (錯誤)', `${item.age} 組合選擇錯誤。`, 0, '答錯了，這次沒有得到加分，下次再接再厲！', '🤝', '❌');
+            }
+            renderDashboard();
+            setTimeout(finishTurnCheck, 8000);
+        }
+
+        // 7. 觸動格子全螢幕 80% 空間通知窗格，右上震動與音效顯示5秒，窗格顯示8秒
+        function showNoticeModal(title, desc, score, kidsDesc, img1 = '🤝', img2 = '📦') {
+            const modal = document.getElementById('trigger-notice-modal');
+            document.getElementById('notice-title').innerText = title;
+            document.getElementById('notice-desc').innerText = desc;
+            document.getElementById('notice-kids-desc').innerText = kidsDesc;
+            document.getElementById('notice-img-1').innerText = img1;
+            document.getElementById('notice-img-2').innerText = img2;
+
+            const scoreBadge = document.getElementById('notice-score-badge');
+            scoreBadge.innerText = score >= 0 ? `+${score}分` : `${score}分`;
+
+            modal.classList.remove('hidden');
+
+            // 音效與手機振動發送 5 秒
+            playBeep(600, 0.3);
+            const currentP = players[currentPlayerIndex];
+            if (currentP && currentP.conn) {
+                currentP.conn.send({ type: 'VIBRATE' });
+            }
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 8000); // 8秒後自動隱藏
+        }
+
+        function finishTurnCheck() {
+            // 檢查勝負條件
+            let isEnd = false;
+            if (roundMode === 'score') {
+                if (players.some(p => p.score >= targetScore)) isEnd = true;
+            } else {
+                const targetLaps = parseInt(roundMode, 10);
+                if (players.some(p => p.laps >= targetLaps)) isEnd = true;
+            }
+
+            if (isEnd) {
+                showFinalResult();
+            } else {
+                nextTurn();
+            }
+        }
+
+        function nextTurn() {
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+            if (currentPlayerIndex === 0) currentRound++;
+            startTurn();
+        }
+
+        function showFinalResult() {
+            document.getElementById('view-game').classList.add('hidden');
+            document.getElementById('view-result').classList.remove('hidden');
+
+            const sorted = [...players].sort((a, b) => b.score - a.score);
+            const top3 = document.getElementById('top3-container');
+            top3.innerHTML = '';
+
+            sorted.forEach((p, idx) => {
+                const card = document.createElement('div');
+                card.className = 'w-full max-w-md p-4 bg-white rounded-2xl border-2 border-amber-300 flex justify-between items-center shadow-lg';
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-3xl">${idx === 0 ? '🥇' : (idx === 1 ? '🥈' : '🥉')}</span>
+                        <span class="text-4xl">${p.avatar}</span>
+                        <div class="text-left">
+                            <span class="text-xs font-bold text-amber-800">第 ${idx+1} 名</span>
+                            <div class="text-xl font-black text-slate-800">${p.name}</div>
+                        </div>
+                    </div>
+                    <div class="text-2xl font-black text-red-600">${p.score} 分</div>
+                `;
+                top3.appendChild(card);
+
+                if (p.conn) {
+                    p.conn.send({ type: 'FINAL_RESULT', rank: idx + 1, score: p.score });
+                }
+            });
+
+            launch8SecFireworks(); // 8. 施放8秒全螢幕煙火及慶祝音樂
+        }
+
+        // 8 秒全螢幕煙火施放
+        function launch8SecFireworks() {
+            const duration = 8 * 1000;
+            const animationEnd = Date.now() + duration;
+
+            const interval = setInterval(() => {
+                const timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+
+                playBeep(880, 0.1);
+                confetti({
+                    particleCount: 50,
+                    startVelocity: 30,
+                    spread: 360,
+                    ticks: 60,
+                    origin: { x: Math.random(), y: Math.random() * 0.6 + 0.1 }
+                });
+            }, 350);
+        }
+
+        // 手機端控制器與陀螺儀小球控制
         function initMobileController(hostId) {
             peer = new Peer();
             peer.on('open', (id) => {
@@ -764,16 +1029,27 @@
 
                 hostConn.on('data', (data) => {
                     if (data.type === 'ASSIGN_AVATAR') {
-                        myAvatar = data.avatar;
-                        const avatarEl = document.getElementById('mobile-avatar-display');
-                        avatarEl.innerText = myAvatar;
-                        avatarEl.classList.remove('hidden');
+                        document.getElementById('mobile-avatar-display').innerText = data.avatar;
+                        document.getElementById('mobile-avatar-display').classList.remove('hidden');
                     } else if (data.type === 'YOUR_TURN') {
-                        startVoiceMeasurement();
-                    } else if (data.type === 'SHOW_CHOICE') {
-                        showMobileChoiceUI(data.kind, data.extra);
+                        triggerVibration();
+                        document.getElementById('mobile-gyro-area').classList.remove('hidden');
+                        document.getElementById('mobile-turn-status').innerText = '輪到您擲骰了！請傾斜手機讓小球撞擊！';
+                        initBallCanvas();
+                    } else if (data.type === 'TRIGGER_CHANCE') {
+                        document.getElementById('mobile-choice-box').classList.remove('hidden');
+                        document.getElementById('mobile-choice-box').classList.add('grid');
+                    } else if (data.type === 'TRIGGER_QUIZ') {
+                        document.getElementById('mobile-quiz-box').classList.remove('hidden');
+                        document.getElementById('mobile-quiz-box').classList.add('grid');
+                    } else if (data.type === 'VIBRATE') {
+                        triggerVibration();
                     } else if (data.type === 'FINAL_RESULT') {
-                        showMobileFinalResult(data);
+                        document.getElementById('mobile-gyro-area').classList.add('hidden');
+                        document.getElementById('mobile-final-result').classList.remove('hidden');
+                        document.getElementById('mobile-final-result').classList.add('flex');
+                        document.getElementById('mobile-result-rank').innerText = `第 ${data.rank} 名`;
+                        document.getElementById('mobile-result-score').innerText = data.score;
                     }
                 });
             });
@@ -782,422 +1058,97 @@
                 const name = document.getElementById('mobile-name-input').value.trim();
                 if (!name) return alert('請輸入暱稱！');
 
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    DeviceOrientationEvent.requestPermission().catch(()=>{});
+                }
+
                 if (hostConn && hostConn.open) {
                     hostConn.send({ type: 'JOIN', name: name, playerId: myPlayerId });
-                    document.getElementById('player-mobile-name').innerText = `玩家：${name}`;
                     document.getElementById('mobile-join-form').classList.add('hidden');
-                    document.getElementById('mobile-status-text').innerText = '已成功進入遊戲，等待回合...';
+                    document.getElementById('mobile-status-text').innerText = '已登錄！請等待開賽';
                 }
             });
         }
 
-        function startVoiceMeasurement() {
-            const panel = document.getElementById('mobile-voice-panel');
-            panel.classList.remove('hidden');
-            panel.classList.add('flex');
+        // 手機端陀螺儀小球繪製與撞擊檢測
+        function initBallCanvas() {
+            ballCanvas = document.getElementById('gyroCanvas');
+            ballCtx = ballCanvas.getContext('2d');
+            ballCanvas.width = ballCanvas.parentElement.clientWidth;
+            ballCanvas.height = ballCanvas.parentElement.clientHeight;
 
-            let timeLeft = 2.0;
-            let maxDecibel = 0;
-            const timerEl = document.getElementById('mobile-timer-display');
-            const decibelEl = document.getElementById('mobile-decibel-display');
-            const barEl = document.getElementById('decibel-bar');
+            ballX = ballCanvas.width / 2;
+            ballY = ballCanvas.height / 2;
+            ballVx = 0; ballVy = 0;
 
-            // 啟動 Web Audio API 麥克風音量測量
-            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const analyzer = audioCtx.createAnalyser();
-                const microphone = audioCtx.createMediaStreamSource(stream);
-                microphone.connect(analyzer);
-                analyzer.fftSize = 256;
-                const dataArray = new Uint8Array(analyzer.frequencyBinCount);
+            let rolled = false;
 
-                const interval = setInterval(() => {
-                    timeLeft -= 0.1;
-                    timerEl.innerText = timeLeft.toFixed(1);
+            const handleOrientation = (e) => {
+                if (rolled) return;
+                const gamma = e.gamma || 0;
+                const beta = e.beta || 0;
 
-                    analyzer.getByteFrequencyData(dataArray);
-                    let sum = 0;
-                    for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
-                    let avg = sum / dataArray.length;
-                    let db = Math.round((avg / 255) * 90); 
+                ballVx += gamma * 0.08;
+                ballVy += beta * 0.08;
+            };
 
-                    if (db > maxDecibel) maxDecibel = db;
+            window.addEventListener('deviceorientation', handleOrientation);
 
-                    decibelEl.innerText = `音量：${db} dB`;
-                    barEl.style.width = `${Math.min(100, (db / 90) * 100)}%`;
+            function updateBall() {
+                if (rolled) return;
+                ballCtx.clearRect(0, 0, ballCanvas.width, ballCanvas.height);
 
-                    if (timeLeft <= 0) {
-                        clearInterval(interval);
-                        stream.getTracks().forEach(track => track.stop());
-                        panel.classList.add('hidden');
+                ballX += ballVx;
+                ballY += ballVy;
+                ballVx *= 0.95;
+                ballVy *= 0.95;
 
-                        if (hostConn && hostConn.open) {
-                            hostConn.send({ type: 'VOICE_RESULT', playerId: myPlayerId, decibel: maxDecibel });
-                        }
-                    }
-                }, 100);
-            }).catch(err => {
-                // 若未授權麥克風則模擬隨機分貝值
-                setTimeout(() => {
-                    panel.classList.add('hidden');
-                    if (hostConn && hostConn.open) {
-                        hostConn.send({ type: 'VOICE_RESULT', playerId: myPlayerId, decibel: Math.floor(Math.random() * 50) + 20 });
-                    }
-                }, 2000);
-            });
-        }
+                // 邊界碰撞
+                if (ballX < 20 || ballX > ballCanvas.width - 20 || ballY < 20 || ballY > ballCanvas.height - 20) {
+                    rolled = true;
+                    window.removeEventListener('deviceorientation', handleOrientation);
+                    
+                    const diceNum = Math.floor(Math.random() * 6) + 1;
+                    document.getElementById('mobile-dice-num').innerText = diceNum;
+                    document.getElementById('mobile-dice-overlay').classList.remove('hidden');
 
-        function showMobileChoiceUI(kind, extra) {
-            const panel = document.getElementById('mobile-choice-panel');
-            const choiceBtns = document.getElementById('choice-buttons');
-            const weakBtns = document.getElementById('weak-buttons');
-            const titleEl = document.getElementById('choice-title');
-
-            panel.classList.remove('hidden');
-            panel.classList.add('flex');
-
-            if (kind === 'chance') {
-                titleEl.innerText = "機會事件：選擇給予或搶奪 50 分 (成功率30%)";
-                choiceBtns.classList.remove('hidden');
-                choiceBtns.classList.add('grid');
-                weakBtns.classList.add('hidden');
-            } else if (kind === 'weak') {
-                titleEl.innerText = `弱勢扶助：${extra.age} 應給予 ${extra.box}？`;
-                choiceBtns.classList.add('hidden');
-                weakBtns.classList.remove('hidden');
-                weakBtns.classList.add('grid');
-            }
-        }
-
-        function submitMobileChoice(choiceStr) {
-            document.getElementById('mobile-choice-panel').classList.add('hidden');
-            if (hostConn && hostConn.open) {
-                hostConn.send({ type: 'CHOICE_RESULT', playerId: myPlayerId, choice: choiceStr });
-            }
-        }
-
-        // 計算音量分貝對應步數：0-19分貝1格，20-29分貝2格，依此類推，超過69分貝則減去60分貝進行計算
-        function calculateStepsFromDecibel(db) {
-            let effectiveDb = db;
-            if (effectiveDb > 69) {
-                effectiveDb = effectiveDb - 60;
-            }
-            if (effectiveDb < 20) return 1;
-            return Math.floor(effectiveDb / 10) + 1;
-        }
-
-        function handleVoiceMove(playerId, decibel) {
-            const p = players.find(player => player.id === playerId);
-            if (!p) return;
-
-            const steps = calculateStepsFromDecibel(decibel);
-
-            document.getElementById('current-decibel-text').innerText = `測量音量：${decibel} dB`;
-            document.getElementById('dice-display').innerText = `🎲 ${steps}`;
-            document.getElementById('dice-step-text').innerText = `前進 ${steps} 格`;
-
-            // 逐步移動動畫
-            let stepCount = 0;
-            const moveInterval = setInterval(() => {
-                p.tileIndex = (p.tileIndex + 1) % 20;
-                stepCount++;
-
-                // 起點計分規則：第一回合不計分，接下來每經過一次+20分，剛好停在起點則額外+10分
-                if (p.tileIndex === 0) {
-                    p.laps++;
-                    if (p.laps > 1) {
-                        p.score += 20; 
-                    }
+                    setTimeout(() => {
+                        document.getElementById('mobile-dice-overlay').classList.add('hidden');
+                        document.getElementById('mobile-gyro-area').classList.add('hidden');
+                        if (hostConn) hostConn.send({ type: 'DICE_ROLLED', playerId: myPlayerId, steps: diceNum });
+                    }, 1200);
+                    return;
                 }
 
-                updatePlayerPositionsUI();
+                // 繪製 1-6 小球
+                ballCtx.beginPath();
+                ballCtx.arc(ballX, ballY, 24, 0, Math.PI * 2);
+                ballCtx.fillStyle = '#f59e0b';
+                ballCtx.fill();
+                ballCtx.strokeStyle = '#ffffff';
+                ballCtx.lineWidth = 3;
+                ballCtx.stroke();
 
-                if (stepCount >= steps) {
-                    clearInterval(moveInterval);
-                    if (p.tileIndex === 0 && p.laps > 1) {
-                        p.score += 10; // 剛好停在起點額外+10分
-                    }
-                    setTimeout(() => triggerTileEvent(p), 500);
-                }
-            }, 300);
-        }
+                ballCtx.fillStyle = '#ffffff';
+                ballCtx.font = 'bold 20px sans-serif';
+                ballCtx.textAlign = 'center';
+                ballCtx.textBaseline = 'middle';
+                ballCtx.fillText('🎲', ballX, ballY);
 
-        let pendingEventPlayer = null;
-        let pendingWeakCorrectChoice = false;
-
-        function triggerTileEvent(p) {
-            pendingEventPlayer = p;
-            const tile = mapTiles[p.tileIndex];
-
-            if (tile.type === '起點') {
-                showNoticeOverlay("起點", "經過或停在起點獲得獎勵積分！", 0, "🚩", "加油！繼續往前跑獲得更多善款！");
-            } else if (tile.type === '機會') {
-                if (p.score < 50) {
-                    showNoticeOverlay("機會", "無機會（積分未達 50 分）。", 0, "❓", "積分還不夠 50 分，這次先不能玩機會喔！");
-                } else {
-                    if (p.isAI) {
-                        const aiChoice = Math.random() < 0.5 ? 'give' : 'rob';
-                        handlePlayerChoice(p.id, aiChoice);
-                    } else if (p.conn) {
-                        p.conn.send({ type: 'SHOW_CHOICE', kind: 'chance' });
-                    }
-                }
-            } else if (tile.type === '休息') {
-                // 休息事件：與最快抵達起點/最慢抵達起點交換位置、休息 (20%, 20%, 60%)
-                const rand = Math.random();
-                if (rand < 0.2) {
-                    const fastest = [...players].sort((a,b) => b.laps - a.laps)[0];
-                    const temp = p.tileIndex; p.tileIndex = fastest.tileIndex; fastest.tileIndex = temp;
-                    showNoticeOverlay("休息", "與最快抵達起點參賽者交換位置！", 0, "☕", "跟跑最快的小朋友換位置囉！");
-                } else if (rand < 0.4) {
-                    const slowest = [...players].sort((a,b) => a.laps - b.laps)[0];
-                    const temp = p.tileIndex; p.tileIndex = slowest.tileIndex; slowest.tileIndex = temp;
-                    showNoticeOverlay("休息", "與最慢抵達起點參賽者交換位置！", 0, "☕", "跟跑在最後面的小朋友換位置囉！");
-                } else {
-                    showNoticeOverlay("休息", "好好休息一回合。", 0, "☕", "辛苦囉！停下來喝口水休息一下！");
-                }
-                updatePlayerPositionsUI();
-            } else if (tile.type === '命運') {
-                // 命運事件：與最高積分對換、全部參賽者積分減50分、全部參賽者積分平均、無事 (30%, 30%, 30%, 10%)
-                const rand = Math.random();
-                if (rand < 0.3) {
-                    const highest = [...players].sort((a,b) => b.score - a.score)[0];
-                    const tempScore = p.score; p.score = highest.score; highest.score = tempScore;
-                    showNoticeOverlay("命運", "與最高積分參賽者對換分數！", 0, "🔮", "哇！跟你跟最高分的小朋友交換分數囉！");
-                } else if (rand < 0.6) {
-                    players.forEach(player => player.score = Math.max(0, player.score - 50));
-                    showNoticeOverlay("命運", "全部參賽者積分減少 50 分！", -50, "🔮", "大家一起扣 50 分，繼續加油！");
-                } else if (rand < 0.9) {
-                    const avg = Math.floor(players.reduce((s, player) => s + player.score, 0) / players.length);
-                    players.forEach(player => player.score = avg);
-                    showNoticeOverlay("命運", "全部參賽者積分平均！", 0, "🔮", "大家的分數變成一樣多囉！");
-                } else {
-                    showNoticeOverlay("命運", "平安無事，平安是福。", 0, "🔮", "好幸運！什麼事都沒有發生～");
-                }
-                updatePlayerPositionsUI();
-            } else if (tile.type === '弱勢扶助') {
-                // 弱勢扶助組合分配
-                const randItem = weakAssistanceList[Math.floor(Math.random() * weakAssistanceList.length)];
-                const isCorrectPair = Math.random() < 0.5;
-                pendingWeakCorrectChoice = isCorrectPair;
-
-                if (p.isAI) {
-                    const aiChoice = Math.random() < 0.7 ? (isCorrectPair ? 'correct' : 'wrong') : 'wrong';
-                    handlePlayerChoice(p.id, aiChoice);
-                } else if (p.conn) {
-                    p.conn.send({ 
-                        type: 'SHOW_CHOICE', 
-                        kind: 'weak', 
-                        extra: { age: randItem.age, box: randItem.box } 
-                    });
-                }
-            } else if (eventDefinitions[tile.type]) {
-                const list = eventDefinitions[tile.type];
-                const item = list[Math.floor(Math.random() * list.length)];
-                p.score += item.score;
-                showNoticeOverlay(item.title, item.text, item.score, item.icon, item.childText);
-            }
-        }
-
-        function handlePlayerChoice(playerId, choice) {
-            const p = players.find(player => player.id === playerId);
-            if (!p) return;
-
-            const tile = mapTiles[p.tileIndex];
-
-            if (tile.type === '機會') {
-                const isSuccess = Math.random() < 0.3; // 成功機率皆為 30%
-                if (choice === 'give') {
-                    if (isSuccess) {
-                        const target = players.filter(player => player.id !== p.id)[Math.floor(Math.random() * (players.length - 1))];
-                        if (target) target.score += 50;
-                        p.score = p.score - 50 + 125;
-                        showNoticeOverlay("機會", "給予成功！給予參賽者 50 分，本身增加 125 分！", 125, "❓", "太有愛心了！幫助別人自己也得到大獎勵！");
-                    } else {
-                        p.skipTurn = true;
-                        showNoticeOverlay("機會", "給予失敗！停止一回合。", 0, "❓", "這次沒有給成功，休息停一回合喔！");
-                    }
-                } else if (choice === 'rob') {
-                    if (isSuccess) {
-                        const target = players.filter(player => player.id !== p.id)[Math.floor(Math.random() * (players.length - 1))];
-                        if (target) target.score = Math.max(0, target.score - 50);
-                        p.score += 50;
-                        showNoticeOverlay("機會", "搶奪成功！搶奪 50 分！", 50, "❓", "成功拿到了 50 分！");
-                    } else {
-                        p.score = Math.max(0, p.score - 25);
-                        showNoticeOverlay("機會", "搶奪失敗！減少 25 分。", -25, "❓", "壞事沒做成，自己扣了 25 分喔！");
-                    }
-                }
-            } else if (tile.type === '弱勢扶助') {
-                const userChoiceBool = (choice === 'correct');
-                if (userChoiceBool === pendingWeakCorrectChoice) {
-                    p.score += 15;
-                    showNoticeOverlay("弱勢扶助", "回應正確！獲得 15 分。", 15, "🤝", "答對囉！成功把正確的食物箱送給需要的人！");
-                } else {
-                    showNoticeOverlay("弱勢扶助", "回應錯誤！+0 分。", 0, "🤝", "答錯囉，下次要看清楚年齡跟食物箱喔！");
-                }
+                requestAnimationFrame(updateBall);
             }
 
-            updatePlayerPositionsUI();
+            requestAnimationFrame(updateBall);
         }
 
-        // 全螢幕 80% 觸動格子通知窗格顯示 (顯示8秒，振動及音效顯示5秒)
-        function showNoticeOverlay(title, text, scoreDelta, icon, childText) {
-            const overlay = document.getElementById('tile-notice-overlay');
-            const noticeBox = document.getElementById('notice-box');
-
-            document.getElementById('notice-icon').innerText = icon;
-            document.getElementById('notice-title').innerText = title;
-            document.getElementById('notice-original-text').innerText = text;
-            document.getElementById('notice-score-anim').innerText = scoreDelta >= 0 ? `+${scoreDelta} 分` : `${scoreDelta} 分`;
-            document.getElementById('notice-child-text').innerText = childText;
-
-            overlay.classList.remove('hidden');
-
-            // 震動與音效效果 (持續 5 秒)
-            noticeBox.classList.add('animate-vibrate');
-            try {
-                if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
-            } catch(e){}
-
-            setTimeout(() => {
-                noticeBox.classList.remove('animate-vibrate');
-            }, 5000);
-
-            // 8 秒後自動關閉通知窗格並檢查勝利條件
-            setTimeout(() => {
-                overlay.classList.add('hidden');
-                checkGameEndConditions();
-            }, 8000);
+        function submitChanceChoice(choice) {
+            document.getElementById('mobile-choice-box').classList.add('hidden');
+            if (hostConn) hostConn.send({ type: 'CHANCE_CHOICE', playerId: myPlayerId, choice: choice });
         }
 
-        function checkGameEndConditions() {
-            let isEnd = false;
-
-            if (roundMode === 'score') {
-                if (players.some(p => p.score >= targetScore)) isEnd = true;
-            } else {
-                const maxLapsNeeded = parseInt(roundMode, 10);
-                if (players.some(p => p.laps >= maxLapsNeeded)) isEnd = true;
-            }
-
-            if (isEnd) {
-                isGameRunning = false;
-                showFinalResult();
-            } else {
-                currentTurnIndex = (currentTurnIndex + 1) % players.length;
-                nextTurn();
-            }
-        }
-
-        function showFinalResult() {
-            document.getElementById('view-game').classList.add('hidden');
-            document.getElementById('view-result').classList.remove('hidden');
-
-            const allSorted = [...players].sort((a,b) => b.score - a.score);
-
-            const half = Math.ceil(allSorted.length / 2);
-            const lefts = allSorted.slice(0, half);
-            const rights = allSorted.slice(half);
-
-            document.getElementById('result-left-count').innerText = `${lefts.length} 人`;
-            document.getElementById('result-right-count').innerText = `${rights.length} 人`;
-
-            renderParticipantList('result-left-list', lefts, 1);
-            renderParticipantList('result-right-list', rights, half + 1);
-
-            const top3Container = document.getElementById('top3-container');
-            top3Container.innerHTML = '';
-
-            const topWinner = allSorted[0];
-            if (topWinner) {
-                top3Container.innerHTML = `
-                    <div class="w-full max-w-md p-6 rounded-3xl border-4 border-amber-400 bg-amber-100/90 flex flex-col items-center justify-center shadow-lg">
-                        <span class="text-xs font-black text-amber-900 bg-amber-200 px-4 py-1 rounded-full border border-amber-400 mb-2">👑 大富翁總冠軍 👑</span>
-                        <div class="text-7xl my-2">${topWinner.avatar}</div>
-                        <div class="text-3xl font-black text-slate-800 tracking-wide text-center">${topWinner.name}</div>
-                        <div class="text-2xl font-black text-amber-600 mt-2">${topWinner.score} 分</div>
-                    </div>
-                `;
-            }
-
-            // 發送最終結果給手機端
-            players.forEach(p => {
-                if (p.conn) {
-                    const rank = allSorted.findIndex(s => s.id === p.id) + 1;
-                    p.conn.send({
-                        type: 'FINAL_RESULT',
-                        rank: rank,
-                        score: p.score,
-                        totalPlayers: allSorted.length
-                    });
-                }
-            });
-
-            // 施放 8 秒全螢幕煙火及慶祝音樂
-            launch8SecFireworks();
-        }
-
-        function showMobileFinalResult(data) {
-            document.getElementById('mobile-top-bar').classList.add('hidden');
-            document.getElementById('mobile-voice-panel').classList.add('hidden');
-            document.getElementById('mobile-choice-panel').classList.add('hidden');
-            document.getElementById('mobile-status-text').classList.add('hidden');
-
-            const resultBox = document.createElement('div');
-            resultBox.className = "my-auto flex flex-col items-center justify-center space-y-4 text-center bg-white border-2 border-amber-300 p-8 rounded-3xl shadow-2xl w-full";
-            resultBox.innerHTML = `
-                <span class="text-6xl">🏆</span>
-                <h2 class="text-2xl font-black text-amber-700">遊戲最終結算</h2>
-                <div class="text-5xl font-black text-slate-800">第 ${data.rank} 名</div>
-                <div class="text-lg font-bold text-slate-500">共 ${data.totalPlayers} 人</div>
-                <div class="text-2xl font-bold text-slate-700">總得分：<span class="text-emerald-600 font-black">${data.score}</span> 分</div>
-            `;
-            document.getElementById('view-player-mobile').appendChild(resultBox);
-        }
-
-        function renderParticipantList(elementId, playerGroup, startIndex = 1) {
-            const container = document.getElementById(elementId);
-            container.innerHTML = '';
-            playerGroup.forEach((p, idx) => {
-                const rankNum = startIndex + idx;
-                const item = document.createElement('div');
-                item.className = 'flex flex-col p-2.5 bg-white rounded-xl border border-amber-200 text-sm gap-1 shadow-sm';
-                item.innerHTML = `
-                    <div class="flex items-center gap-2 truncate w-full">
-                        <span class="font-bold text-amber-800 text-xs w-6 flex-shrink-0">#${rankNum}</span>
-                        <span class="text-xl">${p.avatar}</span>
-                        <span class="font-bold text-slate-700 truncate">${p.name}</span>
-                    </div>
-                    <div class="text-right w-full pl-8">
-                        <span class="font-black text-amber-600">${p.score} 分</span>
-                    </div>
-                `;
-                container.appendChild(item);
-            });
-        }
-
-        function launch8SecFireworks() {
-            const duration = 8 * 1000;
-            const animationEnd = Date.now() + duration;
-
-            const interval = setInterval(() => {
-                const timeLeft = animationEnd - Date.now();
-                if (timeLeft <= 0) {
-                    return clearInterval(interval);
-                }
-
-                confetti({
-                    particleCount: 40,
-                    startVelocity: 30,
-                    spread: 360,
-                    ticks: 60,
-                    origin: {
-                        x: Math.random(),
-                        y: Math.random() * 0.6 + 0.1
-                    }
-                });
-            }, 350);
+        function submitQuizChoice(choice) {
+            document.getElementById('mobile-quiz-box').classList.add('hidden');
+            if (hostConn) hostConn.send({ type: 'QUIZ_CHOICE', playerId: myPlayerId, choice: choice });
         }
     </script>
 </body>
