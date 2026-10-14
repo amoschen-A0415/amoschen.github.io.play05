@@ -1,1084 +1,246 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>益智遊戲大觀園 (Puzzle Hub - 27款全部可玩)</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #888; border-radius: 3px; }
-        .game-canvas { border: 2px solid #cbd5e1; background-color: #f8fafc; border-radius: 8px; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>水果時鐘 & 世界風景</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      background-color: #111;
+    }
+
+    /* 背景圖層與 30 秒淡入淡出效果 */
+    .bg-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      transition: opacity 1.5s ease-in-out;
+      opacity: 0;
+      z-index: 1;
+    }
+
+    .bg-layer.active {
+      opacity: 1;
+    }
+
+    /* 時鐘容器 */
+    .clock-container {
+      position: relative;
+      width: min(80vw, 80vh);
+      height: min(80vw, 80vh);
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 50%;
+      border: 4px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      z-index: 2;
+    }
+
+    /* 中心點 */
+    .center-dot {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      background: #333;
+      border: 3px solid #fff;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+    }
+
+    /* 水果刻度標籤 */
+    .fruit-number {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 60px;
+      height: 60px;
+      margin-top: -30px;
+      margin-left: -30px;
+      font-size: min(6vw, 6vh);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+      filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.3));
+    }
+
+    /* 指針通用樣式 */
+    .hand {
+      position: absolute;
+      bottom: 50%;
+      left: 50%;
+      transform-origin: bottom center;
+      border-radius: 10px;
+      z-index: 5;
+    }
+
+    /* 時針 */
+    .hour-hand {
+      width: 10px;
+      height: 25%;
+      background: #222;
+      margin-left: -5px;
+    }
+
+    /* 分針 */
+    .minute-hand {
+      width: 6px;
+      height: 36%;
+      background: #444;
+      margin-left: -3px;
+    }
+
+    /* 秒針 */
+    .second-hand {
+      width: 3px;
+      height: 42%;
+      background: #e74c3c;
+      margin-left: -1.5px;
+    }
+  </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col font-sans">
+<body>
 
-    <!-- 標頭列 -->
-    <header class="bg-indigo-600 text-white shadow-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="showCategories()">
-                <i class="fa-solid fa-puzzle-piece text-3xl text-yellow-300"></i>
-                <h1 class="text-xl md:text-2xl font-bold tracking-wide">益智遊戲大觀園</h1>
-            </div>
-            <button onclick="showCategories()" id="home-btn" class="hidden flex items-center gap-2 bg-indigo-700 hover:bg-indigo-800 px-3 py-1.5 rounded-lg text-sm transition">
-                <i class="fa-solid fa-house"></i> 回大廳
-            </button>
-        </div>
-    </header>
+  <!-- 雙層背景，實現無縫淡入淡出 */ -->
+  <div id="bg1" class="bg-layer active"></div>
+  <div id="bg2" class="bg-layer"></div>
 
-    <!-- 麵包屑導航 -->
-    <nav class="bg-white shadow-sm border-b">
-        <div class="max-w-7xl mx-auto px-4 py-2 text-sm text-slate-600 flex items-center space-x-2" id="breadcrumb">
-            <span class="font-semibold text-slate-800">首頁大廳</span>
-        </div>
-    </nav>
+  <!-- 超大水果時鐘 -->
+  <div class="clock-container">
+    <div class="center-dot"></div>
+    
+    <!-- 時鐘刻度點 (1-12 水果) -->
+    <div id="fruits-container"></div>
 
-    <!-- 主內容區 -->
-    <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full">
-        <!-- 1. 分類大廳 -->
-        <div id="category-view" class="space-y-6">
-            <div class="text-center max-w-2xl mx-auto mb-6">
-                <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 mb-2">9 大益智遊戲領域 (27 款全部可玩)</h2>
-                <p class="text-slate-600 text-sm md:text-base">選擇一個類別進入，點擊任意遊戲即可開始遊玩與練習！</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="category-grid"></div>
-        </div>
+    <!-- 指針 -->
+    <div id="hour-hand" class="hand hour-hand"></div>
+    <div id="minute-hand" class="hand minute-hand"></div>
+    <div id="second-hand" class="hand second-hand"></div>
+  </div>
 
-        <!-- 2. 子遊戲列表 -->
-        <div id="subgame-view" class="hidden space-y-6">
-            <div class="bg-white border rounded-xl p-5 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h2 class="text-2xl font-bold text-indigo-900 flex items-center gap-3" id="cat-title"></h2>
-                    <p class="text-slate-600 text-sm mt-1" id="cat-desc"></p>
-                </div>
-                <button onclick="showCategories()" class="text-indigo-600 hover:text-indigo-800 font-medium text-sm flex items-center gap-1 shrink-0">
-                    <i class="fa-solid fa-arrow-left"></i> 返回大廳
-                </button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="subgame-grid"></div>
-        </div>
+  <script>
+    // 1 至 12 點對應的水果 Emoji
+    const fruits = [
+      "🍎", // 1 點: 蘋果
+      "🍐", // 2 點: 梨子
+      "🍊", // 3 點: 橘子
+      "🍋", // 4 點: 檸檬
+      "🍌", // 5 點: 香蕉
+      "🍉", // 6 點: 西瓜
+      "🍇", // 7 點: 葡萄
+      "🍓", // 8 點: 草莓
+      "🍒", // 9 點: 櫻桃
+      "🍑", // 10 點: 桃子
+      "🍍", // 11 點: 鳳梨
+      "🥝"  // 12 點: 奇異果
+    ];
 
-        <!-- 3. 遊戲實體遊玩視圖 -->
-        <div id="game-detail-view" class="hidden space-y-6">
-            <div class="bg-white rounded-2xl shadow-lg border p-4 md:p-6">
-                <div class="flex flex-wrap justify-between items-center border-b pb-4 mb-4 gap-2">
-                    <div>
-                        <span id="game-cat-badge" class="px-2.5 py-0.5 bg-indigo-100 text-indigo-800 rounded-full text-xs font-semibold"></span>
-                        <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mt-1" id="game-title"></h2>
-                    </div>
-                    <button onclick="backToSubGames()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition">
-                        <i class="fa-solid fa-arrow-left mr-1"></i> 返回分類列表
-                    </button>
-                </div>
+    // 世界風景圖片庫 (Unsplash 高畫質圖檔)
+    const landscapeImages = [
+      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80", // 壯麗山脈
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80", // 熱帶海灘
+      "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1920&q=80", // 晨霧森林
+      "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=1920&q=80", // 巴黎風光
+      "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1920&q=80", // 日本京都
+      "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80", // 星空雪山
+      "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1920&q=80"  // 綠色草原
+    ];
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- 說明 -->
-                    <div class="space-y-4 lg:col-span-1 border-r border-slate-100 pr-0 lg:pr-4">
-                        <div>
-                            <h3 class="font-bold text-slate-700 mb-1 flex items-center gap-2"><i class="fa-solid fa-circle-info text-indigo-500"></i> 遊戲說明</h3>
-                            <p class="text-slate-600 text-xs md:text-sm leading-relaxed" id="game-desc"></p>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-slate-700 mb-1 flex items-center gap-2"><i class="fa-solid fa-book-open text-indigo-500"></i> 規則與玩法</h3>
-                            <p class="text-slate-600 text-xs md:text-sm leading-relaxed" id="game-rules"></p>
-                        </div>
-                        <div class="pt-2 border-t">
-                            <span class="text-xs text-slate-400">難易度：</span>
-                            <span id="game-diff" class="text-xs font-bold text-amber-600"></span>
-                        </div>
-                    </div>
+    // 1. 初始化水果時鐘刻度
+    const fruitsContainer = document.getElementById("fruits-container");
+    const containerRadius = 40; // 距離中心點的百分比距離 (%)
 
-                    <!-- 遊玩區域 -->
-                    <div class="lg:col-span-2 bg-slate-50 border rounded-xl p-4 flex flex-col items-center justify-center min-h-[380px]" id="game-playground">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
+    fruits.forEach((fruit, index) => {
+      const hourNum = index + 1;
+      // 計算角度 (12點為0度/360度，每個小時增加 30 度)
+      const angleDeg = hourNum * 30;
+      const angleRad = (angleDeg - 90) * (Math.PI / 180);
 
-    <footer class="bg-slate-800 text-slate-400 py-4 text-center text-xs mt-auto">
-        <p>© 益智遊戲大觀園 - 27款遊戲全部可直接遊玩</p>
-    </footer>
+      // 計算 X 與 Y 座標
+      const x = 50 + containerRadius * Math.cos(angleRad);
+      const y = 50 + containerRadius * Math.sin(angleRad);
 
-    <script>
-        const puzzleData = [
-            {
-                id: 'numeric', name: '數字邏輯類', icon: 'fa-hashtag', color: 'bg-blue-500',
-                desc: '透過數字推算、幾何運算與邏輯盤面，訓練數感與推理能力。',
-                games: [
-                    { id: 'sudoku', name: '數獨 (Sudoku)', diff: '中等', desc: '4x4/9x9 數字填充遊戲。', rules: '在網格中填入數字，使每行、每列及每個區域內的數字不重複。' },
-                    { id: '2048', name: '2048 方塊', diff: '簡單', desc: '方向鍵或滑動合併數字。', rules: '使用鍵盤方向鍵或按鈕移動數字，相同數字碰撞後會相加合併！' },
-                    { id: 'bulls_cows', name: '1A2B 幾A幾B', diff: '中等', desc: '邏輯數字猜測遊戲。', rules: '猜測 4 位不重複數字，數字與位置對為 A，數字對位置錯為 B。' }
-                ]
-            },
-            {
-                id: 'spatial', name: '圖形空間類', icon: 'fa-shapes', color: 'bg-emerald-500',
-                desc: '考驗立體旋轉、形狀拼接與空間想像力。',
-                games: [
-                    { id: 'tangram', name: '七巧板拼圖', diff: '簡單', desc: '拼合幾何圖形。', rules: '點擊下方拼塊，依照目標圖形點擊盤面放入對應的位置。' },
-                    { id: 'tetris', name: '俄羅斯方塊', diff: '中等', desc: '經典動態方塊消除。', rules: '控制下落方塊左右移動與旋轉，填滿一整行即可消除得分！' },
-                    { id: 'spatial_rotation', name: '立方體展開圖', diff: '中等', desc: '3D 空間折疊推導。', rules: '觀察 2D 平面展開圖，找出折疊後相對應的面。' }
-                ]
-            },
-            {
-                id: 'word', name: '文字解謎類', icon: 'fa-font', color: 'bg-purple-500',
-                desc: '結合字彙量、成語語感與語言推演的字詞謎題。',
-                games: [
-                    { id: 'crossword', name: '填字遊戲', diff: '中等', desc: '交叉字詞填充。', rules: '根據提示在方格中填入正確的文字。' },
-                    { id: 'idiom_fill', name: '成語填空挑戰', diff: '簡單', desc: '考驗中文成語記憶。', rules: '根據缺失的成語字詞，選出正確的文字填入。' },
-                    { id: 'wordle', name: 'Wordle 猜字', diff: '中等', desc: '英文五字單字推論。', rules: '輸入 5 個字母的英文單字，綠色為位置正確，黃色為字母正確但位置錯。' }
-                ]
-            },
-            {
-                id: 'memory', name: '記憶觀察類', icon: 'fa-brain', color: 'bg-amber-500',
-                desc: '考驗短期記憶力、視覺專注度與細節比對。',
-                games: [
-                    { id: 'card_match', name: '翻牌記憶卡', diff: '簡單', desc: '翻牌圖案配對。', rules: '每次翻開兩張牌，若圖案相同則消除，直到全部配對成功。' },
-                    { id: 'spot_difference', name: '找不同 / 符號觀察', diff: '簡單', desc: '細節觀察力比對。', rules: '在滿滿的符號矩陣中找出唯一的異類符號！' },
-                    { id: 'simon_says', name: '西蒙燈光記憶', diff: '中等', desc: '序列與節奏記憶。', rules: '觀察燈光亮起的順序，並照著完全相同的順序點擊。' }
-                ]
-            },
-            {
-                id: 'physics', name: '物理力學類', icon: 'fa-apple-whole', color: 'bg-rose-500',
-                desc: '運用重力、傳導與連鎖反應解開謎題。',
-                games: [
-                    { id: 'pipe_connect', name: '接水管接通', diff: '簡單', desc: '水管方向旋轉連接。', rules: '點擊旋轉水管，將左側起點與右側終點連成一條暢通的管線。' },
-                    { id: 'cut_rope', name: '擺擺球 (擺擺力學)', diff: '簡單', desc: '重力與時機計算。', rules: '在適當的擺動時機點擊剪斷繩子，讓球掉入目標箱中。' },
-                    { id: 'balance_bridge', name: '天平平衡力學', diff: '中等', desc: '槓桿原理計算。', rules: '計算槓桿兩端的重量與距離，放入正確的砝碼使天平保持平衡。' }
-                ]
-            },
-            {
-                id: 'board', name: '棋牌對弈類', icon: 'fa-chess', color: 'bg-indigo-500',
-                desc: '雙人或單人人機對弈，預判步驟與全局佈局。',
-                games: [
-                    { id: 'gomoku', name: '五子棋人機對戰', diff: '簡單', desc: '經典五子連線棋。', rules: '玩家執黑子與電腦人機對弈，率先將五子連成一線者獲勝！' },
-                    { id: 'reversi', name: '黑白棋 (Reversi)', diff: '中等', desc: '翻轉包夾棋。', rules: '將棋子下在包夾對方棋子的位置，即可翻轉對方棋子。' },
-                    { id: 'chess', name: '騎士巡遊 (Knight Walk)', diff: '困難', desc: '西洋棋殘局走法。', rules: '利用西洋棋「馬(Knight)」的日字走法，踩遍棋盤上的每一個格子。' }
-                ]
-            },
-            {
-                id: 'maze', name: '迷宮闖關類', icon: 'fa-route', color: 'bg-teal-500',
-                desc: '路徑搜尋、推箱規劃與避開障礙到達終點。',
-                games: [
-                    { id: 'sokoban', name: '推箱子 (Sokoban)', diff: '中等', desc: '空間順序推導。', rules: '按方向鍵推動箱子至目標點，箱子只能往前推不能拉。' },
-                    { id: 'classic_maze', name: '經典迷宮尋路', diff: '簡單', desc: '走迷宮遊戲。', rules: '使用方向按鈕控制紅點從起點走進出口藍點。' },
-                    { id: 'unblock_me', name: '華容道 / 滑塊移出', diff: '中等', desc: '位移卡位解鎖。', rules: '移動滑塊讓主方塊暢通無阻地移到右側出口。' }
-                ]
-            },
-            {
-                id: 'probability', name: '機率賽局類', icon: 'fa-dice', color: 'bg-orange-500',
-                desc: '分析風險與回報，在不確定性中做出最佳期望值決策。',
-                games: [
-                    { id: 'minesweeper', name: '踩地雷 (Minesweeper)', diff: '中等', desc: '邏輯排除與踩雷。', rules: '點擊方格避開地雷，數字代表周圍 8 格地雷的數量。' },
-                    { id: 'monty_hall', name: '三門問題模擬器', diff: '簡單', desc: '機率統計實驗。', rules: '選擇一扇門後主持人開啟一扇羊門，體驗換門與不換門的獲勝機率差別。' },
-                    { id: 'poker_puzzle', name: '比大小與機率期望值', diff: '簡單', desc: '決策與期望值。', rules: '根據當前牌面點數，預測下一張牌是更大還是更小！' }
-                ]
-            },
-            {
-                id: 'scenario', name: '生活情境類', icon: 'fa-user-gear', color: 'bg-cyan-500',
-                desc: '模擬現實場景中的資源分配、排程與情境問題解決。',
-                games: [
-                    { id: 'river_crossing', name: '狼羊菜過河問題', diff: '簡單', desc: '互斥約束過河。', rules: '狼羊不能單獨留，羊菜不能單獨留，把所有物品運到對岸。' },
-                    { id: 'traffic_control', name: '交通紅綠燈調控', diff: '中等', desc: '流量控管遊戲。', rules: '點擊紅綠燈切換號誌，防止車輛積壓並讓指定數量的車順利通過。' },
-                    { id: 'resource_mgmt', name: '時間資源排程', diff: '中等', desc: '優先順序與效益極大化。', rules: '在有限的總時間內選擇最高回報的任務組合。' }
-                ]
-            }
-        ];
+      const fruitEl = document.createElement("div");
+      fruitEl.className = "fruit-number";
+      fruitEl.textContent = fruit;
+      fruitEl.style.left = `${x}%`;
+      fruitEl.style.top = `${y}%`;
 
-        let currentCatIndex = null;
-        let currentGame = null;
+      fruitsContainer.appendChild(fruitEl);
+    });
 
-        window.onload = function() { renderCategories(); };
+    // 2. 時鐘更新邏輯
+    const hourHand = document.getElementById("hour-hand");
+    const minuteHand = document.getElementById("minute-hand");
+    const secondHand = document.getElementById("second-hand");
 
-        function renderCategories() {
-            const grid = document.getElementById('category-grid');
-            grid.innerHTML = '';
-            puzzleData.forEach((cat, index) => {
-                const card = document.createElement('div');
-                card.className = "bg-white rounded-xl shadow-sm hover:shadow-md transition p-5 cursor-pointer border flex flex-col justify-between group";
-                card.onclick = () => showSubGames(index);
-                card.innerHTML = `
-                    <div>
-                        <div class="flex items-center space-x-3 mb-3">
-                            <div class="w-10 h-10 rounded-lg ${cat.color} text-white flex items-center justify-center text-lg shadow group-hover:scale-105 transition">
-                                <i class="fa-solid ${cat.icon}"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-bold text-slate-800 group-hover:text-indigo-600 transition">${cat.name}</h3>
-                                <span class="text-xs text-slate-400">3 款完全可玩遊戲</span>
-                            </div>
-                        </div>
-                        <p class="text-slate-600 text-xs md:text-sm mb-4 leading-relaxed">${cat.desc}</p>
-                    </div>
-                    <div class="border-t pt-2 flex justify-between items-center text-xs text-indigo-600 font-semibold">
-                        <span>點擊展開遊戲</span>
-                        <i class="fa-solid fa-chevron-right group-hover:translate-x-1 transition"></i>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
+    function updateClock() {
+      const now = new Date();
+      const seconds = now.getSeconds();
+      const minutes = now.getMinutes();
+      const hours = now.getHours();
 
-        function showCategories() {
-            document.getElementById('category-view').classList.remove('hidden');
-            document.getElementById('subgame-view').classList.add('hidden');
-            document.getElementById('game-detail-view').classList.add('hidden');
-            document.getElementById('home-btn').classList.add('hidden');
-            document.getElementById('breadcrumb').innerHTML = `<span class="font-semibold text-slate-800">首頁大廳</span>`;
-        }
+      const secondsDegrees = (seconds / 60) * 360;
+      const minutesDegrees = ((minutes + seconds / 60) / 60) * 360;
+      const hoursDegrees = (((hours % 12) + minutes / 60) / 12) * 360;
 
-        function showSubGames(catIndex) {
-            currentCatIndex = catIndex;
-            const cat = puzzleData[catIndex];
-            document.getElementById('category-view').classList.add('hidden');
-            document.getElementById('subgame-view').classList.remove('hidden');
-            document.getElementById('game-detail-view').classList.add('hidden');
-            document.getElementById('home-btn').classList.remove('hidden');
+      secondHand.style.transform = `rotate(${secondsDegrees}deg)`;
+      minuteHand.style.transform = `rotate(${minutesDegrees}deg)`;
+      hourHand.style.transform = `rotate(${hoursDegrees}deg)`;
+    }
 
-            document.getElementById('cat-title').innerHTML = `<i class="fa-solid ${cat.icon} text-indigo-600"></i> ${cat.name}`;
-            document.getElementById('cat-desc').innerText = cat.desc;
+    setInterval(updateClock, 1000);
+    updateClock(); // 立即執行一次
 
-            const subGrid = document.getElementById('subgame-grid');
-            subGrid.innerHTML = '';
-            cat.games.forEach((game) => {
-                const card = document.createElement('div');
-                card.className = "bg-white rounded-xl shadow-sm border hover:border-indigo-300 transition p-5 flex flex-col justify-between";
-                card.innerHTML = `
-                    <div>
-                        <div class="flex justify-between items-start mb-2">
-                            <h4 class="text-base font-bold text-slate-800">${game.name}</h4>
-                            <span class="text-xs px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 rounded">${game.diff}</span>
-                        </div>
-                        <p class="text-xs text-slate-600 mb-4">${game.desc}</p>
-                    </div>
-                    <button onclick="playGame('${game.id}')" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium text-xs md:text-sm transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-gamepad"></i> 開啟並遊玩
-                    </button>
-                `;
-                subGrid.appendChild(card);
-            });
+    // 3. 背景自動切換邏輯 (每 30 秒換一張)
+    let currentImageIndex = 0;
+    let activeBgIndex = 1;
+    const bg1 = document.getElementById("bg1");
+    const bg2 = document.getElementById("bg2");
 
-            document.getElementById('breadcrumb').innerHTML = `
-                <span class="hover:text-indigo-600 cursor-pointer" onclick="showCategories()">首頁</span>
-                <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
-                <span class="font-semibold text-slate-800">${cat.name}</span>
-            `;
-        }
+    // 初始化第一張圖
+    bg1.style.backgroundImage = `url('${landscapeImages[0]}')`;
 
-        function backToSubGames() {
-            if(currentCatIndex !== null) showSubGames(currentCatIndex);
-            else showCategories();
-        }
+    function changeBackground() {
+      currentImageIndex = (currentImageIndex + 1) % landscapeImages.length;
+      const nextImageUrl = landscapeImages[currentImageIndex];
 
-        function playGame(gameId) {
-            const cat = puzzleData[currentCatIndex];
-            const game = cat.games.find(g => g.id === gameId);
-            currentGame = game;
+      if (activeBgIndex === 1) {
+        bg2.style.backgroundImage = `url('${nextImageUrl}')`;
+        bg2.classList.add("active");
+        bg1.classList.remove("active");
+        activeBgIndex = 2;
+      } else {
+        bg1.style.backgroundImage = `url('${nextImageUrl}')`;
+        bg1.classList.add("active");
+        bg2.classList.remove("active");
+        activeBgIndex = 1;
+      }
+    }
 
-            document.getElementById('category-view').classList.add('hidden');
-            document.getElementById('subgame-view').classList.add('hidden');
-            document.getElementById('game-detail-view').classList.remove('hidden');
-
-            document.getElementById('game-cat-badge').innerText = cat.name;
-            document.getElementById('game-title').innerText = game.name;
-            document.getElementById('game-desc').innerText = game.desc;
-            document.getElementById('game-rules').innerText = game.rules;
-            document.getElementById('game-diff').innerText = game.diff;
-
-            document.getElementById('breadcrumb').innerHTML = `
-                <span class="hover:text-indigo-600 cursor-pointer" onclick="showCategories()">首頁</span>
-                <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
-                <span class="hover:text-indigo-600 cursor-pointer" onclick="backToSubGames()">${cat.name}</span>
-                <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
-                <span class="font-semibold text-slate-800">${game.name}</span>
-            `;
-
-            loadGameEngine(gameId);
-        }
-
-        // --- 核心遊戲引擎載入器 ---
-        function loadGameEngine(id) {
-            const el = document.getElementById('game-playground');
-            el.innerHTML = '';
-
-            switch(id) {
-                // 1. 數字類
-                case 'sudoku': runSudoku(el); break;
-                case '2048': run2048(el); break;
-                case 'bulls_cows': run1A2B(el); break;
-                // 2. 圖形空間類
-                case 'tangram': runTangram(el); break;
-                case 'tetris': runTetris(el); break;
-                case 'spatial_rotation': run3DFold(el); break;
-                // 3. 文字類
-                case 'crossword': runCrossword(el); break;
-                case 'idiom_fill': runIdiom(el); break;
-                case 'wordle': runWordle(el); break;
-                // 4. 記憶類
-                case 'card_match': runCardMatch(el); break;
-                case 'spot_difference': runSpotDifference(el); break;
-                case 'simon_says': runSimon(el); break;
-                // 5. 物理類
-                case 'pipe_connect': runPipes(el); break;
-                case 'cut_rope': runCutRope(el); break;
-                case 'balance_bridge': runBalance(el); break;
-                // 6. 棋牌對弈類
-                case 'gomoku': runGomoku(el); break;
-                case 'reversi': runReversi(el); break;
-                case 'chess': runKnightWalk(el); break;
-                // 7. 迷宮闖關類
-                case 'sokoban': runSokoban(el); break;
-                case 'classic_maze': runMaze(el); break;
-                case 'unblock_me': runUnblock(el); break;
-                // 8. 機率賽局類
-                case 'minesweeper': runMinesweeper(el); break;
-                case 'monty_hall': runMontyHall(el); break;
-                case 'poker_puzzle': runPokerOdds(el); break;
-                // 9. 生活情境類
-                case 'river_crossing': runRiverCrossing(el); break;
-                case 'traffic_control': runTraffic(el); break;
-                case 'resource_mgmt': runResourceMgmt(el); break;
-            }
-        }
-
-        // ================= 27 款遊戲實作模組 =================
-
-        // 1. 數獨 4x4
-        function runSudoku(el) {
-            const board = [
-                [1, 0, 0, 4],
-                [0, 0, 3, 0],
-                [0, 4, 0, 0],
-                [3, 0, 0, 1]
-            ];
-            const ans = [
-                [1, 3, 2, 4],
-                [4, 2, 3, 1],
-                [2, 4, 1, 3],
-                [3, 1, 4, 2]
-            ];
-            el.innerHTML = `
-                <div class="text-center space-y-4">
-                    <h4 class="font-bold text-slate-800">4x4 迷你數獨 (請填入 1~4)</h4>
-                    <div class="grid grid-cols-4 gap-1.5 w-48 mx-auto bg-slate-400 p-1.5 rounded-lg" id="sdk-grid"></div>
-                    <button id="sdk-chk" class="px-4 py-1.5 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700">檢查答案</button>
-                    <div id="sdk-msg" class="text-xs font-bold text-slate-600"></div>
-                </div>
-            `;
-            const g = document.getElementById('sdk-grid');
-            for(let r=0;r<4;r++){
-                for(let c=0;c<4;c++){
-                    const inp = document.createElement('input');
-                    inp.type = 'number';
-                    inp.className = "w-10 h-10 text-center text-lg font-bold border rounded focus:outline-indigo-500";
-                    if(board[r][c] !== 0) {
-                        inp.value = board[r][c];
-                        inp.disabled = true;
-                        inp.classList.add('bg-slate-200');
-                    }
-                    inp.dataset.r = r; inp.dataset.c = c;
-                    g.appendChild(inp);
-                }
-            }
-            document.getElementById('sdk-chk').onclick = () => {
-                const inputs = g.querySelectorAll('input');
-                let ok = true;
-                inputs.forEach(inp => {
-                    let r = inp.dataset.r, c = inp.dataset.c;
-                    if(parseInt(inp.value) !== ans[r][c]) ok = false;
-                });
-                document.getElementById('sdk-msg').innerText = ok ? '🎉 完全正確！成功解答！' : '❌ 有位置填錯囉，再檢查看看！';
-                document.getElementById('sdk-msg').className = ok ? 'text-xs font-bold text-green-600' : 'text-xs font-bold text-red-500';
-            };
-        }
-
-        // 2. 2048 (4x4)
-        function run2048(el) {
-            let grid = [
-                [2, 0, 0, 0],
-                [0, 2, 0, 0],
-                [0, 0, 0, 0],
-                [0, 0, 0, 0]
-            ];
-            el.innerHTML = `
-                <div class="text-center space-y-3">
-                    <div class="grid grid-cols-4 gap-2 w-64 h-64 bg-slate-300 p-2 rounded-xl" id="g2048"></div>
-                    <p class="text-xs text-slate-500">提示：點擊按鈕進行移動</p>
-                    <div class="flex justify-center gap-2">
-                        <button onclick="move2048('up')" class="px-3 py-1 bg-indigo-600 text-white text-xs rounded">▲ 上</button>
-                        <button onclick="move2048('down')" class="px-3 py-1 bg-indigo-600 text-white text-xs rounded">▼ 下</button>
-                        <button onclick="move2048('left')" class="px-3 py-1 bg-indigo-600 text-white text-xs rounded">◄ 左</button>
-                        <button onclick="move2048('right')" class="px-3 py-1 bg-indigo-600 text-white text-xs rounded">► 右</button>
-                    </div>
-                </div>
-            `;
-            window.render2048 = function() {
-                const container = document.getElementById('g2048');
-                if(!container) return;
-                container.innerHTML = '';
-                for(let r=0;r<4;r++){
-                    for(let c=0;c<4;c++){
-                        const val = grid[r][c];
-                        const d = document.createElement('div');
-                        d.className = `flex items-center justify-center font-bold rounded-lg text-sm ${val? 'bg-amber-400 text-slate-800' : 'bg-slate-200'}`;
-                        d.innerText = val ? val : '';
-                        container.appendChild(d);
-                    }
-                }
-            };
-            window.move2048 = function(dir) {
-                // 簡化移動模擬
-                for(let r=0;r<4;r++){
-                    let row = grid[r].filter(v=>v!==0);
-                    for(let i=0;i<row.length-1;i++){
-                        if(row[i]===row[i+1]){ row[i]*=2; row[i+1]=0; }
-                    }
-                    row = row.filter(v=>v!==0);
-                    while(row.length<4) row.push(0);
-                    grid[r] = row;
-                }
-                // 隨機新增一個 2
-                let empty = [];
-                for(let r=0;r<4;r++) for(let c=0;c<4;c++) if(grid[r][c]===0) empty.push([r,c]);
-                if(empty.length>0) {
-                    let [r,c] = empty[Math.floor(Math.random()*empty.length)];
-                    grid[r][c] = 2;
-                }
-                window.render2048();
-            };
-            window.render2048();
-        }
-
-        // 3. 1A2B
-        function run1A2B(el) {
-            let secret = [];
-            while(secret.length < 4){
-                let r = Math.floor(Math.random() * 10);
-                if(!secret.includes(r)) secret.push(r);
-            }
-            let secretStr = secret.join('');
-
-            el.innerHTML = `
-                <div class="w-full max-w-sm bg-white p-5 rounded-xl shadow-sm border text-center space-y-3">
-                    <h4 class="font-bold text-slate-800">1A2B 猜數字</h4>
-                    <p class="text-xs text-slate-500">已產生 4 位不重複數字，請猜測：</p>
-                    <div class="flex gap-2 justify-center">
-                        <input type="text" id="inp-1a2b" maxlength="4" placeholder="例如 1234" class="border px-3 py-1.5 rounded text-center font-mono text-base w-32 focus:outline-indigo-500">
-                        <button id="btn-1a2b" class="bg-indigo-600 text-white px-4 py-1.5 rounded text-sm hover:bg-indigo-700">猜測</button>
-                    </div>
-                    <div id="logs-1a2b" class="h-32 border rounded p-2 overflow-y-auto text-left font-mono text-xs space-y-1 bg-slate-50 custom-scrollbar"></div>
-                </div>
-            `;
-            document.getElementById('btn-1a2b').onclick = () => {
-                const inp = document.getElementById('inp-1a2b').value;
-                if(inp.length!==4 || isNaN(inp)){ alert('請輸入 4 位不重複數字！'); return; }
-                let a=0, b=0;
-                for(let i=0;i<4;i++){
-                    if(inp[i] === secretStr[i]) a++;
-                    else if(secretStr.includes(inp[i])) b++;
-                }
-                const logs = document.getElementById('logs-1a2b');
-                logs.innerHTML = `<div>> ${inp} ➔ <span class="font-bold text-indigo-600">${a}A${b}B</span></div>` + logs.innerHTML;
-                document.getElementById('inp-1a2b').value = '';
-                if(a===4) alert('🎉 答對了！答案就是 ' + secretStr);
-            };
-        }
-
-        // 4. 七巧板拼圖
-        function runTangram(el) {
-            el.innerHTML = `
-                <div class="text-center space-y-3">
-                    <h4 class="font-bold text-slate-800">七巧板：把 4 塊幾何圖形填滿盤面</h4>
-                    <div class="grid grid-cols-2 gap-2 w-40 h-40 bg-slate-200 border-2 border-dashed border-indigo-400 p-2 rounded-xl mx-auto" id="tan-board"></div>
-                    <p class="text-xs text-slate-500">點擊下方拼塊填入上面盤面：</p>
-                    <div class="flex gap-2 justify-center" id="tan-pieces">
-                        <button onclick="placeTan(1)" id="tp-1" class="px-3 py-1 bg-indigo-500 text-white rounded text-xs">▲ 三角形</button>
-                        <button onclick="placeTan(2)" id="tp-2" class="px-3 py-1 bg-emerald-500 text-white rounded text-xs">■ 正方形</button>
-                        <button onclick="placeTan(3)" id="tp-3" class="px-3 py-1 bg-amber-500 text-white rounded text-xs">◆ 平行四邊形</button>
-                        <button onclick="placeTan(4)" id="tp-4" class="px-3 py-1 bg-rose-500 text-white rounded text-xs">▼ 小三角</button>
-                    </div>
-                </div>
-            `;
-            let placed = 0;
-            window.placeTan = function(id) {
-                const b = document.getElementById('tan-board');
-                const btn = document.getElementById('tp-' + id);
-                if(btn.disabled) return;
-                btn.disabled = true;
-                btn.classList.add('opacity-50');
-                const d = document.createElement('div');
-                d.className = "flex items-center justify-center font-bold text-xs text-white rounded bg-indigo-600";
-                d.innerText = btn.innerText;
-                b.appendChild(d);
-                placed++;
-                if(placed === 4) alert('🎉 恭喜拼合成功！七巧板完整填滿！');
-            };
-        }
-
-        // 5. 俄羅斯方塊 (簡易 Canvas 版)
-        function runTetris(el) {
-            el.innerHTML = `
-                <div class="text-center space-y-2">
-                    <canvas id="tetris-cvs" width="160" height="240" class="game-canvas mx-auto"></canvas>
-                    <div class="flex gap-2 justify-center text-xs">
-                        <button onclick="tetrisMove(-1)" class="px-3 py-1 bg-slate-700 text-white rounded">◄ 左</button>
-                        <button onclick="tetrisRotate()" class="px-3 py-1 bg-indigo-600 text-white rounded">↻ 旋轉</button>
-                        <button onclick="tetrisMove(1)" class="px-3 py-1 bg-slate-700 text-white rounded">► 右</button>
-                    </div>
-                </div>
-            `;
-            const cvs = document.getElementById('tetris-cvs');
-            const ctx = cvs.getContext('2d');
-            let px = 3, py = 0;
-            function draw() {
-                ctx.clearRect(0,0,160,240);
-                ctx.fillStyle = '#6366f1';
-                ctx.fillRect(px*16, py*16, 32, 16); // 簡單條形
-            }
-            window.tetrisMove = (dir) => { px = Math.max(0, Math.min(8, px + dir)); draw(); };
-            window.tetrisRotate = () => { draw(); };
-            setInterval(() => {
-                py = (py + 1) % 14;
-                draw();
-            }, 600);
-            draw();
-        }
-
-        // 6. 3D 展開圖
-        function run3DFold(el) {
-            el.innerHTML = `
-                <div class="text-center space-y-3 max-w-sm">
-                    <h4 class="font-bold text-slate-800">觀察十字形展開圖，哪兩個面在折疊後會相對？</h4>
-                    <div class="text-2xl font-bold bg-slate-200 p-3 rounded"> [上] [左] [中] [右] [下] </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="alert('❌ 不對喔！ left 與 right 折疊後才是相對的面。')" class="py-2 bg-white border rounded text-xs hover:bg-slate-50">「上」與「下」</button>
-                        <button onclick="alert('🎉 完全正確！左面與右面折疊後剛好互相平行相對！')" class="py-2 bg-indigo-600 text-white rounded text-xs hover:bg-indigo-700">「左」與「右」</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        // 7. 填字遊戲
-        function runCrossword(el) {
-            el.innerHTML = `
-                <div class="text-center space-y-3">
-                    <h4 class="font-bold text-slate-800">填字挑戰：填入正確的英文字母</h4>
-                    <p class="text-xs text-slate-500">提示：人體最重要的大腦器官 (5 個字母)</p>
-                    <div class="flex gap-1 justify-center" id="cw-box">
-                        <input maxlength="1" class="w-8 h-8 border text-center font-bold rounded">
-                        <input maxlength="1" class="w-8 h-8 border text-center font-bold rounded">
-                        <input maxlength="1" class="w-8 h-8 border text-center font-bold rounded">
-                        <input maxlength="1" class="w-8 h-8 border text-center font-bold rounded">
-                        <input maxlength="1" class="w-8 h-8 border text-center font-bold rounded">
-                    </div>
-                    <button onclick="checkCW()" class="px-4 py-1 bg-indigo-600 text-white text-xs rounded">驗證</button>
-                </div>
-            `;
-            window.checkCW = () => {
-                const inputs = document.querySelectorAll('#cw-box input');
-                let word = Array.from(inputs).map(i=>i.value.toUpperCase()).join('');
-                if(word === 'BRAIN') alert('🎉 答對了！就是 B-R-A-I-N！');
-                else alert('❌ 答案不太對喔，再想一下！');
-            };
-        }
-
-        // 8. 成語填空
-        function runIdiom(el) {
-            el.innerHTML = `
-                <div class="text-center space-y-4 max-w-sm">
-                    <h4 class="font-bold text-slate-800">成語填空：請選擇正確的字填入空格</h4>
-                    <div class="text-2xl font-bold tracking-widest text-indigo-700">守株待（？）</div>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button onclick="alert('❌ 答錯囉！')" class="py-2 bg-white border rounded font-bold hover:bg-slate-50">鳥</button>
-                        <button onclick="alert('🎉 正確！守株待兔！')" class="py-2 bg-indigo-600 text-white rounded font-bold hover:bg-indigo-700">兔</button>
-                        <button onclick="alert('❌ 答錯囉！')" class="py-2 bg-white border rounded font-bold hover:bg-slate-50">魚</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        // 9. Wordle
-        function runWordle(el) {
-            const ans = "SMART";
-            el.innerHTML = `
-                <div class="text-center space-y-3">
-                    <h4 class="font-bold text-slate-800">Wordle 猜字 (5字母英文單字)</h4>
-                    <input type="text" id="wd-inp" maxlength="5" placeholder="輸入5字單字" class="border px-3 py-1 text-center font-mono rounded w-32 uppercase">
-                    <button onclick="checkWordle()" class="px-3 py-1 bg-indigo-600 text-white text-xs rounded">送出</button>
-                    <div id="wd-logs" class="space-y-1 text-xs font-mono"></div>
-                </div>
-            `;
-            window.checkWordle = () => {
-                const val = document.getElementById('wd-inp').value.toUpperCase();
-                if(val.length !== 5) return alert('請輸入 5 個字母！');
-                let res = '';
-                for(let i=0;i<5;i++){
-                    if(val[i] === ans[i]) res += `<span class="bg-green-500 text-white px-1.5 py-0.5 rounded mr-1">${val[i]}</span>`;
-                    else if(ans.includes(val[i])) res += `<span class="bg-yellow-500 text-white px-1.5 py-0.5 rounded mr-1">${val[i]}</span>`;
-                    else res += `<span class="bg-slate-300 text-slate-700 px-1.5 py-0.5 rounded mr-1">${val[i]}</span>`;
-                }
-                document.getElementById('wd-logs').innerHTML = `<div>${res}</div>` + document.getElementById('wd-logs').innerHTML;
-                if(val === ans) alert('🎉 恭喜猜中單字 SMART！');
-            };
-        }
-
-        // 10. 翻牌記憶
-        function runCardMatch(el) {
-            const icons = ['🐶', '🐱', '🐭', '🐹', '🐶', '🐱', '🐭', '🐹'].sort(()=>Math.random()-0.5);
-            el.innerHTML = `
-                <div class="text-center space-y-3">
-                    <h4 class="font-bold text-slate-800">翻牌記憶 (點擊翻牌配對)</h4>
-                    <div class="grid grid-cols-4 gap-2 w-48 mx-auto" id="cm-grid"></div>
-                </div>
-            `;
-            const g = document.getElementById('cm-grid');
-            let first = null, lock = false;
-            icons.forEach(ic => {
-                const btn = document.createElement('button');
-                btn.className = "w-10 h-10 bg-indigo-500 text-white font-bold rounded flex items-center justify-center text-lg";
-                btn.innerText = '?';
-                btn.onclick = () => {
-                    if(lock || btn.innerText !== '?') return;
-                    btn.innerText = ic;
-                    btn.classList.replace('bg-indigo-500','bg-white');
-                    btn.classList.add('border-2','border-indigo-500');
-                    if(!first) first = btn;
-                    else {
-                        if(first.innerText === ic) { first = null; }
-                        else {
-                            lock = true;
-                            setTimeout(() => {
-                                btn.innerText = '?'; btn.classList.replace('bg-white','bg-indigo-500');
-                                first.innerText = '?'; first.classList.replace('bg-white','bg-indigo-500');
-                                first = null; lock = false;
-                            }, 700);
-                        }
-                    }
-                };
-                g.appendChild(btn);
-            });
-        }
-
-        // 11. 找不同
-        function runSpotDifference(el) {
-            el.innerHTML = `
-                <div class="text-center space-y-3">
-                    <h4 class="font-bold text-slate-800">找出唯一一個不同的符號！</h4>
-                    <div class="grid grid-cols-5 gap-2 text-2xl font-mono" id="sd-grid"></div>
-                </div>
-            `;
-            const g = document.getElementById('sd-grid');
-            const diffIndex = Math.floor(Math.random()*15);
-            for(let i=0;i<15;i++){
-                const btn = document.createElement('button');
-                btn.className = "p-2 border rounded hover:bg-slate-100";
-                btn.innerText = (i === diffIndex) ? 'O' : '0';
-                btn.onclick = () => {
-                    if(i === diffIndex) alert('🎉 找到了！你擁有鷹眼般的觀察力！');
-                    else alert('❌ 這是 0 不是 O，再看看！');
-                };
-                g.appendChild(btn);
-            }
-        }
-
-        // 12. 西蒙燈光
-        function runSimon(el) {
-            el.innerHTML = `
-                <div class="text-center space-y-3">
-                    <h4 class="font-bold text-slate-800">西蒙燈光記憶 (觀察順序並點擊)</h4>
-                    <div class="grid grid-cols-2 gap-3 w-36 h-36 mx-auto">
-                        <button id="s-0" onclick="clickSimon(0)" class="bg-red-400 rounded-tl-full hover:opacity-80"></button>
-                        <button id="s-1" onclick="clickSimon(1)" class="bg-blue-400 rounded-tr-full hover:opacity-80"></button>
-                        <button id="s-2" onclick="clickSimon(2)" class="bg-green-400 rounded-bl-full hover:opacity-80"></button>
-                        <button id="s-3" onclick="clickSimon(3)" class="bg-yellow-400 rounded-br-full hover:opacity-80"></button>
-                    </div>
-                    <button onclick="startSimon()" class="px-3 py-1 bg-indigo-600 text-white text-xs rounded">開始示範燈光</button>
-                </div>
-            `;
-            let seq = [];
-            let userStep = 0;
-            window.startSimon = () => {
-                seq = [Math.floor(Math.random()*4), Math.floor(Math.random()*4)];
-                userStep = 0;
-                let i = 0;
-                let timer = setInterval(() => {
-                    let b = document.getElementById('s-' + seq[i]);
-                    b.classList.add('brightness-150', 'scale-105');
-                    setTimeout(()=>b.classList.remove('brightness-150', 'scale-105'), 300);
-                    i++;
-                    if(i >= seq.length) clearInterval(timer);
-                }, 600);
-            };
-            window.clickSimon = (id) => {
-                if(seq.length === 0) return;
-                if(seq[userStep] === id) {
-                    userStep++;
-                    if(userStep === seq.length) alert('🎉 完美重複記憶燈光！成功通過！');
-                } else {
-                    alert('❌ 順序錯囉，重新開始！');
-                    seq = [];
-                }
-            };
-        }
-
-        // 13. 接水管
-        function runPipes(el) {
-            el.innerHTML = `
-                <div class="text-center space-y-3">
-                    <h4 class="font-bold text-slate-800">點擊水管旋轉方向，將管道連通</h4>
-                    <div class="grid grid-cols-3 gap-1 w-36 mx-auto" id="pipe-grid"></div>
-                    <button onclick="checkPipes()" class="px-3 py-1 bg-indigo-600 text-white text-xs rounded">測試通水</button>
-                </div>
-            `;
-            const g = document.getElementById('pipe-grid');
-            const pipes = ['━', '┃', '┏', '┓', '┗', '┛'];
-            let states = [0, 1, 2, 0, 3, 1, 2, 4, 0];
-            for(let i=0;i<9;i++){
-                const btn = document.createElement('button');
-                btn.className = "w-10 h-10 border font-bold text-xl bg-white rounded";
-                btn.innerText = pipes[states[i]];
-                btn.onclick = () => {
-                    states[i] = (states[i] + 1) % pipes.length;
-                    btn.innerText = pipes[states[i]];
-                };
-                g.appendChild(btn);
-            }
-            window.checkPipes = () => alert('🌊 水流成功順利通往終點！水管接通成功！');
-        }
-
-        // 14. 擺擺球 (割繩子)
-        function runCutRope(el) {
-            el.innerHTML = `
-                <div class="text-center space-y-3">
-                    <canvas id="rope-cvs" width="200" height="150" class="game-canvas mx-auto"></canvas>
-                    <button onclick="cutRopeNow()" class="px-4 py-1.5 bg-rose-600 text-white text-xs rounded font-bold hover:bg-rose-700">✂️ 剪斷繩子</button>
-                </div>
-            `;
-            const cvs = document.getElementById('rope-cvs');
-            const ctx = cvs.getContext('2d');
-            let angle = 0;
-            let cut = false, ballY = 50;
-            setInterval(() => {
-                ctx.clearRect(0,0,200,150);
-                // 目標點
-                ctx.fillStyle = '#10b981'; ctx.fillRect(80, 120, 40, 20);
-                if(!cut) {
-                    angle += 0.05;
-                    let x = 100 + Math.sin(angle)*40;
-                    ctx.beginPath(); ctx.moveTo(100,0); ctx.lineTo(x, 50); ctx.stroke();
-                    ctx.beginPath(); ctx.arc(x, 50, 10, 0, Math.PI*2); ctx.fillStyle='#f43f5e'; ctx.fill();
-                } else {
-                    ballY += 5;
-                    ctx.beginPath(); ctx.arc(100, ballY, 10, 0, Math.PI*2); ctx.fillStyle='#f43f5e'; ctx.fill();
-                    if(ballY >= 120 && ballY <= 140) {
-                        ctx.fillText("SUCCESS!", 75, 70);
-                    }
-                }
-            }, 30);
-            window.cutRopeNow = () => { cut = true; };
-        }
-
-        // 15. 天平平衡
-        function runBalance(el) {
-            el.innerHTML = `
-                <div class="text-center space-y-3">
-                    <h4 class="font-bold text-slate-800">左端重量: 10kg。請在右端放入合適砝碼使天平平衡：</h4>
-                    <div class="text-xl font-bold bg-slate-200 p-2 rounded w-48 mx-auto">左 10kg ⚖️ 右 <span id="r-weight">0</span>kg</div>
-                    <div class="flex gap-2 justify-center">
-                        <button onclick="addW(3)" class="px-3 py-1 bg-indigo-500 text-white text-xs rounded">+3kg</button>
-                        <button onclick="addW(4)" class="px-3 py-1 bg-indigo-500 text-white text-xs rounded">+4kg</button>
-                        <button onclick="addW(5)" class="px-3 py-1 bg-indigo-500 text-white text-xs rounded">+5kg</button>
-                    </div>
-                </div>
-            `;
-            let w = 0;
-            window.addW = (val) => {
-                w += val;
-                document.getElementById('r-weight').innerText = w;
-                if(w === 10) alert('🎉 天平達到完全平衡！完美解答！');
-                else if(w > 10) { alert('💥 重量超重，天平傾斜了！重置中...'); w=0; document.getElementById('r-weight').innerText=0; }
-            };
-        }
-
-        // 16. 五子棋人機
-        function runGomoku(el) {
-            el.innerHTML = `
-                <div class="text-center space-y-2">
-                    <h4 class="font-bold text-slate-800">五子棋 (你執黑子)</h4>
-                    <div class="grid grid-cols-6 gap-1 w-48 h-48 bg-amber-200 p-1 rounded border border-amber-800 mx-auto" id="gk-board"></div>
-                </div>
-            `;
-            const b = document.getElementById('gk-board');
-            for(let i=0;i<36;i++){
-                const btn = document.createElement('button');
-                btn.className = "w-7 h-7 rounded-full flex items-center justify-center hover:bg-amber-300";
-                btn.onclick = () => {
-                    if(btn.innerText!=='') return;
-                    btn.innerText = '●';
-                    btn.classList.add('text-black');
-                    // AI 隨機落子
-                    setTimeout(() => {
-                        let empty = Array.from(b.children).filter(c=>c.innerText==='');
-                        if(empty.length>0) {
-                            let r = empty[Math.floor(Math.random()*empty.length)];
-                            r.innerText = '○';
-                            r.classList.add('text-white');
-                        }
-                    }, 300);
-                };
-                b.appendChild(btn);
-            }
-        }
-
-        // 17. 黑白棋
-        function runReversi(el) {
-            el.innerHTML = `
-                <div class="text-center space-y-2">
-                    <h4 class="font-bold text-slate-800">黑白棋 (點擊下子包夾對方)</h4>
-                    <div class="grid grid-cols-4 gap-1 w-40 h-40 bg-emerald-700 p-1 rounded mx-auto" id="rev-board"></div>
-                </div>
-            `;
-            const b = document.getElementById('rev-board');
-            for(let i=0;i<16;i++){
-                const btn = document.createElement('button');
-                btn.className = "w-8 h-8 rounded-full border border-emerald-900 flex items-center justify-center font-bold";
-                if(i===5||i===10) btn.innerText = '●';
-                if(i===6||i===9) btn.innerText = '○';
-                btn.onclick = () => {
-                    if(btn.innerText==='') {
-                        btn.innerText = '●';
-                        alert('翻轉包夾敵方棋子！');
-                    }
-                };
-                b.appendChild(btn);
-            }
-        }
-
-        // 18. 騎士巡遊
-        function runKnightWalk(el) {
-            el.innerHTML = `
-                <div class="text-center space-y-2">
-                    <h4 class="font-bold text-slate-800">西洋棋「馬」走日字形 (點擊移動)</h4>
-                    <div class="grid grid-cols-3 gap-1 w-36 h-36 bg-slate-300 p-1 rounded mx-auto" id="kw-board"></div>
-                </div>
-            `;
-            const b = document.getElementById('kw-board');
-            for(let i=0;i<9;i++){
-                const btn = document.createElement('button');
-                btn.className = "w-10 h-10 bg-white border font-bold flex items-center justify-center";
-                if(i===0) btn.innerText = '♞';
-                btn.onclick = () => alert('依照日字走法移動至該格子！');
-                b.appendChild(btn);
-            }
-        }
-
-        // 19. 推箱子
-        function runSokoban(el) {
-            el.innerHTML = `
-                <div class="text-center space-y-3">
-                    <h4 class="font-bold text-slate-800">推箱子 (🏃人, 📦箱子, 🚩目標)</h4>
-                    <div class="grid grid-cols-3 gap-1 w-36 h-36 bg-slate-200 p-2 rounded mx-auto text-xl font-bold" id="skb-grid">
-                        <div class="flex items-center justify-center">🏃</div>
-                        <div class="flex items-center justify-center">📦</div>
-                        <div class="flex items-center justify-center">🚩</div>
-                    </div>
-                    <button onclick="alert('🎉 成功將箱子推到目標點！')" class="px-3 py-1 bg-indigo-600 text-white text-xs rounded">► 往前推箱子</button>
-                </div>
-            `;
-        }
-
-        // 20. 經典迷宮
-        function runMaze(el) {
-            el.innerHTML = `
-                <div class="text-center space-y-3">
-                    <canvas id="maze-cvs" width="150" height="150" class="game-canvas mx-auto"></canvas>
-                    <div class="flex justify-center gap-2 text-xs">
-                        <button onclick="moveMaze(0,-1)" class="px-2 py-1 bg-slate-700 text-white rounded">▲</button>
-                        <button onclick="moveMaze(0,1)" class="px-2 py-1 bg-slate-700 text-white rounded">▼</button>
-                        <button onclick="moveMaze(-1,0)" class="px-2 py-1 bg-slate-700 text-white rounded">◄</button>
-                        <button onclick="moveMaze(1,0)" class="px-2 py-1 bg-slate-700 text-white rounded">►</button>
-                    </div>
-                </div>
-            `;
-            const cvs = document.getElementById('maze-cvs');
-            const ctx = cvs.getContext('2d');
-            let mx = 10, my = 10;
-            function drawMaze() {
-                ctx.clearRect(0,0,150,150);
-                // 牆壁
-                ctx.fillStyle = '#334155'; ctx.fillRect(50, 0, 20, 100);
-                // 出口
-                ctx.fillStyle = '#10b981'; ctx.fillRect(120, 120, 20, 20);
-                // 玩家
-                ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.arc(mx, my, 8, 0, Math.PI*2); ctx.fill();
-            }
-            window.moveMaze = (dx, dy) => {
-                mx += dx*10; my += dy*10;
-                drawMaze();
-                if(mx>=120 && my>=120) alert('🎉 順利走出迷宮到達出口！');
-            };
-            drawMaze();
-        }
-
-        // 21. 滑塊移出 (華容道)
-        function runUnblock(el) {
-            el.innerHTML = `
-                <div class="text-center space-y-3">
-                    <h4 class="font-bold text-slate-800">點擊移開障礙，讓紅色滑塊移出出口</h4>
-                    <div class="w-40 h-28 bg-slate-200 border-r-4 border-r-green-500 relative mx-auto p-1" id="ub-board">
-                        <div id="target-block" class="w-16 h-8 bg-rose-500 text-white text-xs font-bold flex items-center justify-center absolute top-10 left-2 transition-all">紅色塊</div>
-                    </div>
-                    <button onclick="slideOut()" class="px-3 py-1 bg-indigo-600 text-white text-xs rounded">向右滑出出口</button>
-                </div>
-            `;
-            window.slideOut = () => {
-                document.getElementById('target-block').style.left = '90px';
-                setTimeout(() => alert('🎉 成功移出滑塊！通關成功！'), 300);
-            };
-        }
-
-        // 22. 踩地雷
-        function runMinesweeper(el) {
-            el.innerHTML = `
-                <div class="text-center space-y-3">
-                    <h4 class="font-bold text-slate-800">踩地雷 (點擊踩雷，數字為周圍雷數)</h4>
-                    <div class="grid grid-cols-3 gap-1 w-36 mx-auto" id="ms-grid"></div>
-                </div>
-            `;
-            const g = document.getElementById('ms-grid');
-            const mineIndex = Math.floor(Math.random()*9);
-            for(let i=0;i<9;i++){
-                const btn = document.createElement('button');
-                btn.className = "w-10 h-10 border bg-slate-300 font-bold rounded flex items-center justify-center";
-                btn.onclick = () => {
-                    if(i === mineIndex) {
-                        btn.innerText = '💣'; btn.classList.add('bg-red-500');
-                        alert('💥 踩到地雷了！遊戲結束！');
-                    } else {
-                        btn.innerText = '1'; btn.classList.add('bg-white');
-                    }
-                };
-                g.appendChild(btn);
-            }
-        }
-
-        // 23. 三門問題
-        function runMontyHall(el) {
-            const car = Math.floor(Math.random()*3);
-            el.innerHTML = `
-                <div class="text-center space-y-3 max-w-sm">
-                    <h4 class="font-bold text-slate-800">三門問題：請選擇一扇門</h4>
-                    <div class="flex gap-2 justify-center" id="mh-doors">
-                        <button onclick="chooseDoor(0, ${car})" class="w-16 h-24 bg-amber-700 text-white font-bold rounded">門 1</button>
-                        <button onclick="chooseDoor(1, ${car})" class="w-16 h-24 bg-amber-700 text-white font-bold rounded">門 2</button>
-                        <button onclick="chooseDoor(2, ${car})" class="w-16 h-24 bg-amber-700 text-white font-bold rounded">門 3</button>
-                    </div>
-                    <div id="mh-msg" class="text-xs text-indigo-600 font-bold min-h-[2rem]"></div>
-                </div>
-            `;
-            window.chooseDoor = (c, carDoor) => {
-                let host = [0,1,2].find(d=>d!==c && d!==carDoor);
-                document.getElementById('mh-msg').innerText = `主持人為您開啟了門 ${host+1} (羊)！此時「換門」獲得汽車的機率會提高至 2/3！`;
-            };
-        }
-
-        // 24. 比大小機率
-        function runPokerOdds(el) {
-            el.innerHTML = `
-                <div class="text-center space-y-3">
-                    <h4 class="font-bold text-slate-800">當前牌面：<span class="text-2xl text-red-600 font-bold">7</span></h4>
-                    <p class="text-xs text-slate-500">預測下一張牌會比 7 大還是小？</p>
-                    <div class="flex gap-3 justify-center">
-                        <button onclick="guessPoker(true)" class="px-4 py-2 bg-indigo-600 text-white font-bold rounded text-xs">▲ 比 7 大</button>
-                        <button onclick="guessPoker(false)" class="px-4 py-2 bg-rose-600 text-white font-bold rounded text-xs">▼ 比 7 小</button>
-                    </div>
-                </div>
-            `;
-            window.guessPoker = (isBig) => {
-                let next = Math.floor(Math.random()*13)+1;
-                let win = isBig ? (next > 7) : (next < 7);
-                alert(`下一張牌是 ${next}！ ` + (win ? '🎉 預測正確！符合期望值分析！' : '❌ 猜錯囉！'));
-            };
-        }
-
-        // 25. 狼羊菜過河
-        function runRiverCrossing(el) {
-            el.innerHTML = `
-                <div class="text-center space-y-3 max-w-sm">
-                    <h4 class="font-bold text-slate-800">狼羊菜過河 (點擊帶物品過河)</h4>
-                    <p class="text-xs text-slate-500">狼羊不能獨處、羊菜不能獨處！</p>
-                    <div class="flex justify-between items-center bg-blue-100 p-3 rounded-lg">
-                        <div id="left-bank" class="text-xl">🐺 🐑 🥦</div>
-                        <div class="text-xs font-bold text-blue-600">🌊 河流 🛶</div>
-                        <div id="right-bank" class="text-xl min-w-[3rem]"></div>
-                    </div>
-                    <div class="flex gap-2 justify-center">
-                        <button onclick="crossRiver('🐑')" class="px-3 py-1 bg-indigo-600 text-white text-xs rounded">帶 🐑 過河</button>
-                        <button onclick="crossRiver('🐺')" class="px-3 py-1 bg-indigo-600 text-white text-xs rounded">帶 🐺 過河</button>
-                        <button onclick="crossRiver('🥦')" class="px-3 py-1 bg-indigo-600 text-white text-xs rounded">帶 🥦 過河</button>
-                    </div>
-                </div>
-            `;
-            window.crossRiver = (item) => {
-                if(item === '🐑') {
-                    document.getElementById('left-bank').innerText = '🐺 🥦';
-                    document.getElementById('right-bank').innerText = '🐑';
-                    alert('🎉 成功將羊送過河！狼與菜安全無虞！');
-                } else {
-                    alert('❌ 糟糕！如果帶走這項，留下的羊會把菜吃掉（或狼會把羊吃掉）！');
-                }
-            };
-        }
-
-        // 26. 紅綠燈控制
-        function runTraffic(el) {
-            el.innerHTML = `
-                <div class="text-center space-y-3">
-                    <h4 class="font-bold text-slate-800">點擊切換號誌，引導車輛通過</h4>
-                    <div class="w-16 h-16 rounded-full mx-auto flex items-center justify-center font-bold text-white text-xl transition-all" id="tl-light" style="background-color: #ef4444;">紅燈</div>
-                    <button onclick="toggleTraffic()" class="px-4 py-1.5 bg-indigo-600 text-white text-xs rounded">切換紅綠燈</button>
-                    <p id="tf-msg" class="text-xs text-slate-500">當前狀態：車輛停等中...</p>
-                </div>
-            `;
-            let isGreen = false;
-            window.toggleTraffic = () => {
-                isGreen = !isGreen;
-                const l = document.getElementById('tl-light');
-                l.style.backgroundColor = isGreen ? '#10b981' : '#ef4444';
-                l.innerText = isGreen ? '綠燈' : '紅燈';
-                document.getElementById('tf-msg').innerText = isGreen ? '🚗 綠燈亮起，車輛順暢通行！' : '🛑 紅燈亮起，車輛停等中...';
-            };
-        }
-
-        // 27. 時間資源管理
-        function runResourceMgmt(el) {
-            el.innerHTML = `
-                <div class="text-center space-y-3 max-w-sm">
-                    <h4 class="font-bold text-slate-800">你剩下 5 小時，請分配獲得最大回報：</h4>
-                    <div class="space-y-2 text-xs">
-                        <button onclick="selectTask(2, 50)" class="w-full py-1.5 border rounded flex justify-between px-3 hover:bg-slate-50"><span>任務 A (需 2 小時)</span><span class="font-bold text-green-600">+50 效益</span></button>
-                        <button onclick="selectTask(3, 90)" class="w-full py-1.5 border rounded flex justify-between px-3 hover:bg-slate-50"><span>任務 B (需 3 小時)</span><span class="font-bold text-green-600">+90 效益</span></button>
-                    </div>
-                    <div class="text-xs font-bold text-indigo-700">剩餘時間: <span id="r-time">5</span> 小時 | 累積效益: <span id="r-score">0</span></div>
-                </div>
-            `;
-            let t = 5, score = 0;
-            window.selectTask = (cost, reward) => {
-                if(t >= cost) {
-                    t -= cost;
-                    score += reward;
-                    document.getElementById('r-time').innerText = t;
-                    document.getElementById('r-score').innerText = score;
-                    if(t === 0) alert('🎉 時間最佳化運用完畢！總獲得效益：' + score);
-                } else {
-                    alert('❌ 剩餘時間不足以完成此任務！');
-                }
-            };
-        }
-    </script>
+    // 每 30,000 毫秒 (30 秒) 切換一次背景
+    setInterval(changeBackground, 30000);
+  </script>
 </body>
 </html>
