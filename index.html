@@ -169,7 +169,7 @@
                                 <i class="fa-solid fa-circle-info"></i> 遊戲規則指南
                             </div>
                             <ul class="list-disc list-inside space-y-1 text-xs text-slate-700 font-medium">
-                                <li>輪到參賽者時，中央產生 1-6 號反彈飄浮球，操作手機碰撞移動前進！</li>
+                                <li>輪到參賽者時，中央右側區域產生 1-6 號反彈飄浮球，操作手機碰撞移動前進！</li>
                                 <li>解決路途上的各種情況獲取積分、道具，並觸發機會與命運。</li>
                             </ul>
                         </div>
@@ -307,27 +307,33 @@
             <!-- 大富翁走格子畫面 -->
             <div class="col-span-10 relative bg-emerald-50/60 rounded-2xl border-2 border-chch-green/30 p-2 grid grid-cols-8 grid-rows-4 gap-2 h-full shadow-inner">
                 
-                <!-- 調整修改：格子圍繞之全部中央區域 (佔中央 6x2 空間)，做為號碼球移動與碰撞場景 -->
-                <div id="center-board-area" class="col-start-2 col-span-6 row-start-2 row-span-2 bg-white/90 rounded-2xl border-4 border-chch-green shadow-xl relative overflow-hidden flex flex-col justify-between p-2 z-10">
+                <!-- 格子圍繞之全部中央區域 (佔中央 6x2 空間) -->
+                <div id="center-board-area" class="col-start-2 col-span-6 row-start-2 row-span-2 bg-white/95 rounded-2xl border-4 border-chch-green shadow-xl relative overflow-hidden flex justify-between p-2 z-10">
                     
-                    <!-- 中央頂部提示資訊欄 -->
-                    <div id="center-info-bar" class="w-full flex items-center justify-between px-3 py-1 bg-chch-lightGreen/90 rounded-xl border border-chch-green/30 z-20">
-                        <div class="flex items-center gap-2">
-                            <span id="current-player-avatar" class="text-2xl animate-bounce">🐱</span>
-                            <span id="current-player-name" class="text-base font-black text-slate-800">當前玩家</span>
-                        </div>
-                        <div id="center-status-hint" class="text-xs md:text-sm font-extrabold text-chch-orange">
-                            🎯 請操控碰撞 1 - 6 號飄浮球決定步數！
+                    <!-- 調整 1：左邊一半 (50% 空間) 顯示目前參賽者圖像與名稱 -->
+                    <div class="w-1/2 h-full border-r-4 border-chch-green/20 flex flex-col items-center justify-center p-3 bg-gradient-to-br from-chch-lightGreen/50 to-amber-50/50 rounded-l-xl">
+                        <span class="text-xs font-black text-chch-darkGreen bg-white px-3 py-1 rounded-full border border-chch-green/30 mb-2 shadow-sm">當前回合參賽者</span>
+                        <div id="current-player-avatar" class="text-8xl md:text-9xl animate-bounce my-2 drop-shadow-md">🐱</div>
+                        <div id="current-player-name" class="text-2xl md:text-3xl font-black text-slate-800 tracking-wider">參賽者名稱</div>
+                        
+                        <!-- 調整 2：弱勢扶助觸發時，同步顯示問題於左半邊 -->
+                        <div id="center-question-box" class="hidden mt-3 w-full bg-chch-lightOrange border-2 border-amber-300 p-2.5 rounded-xl text-center shadow-sm">
+                            <span class="text-xs font-bold text-chch-orange block mb-0.5">❓ 弱勢扶助問答問題</span>
+                            <span id="center-question-text" class="text-base font-black text-amber-950">0-3歲 應給予 嬰兒物資箱？</span>
                         </div>
                     </div>
 
-                    <!-- 中央 1-6 號小球與參賽者專屬球移動撞擊容器 -->
-                    <div id="center-ball-container" class="w-full flex-grow relative overflow-hidden my-1 rounded-xl bg-slate-100/80 border-2 border-slate-200">
+                    <!-- 調整 1：右邊一半 (50% 空間) 為 1-6 號小球慢慢移動與邊界反彈遊戲區 -->
+                    <div id="center-ball-container" class="w-1/2 h-full relative overflow-hidden rounded-r-xl bg-slate-100/90 border-l-2 border-slate-200">
+                        <div class="absolute top-2 left-0 right-0 text-center text-xs font-black text-chch-darkGreen bg-white/80 py-0.5 z-10 shadow-sm">
+                            🎯 請碰撞 1 - 6 號飄浮球決定步數！
+                        </div>
                         <!-- 參賽者專屬球體 (由手機移動操控) -->
                         <div id="active-player-ball" class="absolute w-12 h-12 bg-amber-500 rounded-full flex items-center justify-center text-2xl shadow-xl z-20 border-2 border-white pointer-events-none">
                             ⚽
                         </div>
                     </div>
+
                 </div>
 
                 <!-- 中央全螢幕 80% 觸動格子通知窗格 -->
@@ -360,8 +366,8 @@
             </div>
         </div>
 
-        <!-- 大螢幕 - 頒獎典禮畫面 -->
-        <div id="view-result" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-md p-6">
+        <!-- 調整 3：頒獎典禮直接在原本的地圖上出現通知窗格 (透明度 50% 底色) -->
+        <div id="view-result" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6">
             <div id="result-notice-box" class="w-[80%] h-[80%] bg-white/95 border-4 border-chch-green rounded-3xl p-6 md:p-8 flex flex-col justify-between shadow-2xl overflow-hidden relative">
                 
                 <h2 id="result-title" class="text-3xl md:text-5xl font-black text-center text-chch-darkGreen mb-2 flex-shrink-0">
@@ -777,11 +783,10 @@
         }
 
         let ballTargetList = [];
-        let playerBallPos = { x: 150, y: 150 };
+        let playerBallPos = { x: 100, y: 100 };
         let activeCollisionListener = false;
         let ballPhysicsAnimFrame = null;
 
-        // 輪到參賽者時，直接在格子圍繞的中央全部區域展開 1-6 號號碼球
         function nextTurn() {
             if (!isGameRunning) return;
 
@@ -794,9 +799,12 @@
                 return;
             }
 
+            // 隱藏問題問答框
+            document.getElementById('center-question-box').classList.add('hidden');
+
+            // 調整 1：左邊一半顯示目前參賽者圖示與名稱
             document.getElementById('current-player-avatar').innerText = p.avatar;
             document.getElementById('current-player-name').innerText = p.name;
-            document.getElementById('center-status-hint').innerText = '🎯 請操控碰撞 1 - 6 號飄浮球決定步數！';
 
             players.forEach(player => {
                 if (player.conn) {
@@ -817,11 +825,10 @@
             }
         }
 
-        // 中央區域生成 1-6 號移動與反彈球體
+        // 調整 1：中央右邊一半區域產生 1-6 號號碼球與邊界反彈
         function startBoardBallCollisionPhase(p) {
             const container = document.getElementById('center-ball-container');
             
-            // 清除舊球體與動畫
             if (ballPhysicsAnimFrame) cancelAnimationFrame(ballPhysicsAnimFrame);
             const oldBalls = container.querySelectorAll('.target-num-ball');
             oldBalls.forEach(b => b.remove());
@@ -834,16 +841,14 @@
             playerBall.style.top = `${playerBallPos.y}px`;
 
             ballTargetList = [];
-            // 生成 1-6 號帶動量小球
             for (let i = 1; i <= 6; i++) {
                 const ball = document.createElement('div');
-                ball.className = 'target-num-ball absolute w-12 h-12 bg-chch-green text-white font-black text-xl rounded-full flex items-center justify-center shadow-lg border-2 border-white transition-transform';
-                const rx = Math.floor(Math.random() * (container.clientWidth - 60)) + 10;
-                const ry = Math.floor(Math.random() * (container.clientHeight - 60)) + 10;
+                ball.className = 'target-num-ball absolute w-11 h-11 bg-chch-green text-white font-black text-xl rounded-full flex items-center justify-center shadow-lg border-2 border-white transition-transform';
+                const rx = Math.floor(Math.random() * (container.clientWidth - 50)) + 5;
+                const ry = Math.floor(Math.random() * (container.clientHeight - 50)) + 5;
                 
-                // 亂數設定慢速向量 (vx, vy)
-                const vx = (Math.random() - 0.5) * 1.8;
-                const vy = (Math.random() - 0.5) * 1.8;
+                const vx = (Math.random() - 0.5) * 1.6;
+                const vy = (Math.random() - 0.5) * 1.6;
 
                 ball.style.left = `${rx}px`;
                 ball.style.top = `${ry}px`;
@@ -857,7 +862,6 @@
             runBallPhysicsLoop();
         }
 
-        // 1-6 號小球慢慢移動與邊界反彈動畫循環
         function runBallPhysicsLoop() {
             if (!activeCollisionListener) return;
 
@@ -871,13 +875,12 @@
                 tb.x += tb.vx;
                 tb.y += tb.vy;
 
-                // 碰到框線快速反彈
-                if (tb.x <= 0) { tb.x = 0; tb.vx = Math.abs(tb.vx) * 1.2; }
-                if (tb.x >= cw - 48) { tb.x = cw - 48; tb.vx = -Math.abs(tb.vx) * 1.2; }
-                if (tb.y <= 0) { tb.y = 0; tb.vy = Math.abs(tb.vy) * 1.2; }
-                if (tb.y >= ch - 48) { tb.y = ch - 48; tb.vy = -Math.abs(tb.vy) * 1.2; }
+                // 碰撞邊界快速反彈
+                if (tb.x <= 0) { tb.x = 0; tb.vx = Math.abs(tb.vx) * 1.25; }
+                if (tb.x >= cw - 44) { tb.x = cw - 44; tb.vx = -Math.abs(tb.vx) * 1.25; }
+                if (tb.y <= 0) { tb.y = 0; tb.vy = Math.abs(tb.vy) * 1.25; }
+                if (tb.y >= ch - 44) { tb.y = ch - 44; tb.vy = -Math.abs(tb.vy) * 1.25; }
 
-                // 限制最高與最低速
                 const speed = Math.hypot(tb.vx, tb.vy);
                 if (speed > 4) { tb.vx *= 0.95; tb.vy *= 0.95; }
                 if (speed < 0.8) { tb.vx *= 1.1; tb.vy *= 1.1; }
@@ -889,7 +892,6 @@
             ballPhysicsAnimFrame = requestAnimationFrame(runBallPhysicsLoop);
         }
 
-        // 處理參賽者移動資料與撞擊放大爆炸特效
         function handlePlayerMoveData(playerId, deltaX, deltaY) {
             const p = players[currentTurnIndex];
             if (!activeCollisionListener || !p || p.id !== playerId) return;
@@ -903,32 +905,28 @@
             playerBall.style.left = `${playerBallPos.x}px`;
             playerBall.style.top = `${playerBallPos.y}px`;
 
-            // 碰撞檢測
             ballTargetList.forEach(tb => {
                 if (tb.hit) return;
 
                 const dist = Math.hypot(playerBallPos.x - tb.x, playerBallPos.y - tb.y);
-                if (dist < 40) { // 撞擊成功
+                if (dist < 38) {
                     tb.hit = true;
                     activeCollisionListener = false;
                     if (ballPhysicsAnimFrame) cancelAnimationFrame(ballPhysicsAnimFrame);
 
-                    // 被撞擊的數字球巨大化與爆炸動畫
                     tb.el.classList.add('animate-ball-explode');
                     playScoreExplodeSound();
 
-                    // 施放爆炸 Confetti 粒子
                     confetti({
                         particleCount: 60,
                         spread: 80,
                         origin: {
-                            x: (tb.x + 24) / window.innerWidth,
-                            y: (tb.y + 100) / window.innerHeight
+                            x: (tb.x + container.offsetLeft) / window.innerWidth,
+                            y: (tb.y + container.offsetTop) / window.innerHeight
                         },
                         colors: ['#f59e0b', '#ef4444', '#10b981', '#ffffff']
                     });
 
-                    // 0.5 秒爆炸動畫完結後移動步數
                     setTimeout(() => {
                         handleDiceMove(p.id, tb.num);
                     }, 500);
@@ -1064,8 +1062,6 @@
             const p = players.find(player => player.id === playerId);
             if (!p) return;
 
-            document.getElementById('center-status-hint').innerText = `💥 成功撞擊 ${number} 號球！前進 ${number} 格`;
-
             let stepCount = 0;
             const moveInterval = setInterval(() => {
                 p.tileIndex = (p.tileIndex + 1) % 20;
@@ -1142,9 +1138,15 @@
                 }
                 updatePlayerPositionsUI();
             } else if (tile.type === '弱勢扶助') {
+                // 調整 2：弱勢扶助觸發時，大螢幕中央區域一併顯示問題
                 const randItem = weakAssistanceList[Math.floor(Math.random() * weakAssistanceList.length)];
                 const isCorrectPair = Math.random() < 0.5;
                 pendingWeakCorrectChoice = isCorrectPair;
+
+                const qBox = document.getElementById('center-question-box');
+                const qText = document.getElementById('center-question-text');
+                qText.innerText = `${randItem.age} 應給予 ${randItem.box}？`;
+                qBox.classList.remove('hidden');
 
                 if (p.isAI) {
                     const aiChoice = Math.random() < 0.7 ? (isCorrectPair ? 'correct' : 'wrong') : 'wrong';
@@ -1194,6 +1196,7 @@
                     }
                 }
             } else if (tile.type === '弱勢扶助') {
+                document.getElementById('center-question-box').classList.add('hidden');
                 const userChoiceBool = (choice === 'correct');
                 if (userChoiceBool === pendingWeakCorrectChoice) {
                     p.score += 15;
@@ -1261,9 +1264,13 @@
             }
         }
 
+        // 調整 3：頒獎典禮在原本的地圖上出現通知窗格，音樂每秒 -1% 音量減少
         function showFinalResult() {
-            document.getElementById('view-game').classList.add('hidden');
+            // view-game 不隱藏，直接疊加 view-result 通知窗格
             document.getElementById('view-result').classList.remove('hidden');
+
+            // 調整 3：背景音樂每秒以 -1% 的音量減少
+            fadeMusicVolumeOut();
 
             const allSorted = [...players].sort((a,b) => b.score - a.score);
 
@@ -1305,6 +1312,25 @@
             });
 
             launch8SecFireworks();
+        }
+
+        // 每秒降低 1% 音量的漸淡計時器
+        function fadeMusicVolumeOut() {
+            const bgm = document.getElementById('bgm');
+            const inGameAudio = document.getElementById('audioPlayerInGame');
+
+            const fadeInterval = setInterval(() => {
+                let currentVol = bgm ? bgm.volume : 0;
+                if (currentVol > 0.01) {
+                    currentVol = Math.max(0, currentVol - 0.01); // 每秒降低 1% (0.01)
+                    if (bgm) bgm.volume = currentVol;
+                    if (inGameAudio) inGameAudio.volume = currentVol;
+                } else {
+                    if (bgm) { bgm.volume = 0; bgm.pause(); }
+                    if (inGameAudio) { inGameAudio.volume = 0; inGameAudio.pause(); }
+                    clearInterval(fadeInterval);
+                }
+            }, 1000);
         }
 
         function showMobileFinalResult(data) {
