@@ -218,16 +218,15 @@
 
                 </div>
 
-                <!-- 右半邊：隨機產生的重點提醒（字體加大放大版） -->
+                <!-- 右半邊：隨機產生的重點提醒（需求 1：改為 3 題） -->
                 <div class="md:col-span-7 flex flex-col justify-between h-full overflow-hidden pl-0 md:pl-2">
                     <div class="flex-grow flex flex-col overflow-hidden">
                         <h2 class="text-3xl md:text-4xl font-black text-mario-blue mb-4 flex items-center gap-2 border-b-4 border-mario-brown pb-2">
                             <span>💡 安得烈愛心知識小補帖</span>
                         </h2>
 
-                        <!-- 超大清晰卡片與字體佈局 -->
+                        <!-- 3 題卡片佈局，字體更大 -->
                         <div id="random-tips-container" class="grid grid-cols-1 gap-4 overflow-y-auto max-h-[62vh] pr-2 text-slate-900 font-bold">
-                            <!-- JS 動態注入最大化文字卡片 -->
                         </div>
                     </div>
                 </div>
@@ -299,19 +298,21 @@
         <!-- 大螢幕 - 遊戲主畫面 -->
         <div id="view-game" class="hidden w-full h-full max-h-[92vh] flex flex-col justify-between relative overflow-hidden gap-4">
             
-            <div class="h-[30%] w-full bg-white border-8 border-mario-brown rounded-3xl p-5 shadow-xl flex flex-col justify-between relative overflow-hidden flex-shrink-0">
+            <!-- 需求 2：題目區域優化分段與閱讀體驗 -->
+            <div class="h-[32%] w-full bg-white border-8 border-mario-brown rounded-3xl p-5 shadow-xl flex flex-col justify-between relative overflow-hidden flex-shrink-0">
                 <div class="flex justify-between items-center border-b-4 border-slate-200 pb-1">
                     <span id="question-number" class="text-mario-blue font-black text-2xl md:text-3xl">🌟 第 1 題</span>
                     <span class="text-mario-brown font-black text-lg md:text-xl">安得烈知識大冒險</span>
                 </div>
-                <div class="flex-grow flex items-center justify-center text-center py-2">
-                    <h2 id="question-text" class="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 leading-tight">
+                <div class="flex-grow flex items-center justify-center text-center py-2 px-4">
+                    <h2 id="question-text" class="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 leading-snug whitespace-pre-line tracking-wide">
                         題目載入中...
                     </h2>
                 </div>
             </div>
 
-            <div class="h-[68%] w-full grid grid-cols-2 gap-6 flex-grow">
+            <!-- 答案區 -->
+            <div class="h-[66%] w-full grid grid-cols-2 gap-6 flex-grow">
                 <!-- 左邊：紅底答案 -->
                 <div id="option-btn-0" class="h-full bg-mario-red border-8 border-mario-brown rounded-3xl p-6 shadow-2xl flex items-center justify-center text-white text-center transition-all duration-300 overflow-hidden">
                     <span id="option-text-0" class="text-6xl md:text-7xl lg:text-8xl font-black leading-tight drop-shadow-[0_8px_0_#520807] w-full whitespace-pre-line break-words">
@@ -329,15 +330,18 @@
 
         </div>
 
-        <!-- 大螢幕 - 精典回顧 -->
-        <div id="view-review" class="hidden w-full max-w-[96vw] h-full max-h-[88vh] mario-card rounded-3xl p-8 shadow-2xl flex flex-col justify-between overflow-hidden">
-            <div class="text-center border-b-8 border-mario-brown pb-4 flex-shrink-0">
-                <span class="text-6xl animate-bounce inline-block">⭐</span>
-                <h2 class="text-4xl md:text-6xl font-black text-mario-red">精典回顧 TOP 3</h2>
-                <p class="text-xl md:text-2xl font-black text-mario-brown mt-2">這 3 題是大家思考最久的精華題目喔！一起記憶複習吧！</p>
+        <!-- 大螢幕 - 精典回顧 (需求 3：整體向上移，確保全部在螢幕內) -->
+        <div id="view-review" class="hidden w-full max-w-[96vw] h-full max-h-[90vh] mario-card rounded-3xl p-4 md:p-6 shadow-2xl flex flex-col justify-between overflow-hidden">
+            <div class="text-center border-b-4 border-mario-brown pb-2 flex-shrink-0">
+                <div class="flex items-center justify-center gap-3">
+                    <span class="text-4xl animate-bounce">⭐</span>
+                    <h2 class="text-3xl md:text-5xl font-black text-mario-red">精典回顧 TOP 3</h2>
+                </div>
+                <p class="text-lg md:text-xl font-black text-mario-brown mt-0.5">這 3 題是大家思考最久的精華題目喔！一起記憶複習吧！</p>
             </div>
 
-            <div id="review-list-container" class="flex-grow flex flex-col justify-around my-4 space-y-4 overflow-y-auto pr-2">
+            <!-- 卡片間距壓縮調整，完全放進螢幕內 -->
+            <div id="review-list-container" class="flex-grow flex flex-col justify-between my-2 space-y-2.5 overflow-hidden">
             </div>
         </div>
 
@@ -467,24 +471,24 @@
             } catch(e) {}
         }
 
-        // 需求 1：初始畫面提醒字體最大化
+        // 需求 1：改為 3 題大字體卡片
         function generateRandomLobbyTips() {
             const container = document.getElementById('random-tips-container');
             container.innerHTML = '';
 
-            const randomFour = shuffleArray(raw50QuizDatabase).slice(0, 4);
-            const icons = ['🍞', '📦', '🦅', '🌱'];
+            const randomThree = shuffleArray(raw50QuizDatabase).slice(0, 3);
+            const icons = ['🍞', '📦', '🦅'];
 
-            randomFour.forEach((item, idx) => {
+            randomThree.forEach((item, idx) => {
                 const correctAns = item.options[item.answer];
                 const card = document.createElement('div');
-                card.className = 'bg-white p-5 rounded-3xl border-4 border-mario-brown shadow-md flex items-start gap-4';
+                card.className = 'bg-white p-5 rounded-3xl border-4 border-mario-brown shadow-md flex items-center gap-5';
                 card.innerHTML = `
-                    <span class="text-5xl flex-shrink-0">${icons[idx]}</span>
-                    <div class="text-xl md:text-2xl leading-snug">
+                    <span class="text-6xl flex-shrink-0">${icons[idx]}</span>
+                    <div class="text-2xl md:text-3xl leading-snug">
                         <span class="text-mario-red font-black">【重要知識 ${idx + 1}】</span> 
-                        <span class="font-black text-slate-800">${item.question}</span> 
-                        <div class="text-mario-green font-black mt-1 text-2xl md:text-3xl">👉 答案是：${correctAns}</div>
+                        <span class="font-black text-slate-900">${item.question}</span> 
+                        <div class="text-mario-green font-black mt-1 text-3xl md:text-4xl">👉 答案是：${correctAns}</div>
                     </div>
                 `;
                 container.appendChild(card);
@@ -509,6 +513,24 @@
             bgm.play().catch(e => console.log('BGM Play blocked'));
         }
 
+        // 需求 2：題目文字智慧分段排版
+        function formatQuestionText(text) {
+            if (text.length > 15) {
+                // 若有標點符號優先分段，無則從中間切開
+                if (text.includes('，')) {
+                    return text.replace('，', '，\n');
+                } else if (text.includes('？')) {
+                    return text.replace('？', '？\n');
+                } else if (text.includes(' / ')) {
+                    return text.replace(' / ', '\n/ ');
+                } else {
+                    const mid = Math.ceil(text.length / 2);
+                    return text.slice(0, mid) + '\n' + text.slice(mid);
+                }
+            }
+            return text;
+        }
+
         function formatOptionText(text) {
             if (text.length > 8 && !text.includes('\n')) {
                 const mid = Math.ceil(text.length / 2);
@@ -527,7 +549,7 @@
             const newAnswerIndex = isCorrectOnLeft ? 0 : 1;
 
             return {
-                question: item.question,
+                question: formatQuestionText(item.question),
                 options: twoOpts.map(formatOptionText),
                 answer: newAnswerIndex
             };
@@ -567,7 +589,6 @@
                     document.getElementById('ctrl-status-text').innerText = '🟢 已成功連接至大螢幕！';
                 });
 
-                // 接收來自大螢幕解鎖按鈕的通訊
                 hostConn.on('data', (data) => {
                     if (data.type === 'COUNTDOWN_FINISHED') {
                         const nextBtn = document.getElementById('ctrl-btn-next');
@@ -740,7 +761,6 @@
             loadQuestion(currentQuestionIndex);
         }
 
-        // 倒數機制修復（廣播解鎖手機「下一題」按鈕）
         function start5SecCountdown() {
             clearAnswerEffects();
 
@@ -770,7 +790,6 @@
                         navigator.vibrate([300, 100, 300, 100, 500]);
                     }
 
-                    // 需求 2 解鎖修復：通知手機端連線解鎖按紐
                     if (hostConn && hostConn.open) {
                         hostConn.send({ type: 'COUNTDOWN_FINISHED' });
                     }
@@ -798,6 +817,7 @@
             }, 1000);
         }
 
+        // 需求 3：精典回顧版面極致優化，確保 TOP 3 完整全在螢幕內
         function endGameAndShowReview() {
             clearAnswerEffects();
 
@@ -828,23 +848,23 @@
 
             sortedByTime.forEach((item, idx) => {
                 const card = document.createElement('div');
-                card.className = 'bg-white p-6 rounded-3xl border-4 border-mario-brown shadow-xl flex flex-col md:flex-row justify-between items-center gap-4 flex-grow';
+                card.className = 'bg-white p-4 md:p-5 rounded-3xl border-4 border-mario-brown shadow-lg flex items-center justify-between gap-4 h-[30%]';
                 
                 const rawQ = item.rawQuestionData;
                 const correctAnsText = rawQ.options[rawQ.answer];
 
                 card.innerHTML = `
-                    <div class="flex items-center gap-4 w-full md:w-auto">
-                        <span class="text-3xl md:text-4xl font-black bg-mario-yellow text-mario-brown px-5 py-2 rounded-2xl border-4 border-mario-brown flex-shrink-0">
+                    <div class="flex items-center gap-4 truncate">
+                        <span class="text-2xl md:text-3xl font-black bg-mario-yellow text-mario-brown px-4 py-1.5 rounded-2xl border-4 border-mario-brown flex-shrink-0">
                             TOP ${idx + 1}
                         </span>
-                        <div class="text-left">
-                            <h4 class="text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 leading-snug">${rawQ.question}</h4>
-                            <p class="text-xl md:text-2xl font-black text-mario-green mt-2">✅ 正確答案：${correctAnsText}</p>
+                        <div class="text-left truncate">
+                            <h4 class="text-xl md:text-2xl lg:text-3xl font-black text-slate-900 truncate leading-tight">${rawQ.question}</h4>
+                            <p class="text-lg md:text-xl font-black text-mario-green mt-1 truncate">✅ 正確答案：${correctAnsText}</p>
                         </div>
                     </div>
-                    <div class="bg-mario-cream px-5 py-3 rounded-2xl border-2 border-mario-brown font-black text-mario-brown text-lg md:text-xl flex-shrink-0">
-                        ⏱️ 思考停留：${item.duration.toFixed(1)} 秒
+                    <div class="bg-mario-cream px-4 py-2 rounded-2xl border-2 border-mario-brown font-black text-mario-brown text-base md:text-lg flex-shrink-0">
+                        ⏱️ 停留：${item.duration.toFixed(1)} 秒
                     </div>
                 `;
                 container.appendChild(card);
