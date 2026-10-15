@@ -303,20 +303,20 @@
         <!-- 大螢幕 - 遊戲主畫面 -->
         <div id="view-game" class="hidden w-full h-full max-h-[92vh] flex flex-col justify-between relative overflow-hidden gap-4">
             
-            <!-- 題目區域 -->
-            <div class="h-[32%] w-full bg-white border-8 border-mario-brown rounded-3xl p-4 md:p-5 shadow-xl flex flex-col justify-between relative overflow-hidden flex-shrink-0">
+            <!-- 本次優化：題目區域（內距加大，字體微縮 8%，絕不碰框） -->
+            <div class="h-[32%] w-full bg-white border-8 border-mario-brown rounded-3xl p-5 md:p-8 shadow-xl flex flex-col justify-between relative overflow-hidden flex-shrink-0">
                 <div class="flex justify-between items-center border-b-4 border-slate-200 pb-1">
                     <span id="question-number" class="text-mario-blue font-black text-2xl md:text-3xl">🌟 第 1 題</span>
                     <span class="text-mario-brown font-black text-lg md:text-xl">安得烈知識大冒險</span>
                 </div>
-                <div class="flex-grow flex items-center justify-center text-center py-1 px-3">
-                    <h2 id="question-text" class="text-4xl md:text-6xl lg:text-7xl font-black text-slate-900 leading-snug whitespace-pre-line tracking-wide">
+                <div class="flex-grow flex items-center justify-center text-center py-1 px-4 overflow-hidden">
+                    <h2 id="question-text" class="text-3xl md:text-5xl lg:text-6xl font-black text-slate-900 leading-snug whitespace-pre-line tracking-wide max-w-[95%] max-h-[90%] flex items-center justify-center">
                         題目載入中...
                     </h2>
                 </div>
             </div>
 
-            <!-- 本次優化：極致舒適留白，不碰邊框 -->
+            <!-- 答案區域 -->
             <div class="h-[66%] w-full grid grid-cols-2 gap-6 flex-grow">
                 <!-- 左邊：紅底答案 -->
                 <div id="option-btn-0" class="h-full bg-mario-red border-8 border-mario-brown rounded-3xl p-6 md:p-8 shadow-2xl flex items-center justify-center text-white text-center transition-all duration-300 overflow-hidden">
