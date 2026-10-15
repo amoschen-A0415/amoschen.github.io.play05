@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- PeerJS -->
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <!-- QRCode.js (用於生成主控手機連線 QR Code) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- FontAwesome CDN (可愛圖示) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -26,9 +28,6 @@
                             brown: '#8C5220',
                             cream: '#FCE1AC'
                         }
-                    },
-                    fontFamily: {
-                        game: ['"Comic Sans MS"', '"Chalkboard SE"', '"華康少女文字"', '"Noto Sans TC"', 'sans-serif']
                     }
                 }
             }
@@ -103,13 +102,12 @@
             box-shadow: 0px 2px 0px #000924;
         }
 
-        /* 閃爍動畫 */
-        @keyframes pulse-fast {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        .animate-bounce-fast {
-            animation: pulse-fast 0.6s infinite;
+        /* QR Code 容器樣式 */
+        #qrcode canvas, #qrcode img {
+            margin: 0 auto;
+            display: block;
+            max-width: 100%;
+            height: auto;
         }
     </style>
 </head>
@@ -131,26 +129,41 @@
     <!-- 主要內容區 -->
     <main class="flex-grow flex items-center justify-center p-3 md:p-5 relative overflow-hidden">
 
-        <!-- 大螢幕 - 控制器待機畫面 (需求 2：移除QR與設定，獨佔主控制器) -->
+        <!-- 大螢幕 - 控制器待機畫面 (需求 2：主控手機專用 QR Code) -->
         <div id="view-lobby" class="w-full max-w-[96vw] h-full max-h-[88vh] mario-card rounded-3xl p-6 shadow-2xl relative flex flex-col justify-between overflow-hidden">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center h-full">
                 
-                <!-- 左半邊：連線提示資訊 -->
+                <!-- 左半邊：主控手機專用 QR Code 區 -->
                 <div class="md:col-span-5 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r-4 border-mario-brown pr-0 md:pr-6 text-center h-full">
-                    <div class="text-8xl mb-4 animate-bounce">📱</div>
-                    <h2 class="text-3xl font-black text-mario-blue mb-2">唯一控制台已準備</h2>
-                    <p class="text-xl font-bold text-mario-brown bg-white/80 px-6 py-3 rounded-2xl border-2 border-mario-brown shadow">
-                        請使用主控手機開啟控制器網址！
-                    </p>
-                    <div class="mt-6 text-sm font-bold text-slate-700 bg-mario-yellow/60 p-3 rounded-xl border-2 border-mario-brown">
-                        💡 提示：本遊戲由主控制器全權掌控題目進度與倒數計時喔！
+                    
+                    <!-- 尚未連線時顯示 QR Code -->
+                    <div id="host-qr-box" class="flex flex-col items-center justify-center">
+                        <div class="p-4 bg-mario-yellow rounded-3xl border-4 border-mario-brown shadow-xl my-2">
+                            <div id="qrcode" class="bg-white p-3 rounded-2xl border-2 border-mario-brown"></div>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-black text-mario-red mt-2 flex items-center gap-2">
+                            <span>📱 請用「主控手機」掃碼</span>
+                        </h2>
+                        <p class="text-base font-bold text-mario-brown bg-white/80 px-4 py-1.5 rounded-xl border-2 border-mario-brown shadow mt-1">
+                            掃描上方 QR Code 開啟遊戲控制器
+                        </p>
                     </div>
+
+                    <!-- 連線成功後顯示的狀態卡 -->
+                    <div id="host-connected-box" class="hidden flex-col items-center justify-center py-8">
+                        <div class="text-8xl mb-4 animate-bounce">🟢</div>
+                        <h2 class="text-3xl font-black text-mario-green">主控制器已連線！</h2>
+                        <p class="text-xl font-bold text-mario-brown bg-white/80 px-6 py-3 rounded-2xl border-2 border-mario-brown shadow mt-3">
+                            請在主控手機上點擊「開始遊戲」
+                        </p>
+                    </div>
+
                 </div>
 
                 <!-- 右半邊：題庫重點提醒 (需求 2) -->
                 <div class="md:col-span-7 flex flex-col justify-between h-full overflow-hidden pl-0 md:pl-2">
                     <div class="flex-grow flex flex-col overflow-hidden">
-                        <h2 class="text-2xl md:text-3xl font-black text-mario-red mb-3 flex items-center gap-2 border-b-4 border-mario-brown pb-2">
+                        <h2 class="text-2xl md:text-3xl font-black text-mario-blue mb-3 flex items-center gap-2 border-b-4 border-mario-brown pb-2">
                             <span>💡 安得烈愛心知識小補帖（重點複習）</span>
                         </h2>
 
@@ -228,7 +241,7 @@
 
             <!-- 狀態提示 -->
             <div id="ctrl-status-text" class="text-center font-black text-white bg-black/40 p-2 rounded-xl text-base">
-                連線成功！請點擊「開始遊戲」啟動冒險！
+                連线成功！請點擊「開始遊戲」啟動冒險！
             </div>
         </div>
 
@@ -384,17 +397,30 @@
             bgm.play().catch(e => console.log('BGM Autoplay blocked, waiting for interaction'));
         }
 
-        // 大螢幕 Peer 初始化
+        // 大螢幕 Peer 初始化 & 動態繪製主控手機專用 QR Code
         function initBigScreenHost() {
             peer = new Peer();
             peer.on('open', (id) => {
                 // 生成給主控手機開的 URL
                 const ctrlUrl = `${window.location.href.split('?')[0]}?ctrl=true&hostId=${id}`;
-                console.log("主控制器連線網址：", ctrlUrl);
+                
+                // 清空並繪製 QR Code
+                document.getElementById("qrcode").innerHTML = "";
+                new QRCode(document.getElementById("qrcode"), {
+                    text: ctrlUrl,
+                    width: 220,
+                    height: 220
+                });
             });
 
             peer.on('connection', (conn) => {
                 hostConn = conn;
+                
+                // 主控手機成功連線後，隱藏 QR Code，顯示已連線提示
+                document.getElementById('host-qr-box').classList.add('hidden');
+                document.getElementById('host-connected-box').classList.remove('hidden');
+                document.getElementById('host-connected-box').classList.add('flex');
+
                 conn.on('data', (data) => {
                     handleControllerCommand(data);
                 });
