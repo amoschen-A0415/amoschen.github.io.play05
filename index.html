@@ -100,16 +100,27 @@
             box-shadow: 0px 2px 0px #000924;
         }
 
-        /* 答案閃爍動畫 */
-        @keyframes correct-flash {
-            0%, 100% { background-color: #FBD000; color: #000; transform: scale(1.02); }
-            50% { background-color: #43B047; color: #FFF; transform: scale(1); }
+        /* 需求 2：答案閃爍與彈跳膨脹脈動動畫 */
+        @keyframes correct-flash-pop {
+            0%, 100% { 
+                background-color: #FBD000; 
+                color: #000; 
+                transform: scale(1.02);
+                box-shadow: 0 0 20px #FBD000;
+            }
+            50% { 
+                background-color: #43B047; 
+                color: #FFF; 
+                transform: scale(1.12);
+                box-shadow: 0 0 45px #43B047;
+            }
         }
         .animate-correct-flash {
-            animation: correct-flash 0.5s infinite;
+            animation: correct-flash-pop 0.45s ease-in-out infinite;
+            z-index: 30;
         }
 
-        /* 需求 2：巨型數字再放大 50% 爆發漸淡動畫 */
+        /* 巨型數字再放大 50% 爆發漸淡動畫 */
         @keyframes mega-number-fade {
             0% { 
                 transform: scale(0.5); 
@@ -174,7 +185,7 @@
     <div id="animal-canvas-left" class="fixed top-0 left-0 w-1/2 h-full pointer-events-none z-50 overflow-hidden"></div>
     <div id="animal-canvas-right" class="fixed top-0 right-0 w-1/2 h-full pointer-events-none z-50 overflow-hidden"></div>
 
-    <!-- 需求 2：無外框，數字再放大 50% 霸屏衝擊 -->
+    <!-- 倒數數字遮罩 -->
     <div id="overlay-countdown" class="hidden fixed inset-0 z-50 bg-black/10 flex items-center justify-center backdrop-blur-[1px] pointer-events-none overflow-hidden">
         <span id="overlay-big-number" class="text-[32rem] md:text-[45rem] font-black text-mario-red drop-shadow-[0_20px_0_#FBD000] z-50 leading-none">
             5
@@ -292,6 +303,7 @@
         <!-- 大螢幕 - 遊戲主畫面 -->
         <div id="view-game" class="hidden w-full h-full max-h-[92vh] flex flex-col justify-between relative overflow-hidden gap-4">
             
+            <!-- 需求 1：題目最少 2 列且語意通順 -->
             <div class="h-[34%] w-full bg-white border-8 border-mario-brown rounded-3xl p-4 md:p-5 shadow-xl flex flex-col justify-between relative overflow-hidden flex-shrink-0">
                 <div class="flex justify-between items-center border-b-4 border-slate-200 pb-1">
                     <span id="question-number" class="text-mario-blue font-black text-2xl md:text-3xl">🌟 第 1 題</span>
@@ -304,18 +316,18 @@
                 </div>
             </div>
 
-            <!-- 答案區 -->
+            <!-- 需求 1 & 2：答案最少 2 列通順，閃爍時膨脹放大 -->
             <div class="h-[64%] w-full grid grid-cols-2 gap-6 flex-grow">
                 <!-- 左邊：紅底答案 -->
                 <div id="option-btn-0" class="h-full bg-mario-red border-8 border-mario-brown rounded-3xl p-6 shadow-2xl flex items-center justify-center text-white text-center transition-all duration-300 overflow-hidden">
-                    <span id="option-text-0" class="text-6xl md:text-7xl lg:text-8xl font-black leading-tight drop-shadow-[0_8px_0_#520807] w-full whitespace-pre-line break-words">
+                    <span id="option-text-0" class="text-5xl md:text-6xl lg:text-7xl font-black leading-tight drop-shadow-[0_8px_0_#520807] w-full whitespace-pre-line break-words">
                         選項一內容
                     </span>
                 </div>
 
                 <!-- 右邊：綠底答案 -->
                 <div id="option-btn-1" class="h-full bg-mario-green border-8 border-mario-brown rounded-3xl p-6 shadow-2xl flex items-center justify-center text-white text-center transition-all duration-300 overflow-hidden">
-                    <span id="option-text-1" class="text-6xl md:text-7xl lg:text-8xl font-black leading-tight drop-shadow-[0_113B13] w-full whitespace-pre-line break-words">
+                    <span id="option-text-1" class="text-5xl md:text-6xl lg:text-7xl font-black leading-tight drop-shadow-[0_8px_0_#113B13] w-full whitespace-pre-line break-words">
                         選項二內容
                     </span>
                 </div>
@@ -323,7 +335,7 @@
 
         </div>
 
-        <!-- 大螢幕 - 精典回顧 (需求 1：文字大小減 25%、自動換列、無滾條) -->
+        <!-- 大螢幕 - 精典回顧 -->
         <div id="view-review" class="hidden w-full max-w-[96vw] h-full max-h-[90vh] mario-card rounded-3xl p-4 md:p-6 shadow-2xl flex flex-col justify-between overflow-hidden">
             <div class="text-center border-b-4 border-mario-brown pb-2 flex-shrink-0">
                 <div class="flex items-center justify-center gap-3">
@@ -516,29 +528,46 @@
             bgm.play().catch(e => console.log('BGM Play blocked'));
         }
 
+        // 需求 1：題目語意通順且最少分為 2 列
         function formatQuestionText(text) {
-            if (text.length > 15) {
-                if (text.includes('，')) {
-                    return text.replace('，', '，\n');
-                } else if (text.includes('？')) {
-                    return text.replace('？', '？\n');
-                } else if (text.includes(' / ')) {
-                    return text.replace(' / ', '\n/ ');
-                } else {
-                    const mid = Math.ceil(text.length / 2);
-                    return text.slice(0, mid) + '\n' + text.slice(mid);
+            // 已有換行直接返回
+            if (text.includes('\n')) return text;
+
+            // 優先從標點符號換行
+            if (text.includes('，')) return text.replace('，', '，\n');
+            if (text.includes('？')) return text.replace('？', '？\n');
+            if (text.includes(' / ')) return text.replace(' / ', '\n/ ');
+            if (text.includes(' (')) return text.replace(' (', '\n(');
+
+            // 無標點符號時，找最適當語意斷句處切成 2 列
+            const mid = Math.floor(text.length / 2);
+            let splitPos = mid;
+
+            // 避免把關鍵專有名詞拆開
+            const keywords = ["安得烈", "食物銀行", "慈善協會", "食物箱", "培鷹計畫", "善果計畫"];
+            for (let kw of keywords) {
+                let kwIdx = text.indexOf(kw);
+                if (kwIdx !== -1 && Math.abs(kwIdx - mid) < 5) {
+                    splitPos = kwIdx;
+                    break;
                 }
             }
-            return text;
+
+            return text.slice(0, splitPos) + '\n' + text.slice(splitPos);
         }
 
+        // 需求 1：答案語意通順且最少分為 2 列
         function formatOptionText(text) {
             text = sanitizeOptionText(text);
-            if (text.length > 8 && !text.includes('\n')) {
-                const mid = Math.ceil(text.length / 2);
-                return text.slice(0, mid) + '\n' + text.slice(mid);
-            }
-            return text;
+            if (text.includes('\n')) return text;
+
+            // 優先尋找空格或符號換行
+            if (text.includes(' ')) return text.replace(' ', '\n');
+            if (text.includes('/')) return text.replace('/', '\n/ ');
+
+            // 無符號時，強制從中間切分為 2 列
+            const mid = Math.ceil(text.length / 2);
+            return text.slice(0, mid) + '\n' + text.slice(mid);
         }
 
         function convert4To2Options(item) {
@@ -789,6 +818,7 @@
                     
                     overlay.classList.add('hidden');
 
+                    // 需求 2：答案公佈，啟用膨脹脈動動畫
                     const correctBtn = document.getElementById(`option-btn-${currentCorrectIndex}`);
                     correctBtn.classList.add('animate-correct-flash', 'ring-8', 'ring-mario-yellow');
 
@@ -823,7 +853,6 @@
             }, 1000);
         }
 
-        // 需求 1：精典回顧字體調小 25%、多列自動換行、保證無滾條
         function endGameAndShowReview() {
             clearAnswerEffects();
 
