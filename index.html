@@ -100,19 +100,19 @@
             box-shadow: 0px 2px 0px #000924;
         }
 
-        /* 需求 2：答案閃爍與彈跳膨脹脈動動畫 */
+        /* 答案閃爍與彈跳膨脹脈動動畫 */
         @keyframes correct-flash-pop {
             0%, 100% { 
                 background-color: #FBD000; 
                 color: #000; 
                 transform: scale(1.02);
-                box-shadow: 0 0 20px #FBD000;
+                box-shadow: 0 0 25px #FBD000;
             }
             50% { 
                 background-color: #43B047; 
                 color: #FFF; 
                 transform: scale(1.12);
-                box-shadow: 0 0 45px #43B047;
+                box-shadow: 0 0 50px #43B047;
             }
         }
         .animate-correct-flash {
@@ -120,7 +120,7 @@
             z-index: 30;
         }
 
-        /* 巨型數字再放大 50% 爆發漸淡動畫 */
+        /* 巨型數字爆發漸淡動畫 */
         @keyframes mega-number-fade {
             0% { 
                 transform: scale(0.5); 
@@ -303,8 +303,8 @@
         <!-- 大螢幕 - 遊戲主畫面 -->
         <div id="view-game" class="hidden w-full h-full max-h-[92vh] flex flex-col justify-between relative overflow-hidden gap-4">
             
-            <!-- 需求 1：題目最少 2 列且語意通順 -->
-            <div class="h-[34%] w-full bg-white border-8 border-mario-brown rounded-3xl p-4 md:p-5 shadow-xl flex flex-col justify-between relative overflow-hidden flex-shrink-0">
+            <!-- 題目區域 -->
+            <div class="h-[32%] w-full bg-white border-8 border-mario-brown rounded-3xl p-4 md:p-5 shadow-xl flex flex-col justify-between relative overflow-hidden flex-shrink-0">
                 <div class="flex justify-between items-center border-b-4 border-slate-200 pb-1">
                     <span id="question-number" class="text-mario-blue font-black text-2xl md:text-3xl">🌟 第 1 題</span>
                     <span class="text-mario-brown font-black text-lg md:text-xl">安得烈知識大冒險</span>
@@ -316,18 +316,18 @@
                 </div>
             </div>
 
-            <!-- 需求 1 & 2：答案最少 2 列通順，閃爍時膨脹放大 -->
-            <div class="h-[64%] w-full grid grid-cols-2 gap-6 flex-grow">
+            <!-- 本次升級：答案文字再放大100%，撐滿答案框內 -->
+            <div class="h-[66%] w-full grid grid-cols-2 gap-6 flex-grow">
                 <!-- 左邊：紅底答案 -->
-                <div id="option-btn-0" class="h-full bg-mario-red border-8 border-mario-brown rounded-3xl p-6 shadow-2xl flex items-center justify-center text-white text-center transition-all duration-300 overflow-hidden">
-                    <span id="option-text-0" class="text-5xl md:text-6xl lg:text-7xl font-black leading-tight drop-shadow-[0_8px_0_#520807] w-full whitespace-pre-line break-words">
+                <div id="option-btn-0" class="h-full bg-mario-red border-8 border-mario-brown rounded-3xl p-4 shadow-2xl flex items-center justify-center text-white text-center transition-all duration-300 overflow-hidden">
+                    <span id="option-text-0" class="text-7xl md:text-8xl lg:text-9xl font-black leading-none drop-shadow-[0_10px_0_#520807] w-full h-full flex flex-col items-center justify-center whitespace-pre-line break-words tracking-tight">
                         選項一內容
                     </span>
                 </div>
 
                 <!-- 右邊：綠底答案 -->
-                <div id="option-btn-1" class="h-full bg-mario-green border-8 border-mario-brown rounded-3xl p-6 shadow-2xl flex items-center justify-center text-white text-center transition-all duration-300 overflow-hidden">
-                    <span id="option-text-1" class="text-5xl md:text-6xl lg:text-7xl font-black leading-tight drop-shadow-[0_8px_0_#113B13] w-full whitespace-pre-line break-words">
+                <div id="option-btn-1" class="h-full bg-mario-green border-8 border-mario-brown rounded-3xl p-4 shadow-2xl flex items-center justify-center text-white text-center transition-all duration-300 overflow-hidden">
+                    <span id="option-text-1" class="text-7xl md:text-8xl lg:text-9xl font-black leading-none drop-shadow-[0_10px_0_#113B13] w-full h-full flex flex-col items-center justify-center whitespace-pre-line break-words tracking-tight">
                         選項二內容
                     </span>
                 </div>
@@ -528,22 +528,17 @@
             bgm.play().catch(e => console.log('BGM Play blocked'));
         }
 
-        // 需求 1：題目語意通順且最少分為 2 列
         function formatQuestionText(text) {
-            // 已有換行直接返回
             if (text.includes('\n')) return text;
 
-            // 優先從標點符號換行
             if (text.includes('，')) return text.replace('，', '，\n');
             if (text.includes('？')) return text.replace('？', '？\n');
             if (text.includes(' / ')) return text.replace(' / ', '\n/ ');
             if (text.includes(' (')) return text.replace(' (', '\n(');
 
-            // 無標點符號時，找最適當語意斷句處切成 2 列
             const mid = Math.floor(text.length / 2);
             let splitPos = mid;
 
-            // 避免把關鍵專有名詞拆開
             const keywords = ["安得烈", "食物銀行", "慈善協會", "食物箱", "培鷹計畫", "善果計畫"];
             for (let kw of keywords) {
                 let kwIdx = text.indexOf(kw);
@@ -556,16 +551,13 @@
             return text.slice(0, splitPos) + '\n' + text.slice(splitPos);
         }
 
-        // 需求 1：答案語意通順且最少分為 2 列
         function formatOptionText(text) {
             text = sanitizeOptionText(text);
             if (text.includes('\n')) return text;
 
-            // 優先尋找空格或符號換行
             if (text.includes(' ')) return text.replace(' ', '\n');
             if (text.includes('/')) return text.replace('/', '\n/ ');
 
-            // 無符號時，強制從中間切分為 2 列
             const mid = Math.ceil(text.length / 2);
             return text.slice(0, mid) + '\n' + text.slice(mid);
         }
@@ -818,7 +810,6 @@
                     
                     overlay.classList.add('hidden');
 
-                    // 需求 2：答案公佈，啟用膨脹脈動動畫
                     const correctBtn = document.getElementById(`option-btn-${currentCorrectIndex}`);
                     correctBtn.classList.add('animate-correct-flash', 'ring-8', 'ring-mario-yellow');
 
