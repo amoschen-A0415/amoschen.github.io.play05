@@ -36,12 +36,17 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@800;900&display=swap');
         
-        body {
+        /* 1. 全局嚴格禁止滾軸 */
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
             font-family: 'Noto Sans TC', sans-serif;
             background-color: #5C94FC;
             color: #222;
             user-select: none;
-            overflow: hidden;
+            overflow: hidden !important;
         }
 
         .cloud-bg {
@@ -111,7 +116,7 @@
             50% { 
                 background-color: #43B047; 
                 color: #FFF; 
-                transform: scale(1.12);
+                transform: scale(1.08);
                 box-shadow: 0 0 50px #43B047;
             }
         }
@@ -169,14 +174,14 @@
 <body class="h-screen w-screen flex flex-col justify-between overflow-hidden cloud-bg">
 
     <!-- 頂部標題列 -->
-    <header id="main-header" class="w-full px-6 py-3 bg-mario-red border-b-8 border-mario-brown text-white flex justify-between items-center z-10 flex-shrink-0 shadow-lg">
+    <header id="main-header" class="w-full px-6 py-2.5 bg-mario-red border-b-8 border-mario-brown text-white flex justify-between items-center z-10 flex-shrink-0 shadow-lg h-[8vh]">
         <div class="flex items-center space-x-3">
-            <span class="text-4xl animate-bounce">🍄</span>
-            <h1 class="text-2xl md:text-3xl font-black tracking-wider drop-shadow-[0_3px_0_#8A0F0D]">
+            <span class="text-3xl animate-bounce">🍄</span>
+            <h1 class="text-xl md:text-2xl lg:text-3xl font-black tracking-wider drop-shadow-[0_3px_0_#8A0F0D]">
                 安得烈食物銀行 知識大冒險 ✨
             </h1>
         </div>
-        <div id="game-stage-badge" class="px-5 py-1.5 rounded-full text-base md:text-xl font-black bg-mario-yellow text-mario-brown border-4 border-mario-brown shadow">
+        <div id="game-stage-badge" class="px-4 py-1 rounded-full text-sm md:text-lg font-black bg-mario-yellow text-mario-brown border-4 border-mario-brown shadow">
             🌟 準備開考！
         </div>
     </header>
@@ -192,12 +197,12 @@
         </span>
     </div>
 
-    <!-- 主要內容區 -->
-    <main class="flex-grow flex items-center justify-center p-3 md:p-5 relative overflow-hidden">
+    <!-- 主要內容區 (高 92vh，內部絕對不發滾條) -->
+    <main class="h-[92vh] w-full flex items-center justify-center p-3 md:p-4 relative overflow-hidden flex-grow">
 
         <!-- 大螢幕 - 控制器待機畫面 -->
-        <div id="view-lobby" class="w-full max-w-[96vw] h-full max-h-[88vh] mario-card rounded-3xl p-6 shadow-2xl relative flex flex-col justify-between overflow-hidden">
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center h-full">
+        <div id="view-lobby" class="w-full max-w-[96vw] h-full mario-card rounded-3xl p-6 shadow-2xl relative flex flex-col justify-between overflow-hidden">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center h-full overflow-hidden">
                 
                 <!-- 左半邊：主控手機專用 QR Code 區 -->
                 <div class="md:col-span-5 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r-4 border-mario-brown pr-0 md:pr-6 text-center h-full">
@@ -227,11 +232,11 @@
                 <!-- 右半邊：隨機產生的重點提醒 -->
                 <div class="md:col-span-7 flex flex-col justify-between h-full overflow-hidden pl-0 md:pl-2">
                     <div class="flex-grow flex flex-col overflow-hidden">
-                        <h2 class="text-3xl md:text-4xl font-black text-mario-blue mb-4 flex items-center gap-2 border-b-4 border-mario-brown pb-2">
+                        <h2 class="text-3xl md:text-4xl font-black text-mario-blue mb-4 flex items-center gap-2 border-b-4 border-mario-brown pb-2 flex-shrink-0">
                             <span>💡 安得烈愛心知識小補帖</span>
                         </h2>
 
-                        <div id="random-tips-container" class="grid grid-cols-1 gap-4 overflow-y-auto max-h-[62vh] pr-2 text-slate-900 font-bold">
+                        <div id="random-tips-container" class="grid grid-cols-1 gap-4 overflow-hidden pr-2 text-slate-900 font-bold flex-grow">
                         </div>
                     </div>
                 </div>
@@ -300,34 +305,34 @@
             </div>
         </div>
 
-        <!-- 大螢幕 - 遊戲主畫面 -->
-        <div id="view-game" class="hidden w-full h-full max-h-[92vh] flex flex-col justify-between relative overflow-hidden gap-3 md:gap-4">
+        <!-- 大螢幕 - 遊戲主畫面 (總高100%，嚴禁滾軸) -->
+        <div id="view-game" class="hidden w-full h-full flex flex-col justify-between relative overflow-hidden gap-3">
             
-            <!-- 挪動空間：題目區域佔比提升至 40%，確保100%不被裁切 -->
-            <div class="h-[40%] w-full bg-white border-8 border-mario-brown rounded-3xl p-4 md:p-6 shadow-xl flex flex-col justify-between relative overflow-hidden flex-shrink-0">
-                <div class="flex justify-between items-center border-b-4 border-slate-200 pb-1 flex-shrink-0">
-                    <span id="question-number" class="text-mario-blue font-black text-xl md:text-3xl">🌟 第 1 題</span>
-                    <span class="text-mario-brown font-black text-base md:text-xl">安得烈知識大冒險</span>
+            <!-- 需求 2：題目框增高至 48%，空間極致寬敞，文字 100% 不裁切 -->
+            <div class="h-[48%] w-full bg-white border-8 border-mario-brown rounded-3xl p-5 md:p-8 shadow-xl flex flex-col justify-between relative overflow-hidden flex-shrink-0">
+                <div class="flex justify-between items-center border-b-4 border-slate-200 pb-1.5 flex-shrink-0">
+                    <span id="question-number" class="text-mario-blue font-black text-2xl md:text-3xl">🌟 第 1 題</span>
+                    <span class="text-mario-brown font-black text-lg md:text-xl">安得烈知識大冒險</span>
                 </div>
                 <div class="flex-grow flex items-center justify-center text-center p-2 overflow-hidden">
-                    <h2 id="question-text" class="text-2xl md:text-4xl lg:text-5xl font-black text-slate-900 leading-snug whitespace-pre-line break-words w-full h-full flex items-center justify-center">
+                    <h2 id="question-text" class="text-3xl md:text-5xl lg:text-6xl font-black text-slate-900 leading-snug whitespace-pre-line break-words w-full h-full flex items-center justify-center">
                         題目載入中...
                     </h2>
                 </div>
             </div>
 
-            <!-- 答案區域佔比調整為 58%，依然滿版好看 -->
-            <div class="h-[58%] w-full grid grid-cols-2 gap-4 md:gap-6 flex-grow">
+            <!-- 需求 2：答案框調整為 50%，保持滿版舒適度，絕無滾動條 -->
+            <div class="h-[50%] w-full grid grid-cols-2 gap-4 md:gap-6 flex-grow overflow-hidden">
                 <!-- 左邊：紅底答案 -->
                 <div id="option-btn-0" class="h-full bg-mario-red border-8 border-mario-brown rounded-3xl p-4 md:p-6 shadow-2xl flex items-center justify-center text-white text-center transition-all duration-300 overflow-hidden">
-                    <span id="option-text-0" class="text-4xl md:text-5xl lg:text-6xl font-black leading-tight drop-shadow-[0_8px_0_#520807] max-w-[92%] max-h-[92%] flex flex-col items-center justify-center whitespace-pre-line break-words">
+                    <span id="option-text-0" class="text-3xl md:text-5xl lg:text-6xl font-black leading-tight drop-shadow-[0_8px_0_#520807] max-w-[95%] max-h-[95%] flex flex-col items-center justify-center whitespace-pre-line break-words">
                         選項一內容
                     </span>
                 </div>
 
                 <!-- 右邊：綠底答案 -->
                 <div id="option-btn-1" class="h-full bg-mario-green border-8 border-mario-brown rounded-3xl p-4 md:p-6 shadow-2xl flex items-center justify-center text-white text-center transition-all duration-300 overflow-hidden">
-                    <span id="option-text-1" class="text-4xl md:text-5xl lg:text-6xl font-black leading-tight drop-shadow-[0_8px_0_#113B13] max-w-[92%] max-h-[92%] flex flex-col items-center justify-center whitespace-pre-line break-words">
+                    <span id="option-text-1" class="text-3xl md:text-5xl lg:text-6xl font-black leading-tight drop-shadow-[0_8px_0_#113B13] max-w-[95%] max-h-[95%] flex flex-col items-center justify-center whitespace-pre-line break-words">
                         選項二內容
                     </span>
                 </div>
@@ -335,8 +340,8 @@
 
         </div>
 
-        <!-- 大螢幕 - 精典回顧 -->
-        <div id="view-review" class="hidden w-full max-w-[96vw] h-full max-h-[90vh] mario-card rounded-3xl p-4 md:p-6 shadow-2xl flex flex-col justify-between overflow-hidden">
+        <!-- 大螢幕 - 精典回顧 (嚴禁產生滾條) -->
+        <div id="view-review" class="hidden w-full max-w-[96vw] h-full mario-card rounded-3xl p-4 md:p-6 shadow-2xl flex flex-col justify-between overflow-hidden">
             <div class="text-center border-b-4 border-mario-brown pb-2 flex-shrink-0">
                 <div class="flex items-center justify-center gap-3">
                     <span class="text-4xl animate-bounce">⭐</span>
@@ -497,13 +502,13 @@
                 const correctAns = sanitizeOptionText(rawCorrectAns);
                 
                 const card = document.createElement('div');
-                card.className = 'bg-white p-5 rounded-3xl border-4 border-mario-brown shadow-md flex items-center gap-5';
+                card.className = 'bg-white p-4 rounded-3xl border-4 border-mario-brown shadow-md flex items-center gap-4 overflow-hidden';
                 card.innerHTML = `
-                    <span class="text-6xl flex-shrink-0">${icons[idx]}</span>
-                    <div class="text-2xl md:text-3xl leading-snug">
+                    <span class="text-5xl flex-shrink-0">${icons[idx]}</span>
+                    <div class="text-xl md:text-2xl leading-snug overflow-hidden">
                         <span class="text-mario-red font-black">【重要知識 ${idx + 1}】</span> 
                         <span class="font-black text-slate-900">${item.question}</span> 
-                        <div class="text-mario-green font-black mt-1 text-3xl md:text-4xl">👉 答案是：${correctAns}</div>
+                        <div class="text-mario-green font-black mt-0.5 text-2xl md:text-3xl">👉 答案是：${correctAns}</div>
                     </div>
                 `;
                 container.appendChild(card);
@@ -585,8 +590,8 @@
                 document.getElementById("qrcode").innerHTML = "";
                 new QRCode(document.getElementById("qrcode"), {
                     text: ctrlUrl,
-                    width: 220,
-                    height: 220
+                    width: 200,
+                    height: 200
                 });
             });
 
