@@ -109,14 +109,23 @@
             animation: correct-flash 0.5s infinite;
         }
 
-        /* 數字心跳與旋轉指針動畫 */
-        @keyframes big-number-pop {
-            0% { transform: scale(0.6); opacity: 0; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
+        /* 需求 3：數字極限放大並漸漸淡化消失動畫 */
+        @keyframes mega-number-fade {
+            0% { 
+                transform: scale(0.7); 
+                opacity: 1; 
+            }
+            30% { 
+                transform: scale(1.3); 
+                opacity: 0.95; 
+            }
+            100% { 
+                transform: scale(1.8); 
+                opacity: 0; 
+            }
         }
-        .animate-pop-number {
-            animation: big-number-pop 0.35s ease-out forwards;
+        .animate-mega-fade {
+            animation: mega-number-fade 0.95s cubic-bezier(0.1, 0.7, 0.1, 1) forwards;
         }
 
         @keyframes clock-hand-spin {
@@ -174,13 +183,17 @@
     <div id="animal-canvas-left" class="fixed top-0 left-0 w-1/2 h-full pointer-events-none z-50 overflow-hidden"></div>
     <div id="animal-canvas-right" class="fixed top-0 right-0 w-1/2 h-full pointer-events-none z-50 overflow-hidden"></div>
 
-    <!-- 頂層超大數字與指針倒數 -->
-    <div id="overlay-countdown" class="hidden fixed inset-0 z-50 bg-black/25 flex items-center justify-center backdrop-blur-[2px]">
-        <div class="mario-card p-8 rounded-full border-8 border-mario-yellow flex flex-col items-center justify-center shadow-2xl w-96 h-96 md:w-[32rem] md:h-[32rem] relative">
-            <div class="absolute inset-4 rounded-full border-4 border-dashed border-mario-brown/40 pointer-events-none"></div>
-            <div class="absolute top-1/2 left-1/2 w-2 h-36 bg-mario-red rounded-full animate-clock-hand -ml-1 -mt-36 shadow"></div>
+    <!-- 需求 3：透明度極高背景(bg-black/10) + 極限放大淡化數字 -->
+    <div id="overlay-countdown" class="hidden fixed inset-0 z-50 bg-black/10 flex items-center justify-center backdrop-blur-[1px]">
+        <div class="p-8 flex flex-col items-center justify-center relative w-full h-full pointer-events-none">
+            <!-- 鐘錶背板與指針 (透明感再提升) -->
+            <div class="w-96 h-96 md:w-[34rem] md:h-[34rem] rounded-full border-8 border-mario-yellow/60 bg-mario-cream/30 flex items-center justify-center relative shadow-2xl">
+                <div class="absolute inset-4 rounded-full border-4 border-dashed border-mario-brown/30"></div>
+                <div class="absolute top-1/2 left-1/2 w-3 h-40 bg-mario-red/80 rounded-full animate-clock-hand -ml-1.5 -mt-40 shadow"></div>
+            </div>
             
-            <span id="overlay-big-number" class="text-[11rem] md:text-[15rem] font-black text-mario-red drop-shadow-[0_10px_0_#FBD000] z-10">
+            <!-- 需求 3：極限放大與淡化動畫數字 -->
+            <span id="overlay-big-number" class="absolute text-[16rem] md:text-[22rem] font-black text-mario-red drop-shadow-[0_12px_0_#FBD000] z-20">
                 5
             </span>
         </div>
@@ -218,14 +231,13 @@
 
                 </div>
 
-                <!-- 右半邊：隨機產生的重點提醒（需求 1：改為 3 題） -->
+                <!-- 右半邊：隨機產生的重點提醒 -->
                 <div class="md:col-span-7 flex flex-col justify-between h-full overflow-hidden pl-0 md:pl-2">
                     <div class="flex-grow flex flex-col overflow-hidden">
                         <h2 class="text-3xl md:text-4xl font-black text-mario-blue mb-4 flex items-center gap-2 border-b-4 border-mario-brown pb-2">
                             <span>💡 安得烈愛心知識小補帖</span>
                         </h2>
 
-                        <!-- 3 題卡片佈局，字體更大 -->
                         <div id="random-tips-container" class="grid grid-cols-1 gap-4 overflow-y-auto max-h-[62vh] pr-2 text-slate-900 font-bold">
                         </div>
                     </div>
@@ -298,21 +310,21 @@
         <!-- 大螢幕 - 遊戲主畫面 -->
         <div id="view-game" class="hidden w-full h-full max-h-[92vh] flex flex-col justify-between relative overflow-hidden gap-4">
             
-            <!-- 需求 2：題目區域優化分段與閱讀體驗 -->
-            <div class="h-[32%] w-full bg-white border-8 border-mario-brown rounded-3xl p-5 shadow-xl flex flex-col justify-between relative overflow-hidden flex-shrink-0">
+            <!-- 需求 1：題目字體放大 50%（text-4xl md:text-6xl lg:text-7xl） -->
+            <div class="h-[34%] w-full bg-white border-8 border-mario-brown rounded-3xl p-4 md:p-5 shadow-xl flex flex-col justify-between relative overflow-hidden flex-shrink-0">
                 <div class="flex justify-between items-center border-b-4 border-slate-200 pb-1">
                     <span id="question-number" class="text-mario-blue font-black text-2xl md:text-3xl">🌟 第 1 題</span>
                     <span class="text-mario-brown font-black text-lg md:text-xl">安得烈知識大冒險</span>
                 </div>
-                <div class="flex-grow flex items-center justify-center text-center py-2 px-4">
-                    <h2 id="question-text" class="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 leading-snug whitespace-pre-line tracking-wide">
+                <div class="flex-grow flex items-center justify-center text-center py-1 px-3">
+                    <h2 id="question-text" class="text-4xl md:text-6xl lg:text-7xl font-black text-slate-900 leading-snug whitespace-pre-line tracking-wide">
                         題目載入中...
                     </h2>
                 </div>
             </div>
 
             <!-- 答案區 -->
-            <div class="h-[66%] w-full grid grid-cols-2 gap-6 flex-grow">
+            <div class="h-[64%] w-full grid grid-cols-2 gap-6 flex-grow">
                 <!-- 左邊：紅底答案 -->
                 <div id="option-btn-0" class="h-full bg-mario-red border-8 border-mario-brown rounded-3xl p-6 shadow-2xl flex items-center justify-center text-white text-center transition-all duration-300 overflow-hidden">
                     <span id="option-text-0" class="text-6xl md:text-7xl lg:text-8xl font-black leading-tight drop-shadow-[0_8px_0_#520807] w-full whitespace-pre-line break-words">
@@ -330,7 +342,7 @@
 
         </div>
 
-        <!-- 大螢幕 - 精典回顧 (需求 3：整體向上移，確保全部在螢幕內) -->
+        <!-- 大螢幕 - 精典回顧 (需求 2：題目文字再放大 100%) -->
         <div id="view-review" class="hidden w-full max-w-[96vw] h-full max-h-[90vh] mario-card rounded-3xl p-4 md:p-6 shadow-2xl flex flex-col justify-between overflow-hidden">
             <div class="text-center border-b-4 border-mario-brown pb-2 flex-shrink-0">
                 <div class="flex items-center justify-center gap-3">
@@ -340,7 +352,6 @@
                 <p class="text-lg md:text-xl font-black text-mario-brown mt-0.5">這 3 題是大家思考最久的精華題目喔！一起記憶複習吧！</p>
             </div>
 
-            <!-- 卡片間距壓縮調整，完全放進螢幕內 -->
             <div id="review-list-container" class="flex-grow flex flex-col justify-between my-2 space-y-2.5 overflow-hidden">
             </div>
         </div>
@@ -471,7 +482,6 @@
             } catch(e) {}
         }
 
-        // 需求 1：改為 3 題大字體卡片
         function generateRandomLobbyTips() {
             const container = document.getElementById('random-tips-container');
             container.innerHTML = '';
@@ -513,10 +523,8 @@
             bgm.play().catch(e => console.log('BGM Play blocked'));
         }
 
-        // 需求 2：題目文字智慧分段排版
         function formatQuestionText(text) {
             if (text.length > 15) {
-                // 若有標點符號優先分段，無則從中間切開
                 if (text.includes('，')) {
                     return text.replace('，', '，\n');
                 } else if (text.includes('？')) {
@@ -761,6 +769,7 @@
             loadQuestion(currentQuestionIndex);
         }
 
+        // 需求 3：極限放大與漸變淡化特效倒數
         function start5SecCountdown() {
             clearAnswerEffects();
 
@@ -771,13 +780,17 @@
             let count = 5;
             bigNum.innerText = count;
 
+            bigNum.classList.remove('animate-mega-fade');
+            void bigNum.offsetWidth;
+            bigNum.classList.add('animate-mega-fade');
+
             countdownInterval = setInterval(() => {
                 count--;
                 if (count > 0) {
                     bigNum.innerText = count;
-                    bigNum.classList.remove('animate-pop-number');
+                    bigNum.classList.remove('animate-mega-fade');
                     void bigNum.offsetWidth; 
-                    bigNum.classList.add('animate-pop-number');
+                    bigNum.classList.add('animate-mega-fade');
                 } else {
                     clearInterval(countdownInterval);
                     
@@ -817,7 +830,7 @@
             }, 1000);
         }
 
-        // 需求 3：精典回顧版面極致優化，確保 TOP 3 完整全在螢幕內
+        // 需求 2：精典回顧 TOP 3 題目文字再放大 100%（text-3xl md:text-5xl lg:text-6xl）
         function endGameAndShowReview() {
             clearAnswerEffects();
 
@@ -848,22 +861,22 @@
 
             sortedByTime.forEach((item, idx) => {
                 const card = document.createElement('div');
-                card.className = 'bg-white p-4 md:p-5 rounded-3xl border-4 border-mario-brown shadow-lg flex items-center justify-between gap-4 h-[30%]';
+                card.className = 'bg-white p-4 md:p-6 rounded-3xl border-4 border-mario-brown shadow-lg flex items-center justify-between gap-4 h-[31%]';
                 
                 const rawQ = item.rawQuestionData;
                 const correctAnsText = rawQ.options[rawQ.answer];
 
                 card.innerHTML = `
                     <div class="flex items-center gap-4 truncate">
-                        <span class="text-2xl md:text-3xl font-black bg-mario-yellow text-mario-brown px-4 py-1.5 rounded-2xl border-4 border-mario-brown flex-shrink-0">
+                        <span class="text-2xl md:text-4xl font-black bg-mario-yellow text-mario-brown px-4 py-2 rounded-2xl border-4 border-mario-brown flex-shrink-0">
                             TOP ${idx + 1}
                         </span>
                         <div class="text-left truncate">
-                            <h4 class="text-xl md:text-2xl lg:text-3xl font-black text-slate-900 truncate leading-tight">${rawQ.question}</h4>
-                            <p class="text-lg md:text-xl font-black text-mario-green mt-1 truncate">✅ 正確答案：${correctAnsText}</p>
+                            <h4 class="text-3xl md:text-5xl lg:text-6xl font-black text-slate-900 truncate leading-snug">${rawQ.question}</h4>
+                            <p class="text-2xl md:text-3xl font-black text-mario-green mt-1 truncate">✅ 正確答案：${correctAnsText}</p>
                         </div>
                     </div>
-                    <div class="bg-mario-cream px-4 py-2 rounded-2xl border-2 border-mario-brown font-black text-mario-brown text-base md:text-lg flex-shrink-0">
+                    <div class="bg-mario-cream px-4 py-2 rounded-2xl border-2 border-mario-brown font-black text-mario-brown text-lg md:text-xl flex-shrink-0">
                         ⏱️ 停留：${item.duration.toFixed(1)} 秒
                     </div>
                 `;
