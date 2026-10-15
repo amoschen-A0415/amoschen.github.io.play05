@@ -36,7 +36,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@800;900&display=swap');
         
-        /* 1. 全局嚴格禁止滾軸 */
         html, body {
             width: 100vw;
             height: 100vh;
@@ -190,14 +189,14 @@
     <div id="animal-canvas-left" class="fixed top-0 left-0 w-1/2 h-full pointer-events-none z-50 overflow-hidden"></div>
     <div id="animal-canvas-right" class="fixed top-0 right-0 w-1/2 h-full pointer-events-none z-50 overflow-hidden"></div>
 
-    <!-- 倒數數字遮罩 -->
+    <!-- 需求 2：倒數數字改為「黑字金邊」視覺 -->
     <div id="overlay-countdown" class="hidden fixed inset-0 z-50 bg-black/10 flex items-center justify-center backdrop-blur-[1px] pointer-events-none overflow-hidden">
-        <span id="overlay-big-number" class="text-[32rem] md:text-[45rem] font-black text-mario-red drop-shadow-[0_20px_0_#FBD000] z-50 leading-none">
+        <span id="overlay-big-number" class="text-[32rem] md:text-[45rem] font-black text-slate-900 drop-shadow-[0_12px_0_#FBD000] z-50 leading-none">
             5
         </span>
     </div>
 
-    <!-- 主要內容區 (高 92vh，內部絕對不發滾條) -->
+    <!-- 主要內容區 -->
     <main class="h-[92vh] w-full flex items-center justify-center p-3 md:p-4 relative overflow-hidden flex-grow">
 
         <!-- 大螢幕 - 控制器待機畫面 -->
@@ -305,34 +304,28 @@
             </div>
         </div>
 
-        <!-- 大螢幕 - 遊戲主畫面 (總高100%，嚴禁滾軸) -->
+        <!-- 大螢幕 - 遊戲主畫面 -->
         <div id="view-game" class="hidden w-full h-full flex flex-col justify-between relative overflow-hidden gap-3">
             
-            <!-- 需求 2：題目框增高至 48%，空間極致寬敞，文字 100% 不裁切 -->
-            <div class="h-[48%] w-full bg-white border-8 border-mario-brown rounded-3xl p-5 md:p-8 shadow-xl flex flex-col justify-between relative overflow-hidden flex-shrink-0">
-                <div class="flex justify-between items-center border-b-4 border-slate-200 pb-1.5 flex-shrink-0">
-                    <span id="question-number" class="text-mario-blue font-black text-2xl md:text-3xl">🌟 第 1 題</span>
-                    <span class="text-mario-brown font-black text-lg md:text-xl">安得烈知識大冒險</span>
-                </div>
-                <div class="flex-grow flex items-center justify-center text-center p-2 overflow-hidden">
-                    <h2 id="question-text" class="text-3xl md:text-5xl lg:text-6xl font-black text-slate-900 leading-snug whitespace-pre-line break-words w-full h-full flex items-center justify-center">
-                        題目載入中...
-                    </h2>
-                </div>
+            <!-- 需求 1：題目框還原為上一版大小（32%），「第X題」移至題目文字前方 -->
+            <div class="h-[32%] w-full bg-white border-8 border-mario-brown rounded-3xl p-5 md:p-6 shadow-xl flex items-center justify-center relative overflow-hidden flex-shrink-0">
+                <h2 id="question-text" class="text-3xl md:text-5xl lg:text-6xl font-black text-slate-900 leading-snug whitespace-pre-line break-words w-full text-center tracking-wide">
+                    題目載入中...
+                </h2>
             </div>
 
-            <!-- 需求 2：答案框調整為 50%，保持滿版舒適度，絕無滾動條 -->
-            <div class="h-[50%] w-full grid grid-cols-2 gap-4 md:gap-6 flex-grow overflow-hidden">
+            <!-- 需求 1：答案區還原上一版大小（66%），字體還原上一版尺寸 -->
+            <div class="h-[66%] w-full grid grid-cols-2 gap-4 md:gap-6 flex-grow overflow-hidden">
                 <!-- 左邊：紅底答案 -->
-                <div id="option-btn-0" class="h-full bg-mario-red border-8 border-mario-brown rounded-3xl p-4 md:p-6 shadow-2xl flex items-center justify-center text-white text-center transition-all duration-300 overflow-hidden">
-                    <span id="option-text-0" class="text-3xl md:text-5xl lg:text-6xl font-black leading-tight drop-shadow-[0_8px_0_#520807] max-w-[95%] max-h-[95%] flex flex-col items-center justify-center whitespace-pre-line break-words">
+                <div id="option-btn-0" class="h-full bg-mario-red border-8 border-mario-brown rounded-3xl p-6 md:p-8 shadow-2xl flex items-center justify-center text-white text-center transition-all duration-300 overflow-hidden">
+                    <span id="option-text-0" class="text-5xl md:text-6xl lg:text-7xl font-black leading-tight drop-shadow-[0_8px_0_#520807] max-w-[90%] max-h-[90%] flex flex-col items-center justify-center whitespace-pre-line break-words tracking-normal">
                         選項一內容
                     </span>
                 </div>
 
                 <!-- 右邊：綠底答案 -->
-                <div id="option-btn-1" class="h-full bg-mario-green border-8 border-mario-brown rounded-3xl p-4 md:p-6 shadow-2xl flex items-center justify-center text-white text-center transition-all duration-300 overflow-hidden">
-                    <span id="option-text-1" class="text-3xl md:text-5xl lg:text-6xl font-black leading-tight drop-shadow-[0_8px_0_#113B13] max-w-[95%] max-h-[95%] flex flex-col items-center justify-center whitespace-pre-line break-words">
+                <div id="option-btn-1" class="h-full bg-mario-green border-8 border-mario-brown rounded-3xl p-6 md:p-8 shadow-2xl flex items-center justify-center text-white text-center transition-all duration-300 overflow-hidden">
+                    <span id="option-text-1" class="text-5xl md:text-6xl lg:text-7xl font-black leading-tight drop-shadow-[0_8px_0_#113B13] max-w-[90%] max-h-[90%] flex flex-col items-center justify-center whitespace-pre-line break-words tracking-normal">
                         選項二內容
                     </span>
                 </div>
@@ -340,7 +333,7 @@
 
         </div>
 
-        <!-- 大螢幕 - 精典回顧 (嚴禁產生滾條) -->
+        <!-- 大螢幕 - 精典回顧 -->
         <div id="view-review" class="hidden w-full max-w-[96vw] h-full mario-card rounded-3xl p-4 md:p-6 shadow-2xl flex flex-col justify-between overflow-hidden">
             <div class="text-center border-b-4 border-mario-brown pb-2 flex-shrink-0">
                 <div class="flex items-center justify-center gap-3">
@@ -753,6 +746,7 @@
             if (navigator.vibrate) navigator.vibrate(0);
         }
 
+        // 需求 1：「第 X 題」移至題目文字前端顯示
         function loadQuestion(index) {
             clearAnswerEffects();
 
@@ -764,8 +758,7 @@
             const qData = convert4To2Options(quizDatabase[index]);
             currentCorrectIndex = qData.answer;
 
-            document.getElementById('question-number').innerText = `🌟 第 ${index + 1} 題`;
-            document.getElementById('question-text').innerText = qData.question;
+            document.getElementById('question-text').innerText = `🌟 第 ${index + 1} 題：${qData.question}`;
 
             document.getElementById('option-text-0').innerText = qData.options[0];
             document.getElementById('option-text-1').innerText = qData.options[1];
