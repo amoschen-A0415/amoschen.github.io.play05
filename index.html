@@ -170,18 +170,16 @@
         </div>
     </header>
 
-    <!-- 定向動物掉落容器 (紅側與綠側) -->
+    <!-- 定向動物掉落容器 -->
     <div id="animal-canvas-left" class="fixed top-0 left-0 w-1/2 h-full pointer-events-none z-50 overflow-hidden"></div>
     <div id="animal-canvas-right" class="fixed top-0 right-0 w-1/2 h-full pointer-events-none z-50 overflow-hidden"></div>
 
-    <!-- 需求 3：頂層透明度再高25% (bg-black/25)、數字再放大50%、新增旋轉指針 -->
+    <!-- 頂層超大數字與指針倒數 -->
     <div id="overlay-countdown" class="hidden fixed inset-0 z-50 bg-black/25 flex items-center justify-center backdrop-blur-[2px]">
         <div class="mario-card p-8 rounded-full border-8 border-mario-yellow flex flex-col items-center justify-center shadow-2xl w-96 h-96 md:w-[32rem] md:h-[32rem] relative">
-            <!-- 鐘錶指針元素 -->
             <div class="absolute inset-4 rounded-full border-4 border-dashed border-mario-brown/40 pointer-events-none"></div>
             <div class="absolute top-1/2 left-1/2 w-2 h-36 bg-mario-red rounded-full animate-clock-hand -ml-1 -mt-36 shadow"></div>
             
-            <!-- 放大 50% 的超大數字 -->
             <span id="overlay-big-number" class="text-[11rem] md:text-[15rem] font-black text-mario-red drop-shadow-[0_10px_0_#FBD000] z-10">
                 5
             </span>
@@ -220,16 +218,16 @@
 
                 </div>
 
-                <!-- 右半邊：需求 4 隨機產生的重點提醒 -->
+                <!-- 右半邊：隨機產生的重點提醒（字體加大放大版） -->
                 <div class="md:col-span-7 flex flex-col justify-between h-full overflow-hidden pl-0 md:pl-2">
                     <div class="flex-grow flex flex-col overflow-hidden">
-                        <h2 class="text-2xl md:text-3xl font-black text-mario-blue mb-3 flex items-center gap-2 border-b-4 border-mario-brown pb-2">
-                            <span>💡 安得烈愛心知識小補帖（隨機重點）</span>
+                        <h2 class="text-3xl md:text-4xl font-black text-mario-blue mb-4 flex items-center gap-2 border-b-4 border-mario-brown pb-2">
+                            <span>💡 安得烈愛心知識小補帖</span>
                         </h2>
 
-                        <!-- 隨機生成的 4 條重點提醒 -->
-                        <div id="random-tips-container" class="grid grid-cols-1 gap-3 overflow-y-auto max-h-[60vh] pr-2 text-slate-800 font-bold text-base md:text-lg">
-                            <!-- JS 動態隨機注入 -->
+                        <!-- 超大清晰卡片與字體佈局 -->
+                        <div id="random-tips-container" class="grid grid-cols-1 gap-4 overflow-y-auto max-h-[62vh] pr-2 text-slate-900 font-bold">
+                            <!-- JS 動態注入最大化文字卡片 -->
                         </div>
                     </div>
                 </div>
@@ -251,7 +249,7 @@
                 </div>
             </div>
 
-            <!-- 需求 2：紅綠互動按鈕 (分別觸發左右各自的動物雨與掉落音效) -->
+            <!-- 紅綠互動按鈕 -->
             <div class="grid grid-cols-2 gap-3 my-2 bg-white/20 p-2.5 rounded-2xl border-2 border-white/40">
                 <button onclick="triggerAnimals('red')" class="mario-btn-red py-3.5 rounded-xl font-black text-lg flex items-center justify-center gap-2 shadow-lg">
                     <span>🔴</span> 紅區動物雨
@@ -301,7 +299,6 @@
         <!-- 大螢幕 - 遊戲主畫面 -->
         <div id="view-game" class="hidden w-full h-full max-h-[92vh] flex flex-col justify-between relative overflow-hidden gap-4">
             
-            <!-- 需求 1：題目字體保持上一版適中大小 -->
             <div class="h-[30%] w-full bg-white border-8 border-mario-brown rounded-3xl p-5 shadow-xl flex flex-col justify-between relative overflow-hidden flex-shrink-0">
                 <div class="flex justify-between items-center border-b-4 border-slate-200 pb-1">
                     <span id="question-number" class="text-mario-blue font-black text-2xl md:text-3xl">🌟 第 1 題</span>
@@ -314,16 +311,15 @@
                 </div>
             </div>
 
-            <!-- 需求 1 & 3：答案維持超大字體 (6xl~8xl) 與自動換行分段 -->
             <div class="h-[68%] w-full grid grid-cols-2 gap-6 flex-grow">
-                <!-- 左邊：紅底答案 (索引 0) -->
+                <!-- 左邊：紅底答案 -->
                 <div id="option-btn-0" class="h-full bg-mario-red border-8 border-mario-brown rounded-3xl p-6 shadow-2xl flex items-center justify-center text-white text-center transition-all duration-300 overflow-hidden">
                     <span id="option-text-0" class="text-6xl md:text-7xl lg:text-8xl font-black leading-tight drop-shadow-[0_8px_0_#520807] w-full whitespace-pre-line break-words">
                         選項一內容
                     </span>
                 </div>
 
-                <!-- 右邊：綠底答案 (索引 1) -->
+                <!-- 右邊：綠底答案 -->
                 <div id="option-btn-1" class="h-full bg-mario-green border-8 border-mario-brown rounded-3xl p-6 shadow-2xl flex items-center justify-center text-white text-center transition-all duration-300 overflow-hidden">
                     <span id="option-text-1" class="text-6xl md:text-7xl lg:text-8xl font-black leading-tight drop-shadow-[0_8px_0_#113B13] w-full whitespace-pre-line break-words">
                         選項二內容
@@ -342,7 +338,6 @@
             </div>
 
             <div id="review-list-container" class="flex-grow flex flex-col justify-around my-4 space-y-4 overflow-y-auto pr-2">
-                <!-- 動態注入 TOP 3 題目 -->
             </div>
         </div>
 
@@ -359,7 +354,7 @@
             { question: "安得烈慈善協會的英文名稱是？", options: ["ANDREW Charity Association", "ANDRE Charity Association", "ANDREW Food Bank", "ANDREW Love Association"], answer: 0 },
             { question: "安得烈慈善協會的 Logo 標誌中，不包含下列哪一個元素圖案？", options: ["麥穗", "愛心", "魚", "飛鷹"], answer: 3 },
             { question: "安得烈食物銀行紙箱上印製的吉祥祝福語是？", options: ["祝您 豐衣足食 萬事如意", "祝您 食來運轉 平安得福", "祝您 健康平安 永保安康", "祝您 迎春納福 吃飽穿暖"], answer: 1 },
-            { question: "下列何者不是安得烈慈善協會的核心工作項目？", options: ["食物銀行計畫 / 急難救助", "弱勢扶助培鷹計畫 / 災害援助", "教育推廣（善果計畫）", "海外移民留學輔心"], answer: 3 },
+            { question: "下列何者不是安得烈慈善協會的核心工作項目？", options: ["食物銀行計畫 / 急難救助", "弱勢扶助培鷹計畫 / 災害援助", "教育推廣（善果計畫）", "海外移民留學輔導"], answer: 3 },
             { question: "針對「初生至 3 歲」的嬰兒，安得烈提供哪一種專案物資箱？", options: ["膳糧食物箱", "嬰兒物資箱", "松柏食物箱", "長青食物箱"], answer: 1 },
             { question: "針對「3 歲至 15 歲」需要幫助的兒少，安得烈主要提供哪一種食物箱？", options: ["嬰兒物資箱", "膳糧食物箱", "松柏食物箱", "安心食物箱"], answer: 1 },
             { question: "「松柏食物箱」主要服務的對象年齡層為？", options: ["65 歲至 80 歲需要幫助的長者", "80 歲以上需要幫助的長者", "50 歲至 65 歲需要幫助的長者", "100 歲以上人瑞"], answer: 1 },
@@ -444,11 +439,10 @@
                 setupVolumeControl();
             } else {
                 initBigScreenHost();
-                generateRandomLobbyTips(); // 需求 4：動態產生隨機重點提醒
+                generateRandomLobbyTips();
             }
         };
 
-        // Web Audio API 實時合成動物雨掉落啵啵音效
         function playDropSound() {
             try {
                 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -473,25 +467,24 @@
             } catch(e) {}
         }
 
-        // 需求 4：從 50 題題庫中隨機挑選 4 題生成大廳重點提醒
+        // 需求 1：初始畫面提醒字體最大化
         function generateRandomLobbyTips() {
             const container = document.getElementById('random-tips-container');
             container.innerHTML = '';
 
             const randomFour = shuffleArray(raw50QuizDatabase).slice(0, 4);
             const icons = ['🍞', '📦', '🦅', '🌱'];
-            const colors = ['text-mario-red', 'text-mario-green', 'text-mario-blue', 'text-amber-600'];
 
             randomFour.forEach((item, idx) => {
                 const correctAns = item.options[item.answer];
                 const card = document.createElement('div');
-                card.className = 'bg-white p-3.5 rounded-2xl border-2 border-mario-brown shadow-sm flex items-start gap-3';
+                card.className = 'bg-white p-5 rounded-3xl border-4 border-mario-brown shadow-md flex items-start gap-4';
                 card.innerHTML = `
-                    <span class="text-3xl flex-shrink-0">${icons[idx]}</span>
-                    <div>
-                        <span class="${colors[idx]} font-black">【重點 ${idx + 1}】</span> 
-                        ${item.question} 
-                        <span class="text-mario-green font-black">（💡 答案：${correctAns}）</span>
+                    <span class="text-5xl flex-shrink-0">${icons[idx]}</span>
+                    <div class="text-xl md:text-2xl leading-snug">
+                        <span class="text-mario-red font-black">【重要知識 ${idx + 1}】</span> 
+                        <span class="font-black text-slate-800">${item.question}</span> 
+                        <div class="text-mario-green font-black mt-1 text-2xl md:text-3xl">👉 答案是：${correctAns}</div>
                     </div>
                 `;
                 container.appendChild(card);
@@ -573,6 +566,21 @@
                 hostConn.on('open', () => {
                     document.getElementById('ctrl-status-text').innerText = '🟢 已成功連接至大螢幕！';
                 });
+
+                // 接收來自大螢幕解鎖按鈕的通訊
+                hostConn.on('data', (data) => {
+                    if (data.type === 'COUNTDOWN_FINISHED') {
+                        const nextBtn = document.getElementById('ctrl-btn-next');
+                        const statusTxt = document.getElementById('ctrl-status-text');
+                        if (nextBtn) {
+                            nextBtn.disabled = false;
+                            nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        }
+                        if (statusTxt) {
+                            statusTxt.innerText = '✅ 倒數完成！可點擊「下一題」進入下一關！';
+                        }
+                    }
+                });
             });
         }
 
@@ -599,12 +607,10 @@
             }
         }
 
-        // 需求 2：紅/綠各自獨立落在所屬答案上方並播掉落音效
         function spawnFloatingAnimals(color) {
             const canvas = document.getElementById(color === 'red' ? 'animal-canvas-left' : 'animal-canvas-right');
             const animals = ['🦁', '🐘', '🦒', '🐼', '🐰', '🐶', '🐱', '🦊', '🐨', '🦄', '🐥', '🐸', '🐵', '🐷'];
 
-            // 播放彈跳聲
             playDropSound();
 
             for (let i = 0; i < 16; i++) {
@@ -612,7 +618,7 @@
                 el.className = 'dropping-animal text-6xl md:text-8xl';
                 el.innerText = animals[Math.floor(Math.random() * animals.length)];
                 
-                const leftPos = Math.random() * 80 + 10; // 限制在該側區域內
+                const leftPos = Math.random() * 80 + 10; 
                 const delay = Math.random() * 0.6;
                 
                 el.style.left = `${leftPos}%`;
@@ -734,6 +740,7 @@
             loadQuestion(currentQuestionIndex);
         }
 
+        // 倒數機制修復（廣播解鎖手機「下一題」按鈕）
         function start5SecCountdown() {
             clearAnswerEffects();
 
@@ -763,15 +770,9 @@
                         navigator.vibrate([300, 100, 300, 100, 500]);
                     }
 
-                    // 需求 3：倒數完畢後，控制器解鎖「下一題」
-                    const nextBtn = document.getElementById('ctrl-btn-next');
-                    const statusTxt = document.getElementById('ctrl-status-text');
-                    if (nextBtn) {
-                        nextBtn.disabled = false;
-                        nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    }
-                    if (statusTxt) {
-                        statusTxt.innerText = '✅ 倒數完成！可點擊「下一題」進入下一關！';
+                    // 需求 2 解鎖修復：通知手機端連線解鎖按紐
+                    if (hostConn && hostConn.open) {
+                        hostConn.send({ type: 'COUNTDOWN_FINISHED' });
                     }
                 }
             }, 1000);
