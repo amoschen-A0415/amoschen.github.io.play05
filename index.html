@@ -109,18 +109,18 @@
             animation: correct-flash 0.5s infinite;
         }
 
-        /* 需求 2：無外框數字極致再放大 50% 漸變淡化消失動畫 */
+        /* 需求 2：巨型數字再放大 50% 爆發漸淡動畫 */
         @keyframes mega-number-fade {
             0% { 
-                transform: scale(0.6); 
+                transform: scale(0.5); 
                 opacity: 1; 
             }
             35% { 
-                transform: scale(1.2); 
+                transform: scale(1.15); 
                 opacity: 0.95; 
             }
             100% { 
-                transform: scale(1.9); 
+                transform: scale(1.85); 
                 opacity: 0; 
             }
         }
@@ -174,9 +174,9 @@
     <div id="animal-canvas-left" class="fixed top-0 left-0 w-1/2 h-full pointer-events-none z-50 overflow-hidden"></div>
     <div id="animal-canvas-right" class="fixed top-0 right-0 w-1/2 h-full pointer-events-none z-50 overflow-hidden"></div>
 
-    <!-- 需求 2：取消外框，倒數數字再放大 50% 漸淡消失遮罩 -->
-    <div id="overlay-countdown" class="hidden fixed inset-0 z-50 bg-black/10 flex items-center justify-center backdrop-blur-[1px] pointer-events-none">
-        <span id="overlay-big-number" class="text-[24rem] md:text-[32rem] font-black text-mario-red drop-shadow-[0_16px_0_#FBD000] z-50">
+    <!-- 需求 2：無外框，數字再放大 50% 霸屏衝擊 -->
+    <div id="overlay-countdown" class="hidden fixed inset-0 z-50 bg-black/10 flex items-center justify-center backdrop-blur-[1px] pointer-events-none overflow-hidden">
+        <span id="overlay-big-number" class="text-[32rem] md:text-[45rem] font-black text-mario-red drop-shadow-[0_20px_0_#FBD000] z-50 leading-none">
             5
         </span>
     </div>
@@ -315,7 +315,7 @@
 
                 <!-- 右邊：綠底答案 -->
                 <div id="option-btn-1" class="h-full bg-mario-green border-8 border-mario-brown rounded-3xl p-6 shadow-2xl flex items-center justify-center text-white text-center transition-all duration-300 overflow-hidden">
-                    <span id="option-text-1" class="text-6xl md:text-7xl lg:text-8xl font-black leading-tight drop-shadow-[0_8px_0_#113B13] w-full whitespace-pre-line break-words">
+                    <span id="option-text-1" class="text-6xl md:text-7xl lg:text-8xl font-black leading-tight drop-shadow-[0_113B13] w-full whitespace-pre-line break-words">
                         選項二內容
                     </span>
                 </div>
@@ -323,7 +323,7 @@
 
         </div>
 
-        <!-- 大螢幕 - 精典回顧 -->
+        <!-- 大螢幕 - 精典回顧 (需求 1：文字大小減 25%、自動換列、無滾條) -->
         <div id="view-review" class="hidden w-full max-w-[96vw] h-full max-h-[90vh] mario-card rounded-3xl p-4 md:p-6 shadow-2xl flex flex-col justify-between overflow-hidden">
             <div class="text-center border-b-4 border-mario-brown pb-2 flex-shrink-0">
                 <div class="flex items-center justify-center gap-3">
@@ -333,7 +333,7 @@
                 <p class="text-lg md:text-xl font-black text-mario-brown mt-0.5">這 3 題是大家思考最久的精華題目喔！一起記憶複習吧！</p>
             </div>
 
-            <div id="review-list-container" class="flex-grow flex flex-col justify-between my-2 space-y-2.5 overflow-hidden">
+            <div id="review-list-container" class="flex-grow flex flex-col justify-between my-2 space-y-3 overflow-hidden">
             </div>
         </div>
 
@@ -463,7 +463,6 @@
             } catch(e) {}
         }
 
-        // 需求 1：修正替換「以上皆是」與「以上皆可」為「以上皆非」
         function sanitizeOptionText(text) {
             if (text.includes("以上皆是")) {
                 return text.replace("以上皆是", "以上皆非");
@@ -534,7 +533,7 @@
         }
 
         function formatOptionText(text) {
-            text = sanitizeOptionText(text); // 需求 1 消毒替換
+            text = sanitizeOptionText(text);
             if (text.length > 8 && !text.includes('\n')) {
                 const mid = Math.ceil(text.length / 2);
                 return text.slice(0, mid) + '\n' + text.slice(mid);
@@ -824,6 +823,7 @@
             }, 1000);
         }
 
+        // 需求 1：精典回顧字體調小 25%、多列自動換行、保證無滾條
         function endGameAndShowReview() {
             clearAnswerEffects();
 
@@ -854,23 +854,23 @@
 
             sortedByTime.forEach((item, idx) => {
                 const card = document.createElement('div');
-                card.className = 'bg-white p-4 md:p-6 rounded-3xl border-4 border-mario-brown shadow-lg flex items-center justify-between gap-4 h-[31%]';
+                card.className = 'bg-white p-3 md:p-4 rounded-3xl border-4 border-mario-brown shadow-lg flex items-center justify-between gap-4 h-[31%] overflow-hidden';
                 
                 const rawQ = item.rawQuestionData;
                 const rawCorrectAnsText = rawQ.options[rawQ.answer];
-                const correctAnsText = sanitizeOptionText(rawCorrectAnsText); // 需求 1 消毒替換
+                const correctAnsText = sanitizeOptionText(rawCorrectAnsText);
 
                 card.innerHTML = `
-                    <div class="flex items-center gap-4 truncate">
-                        <span class="text-2xl md:text-4xl font-black bg-mario-yellow text-mario-brown px-4 py-2 rounded-2xl border-4 border-mario-brown flex-shrink-0">
+                    <div class="flex items-center gap-3 md:gap-4 overflow-hidden">
+                        <span class="text-xl md:text-3xl font-black bg-mario-yellow text-mario-brown px-3 py-1.5 rounded-2xl border-4 border-mario-brown flex-shrink-0">
                             TOP ${idx + 1}
                         </span>
-                        <div class="text-left truncate">
-                            <h4 class="text-3xl md:text-5xl lg:text-6xl font-black text-slate-900 truncate leading-snug">${rawQ.question}</h4>
-                            <p class="text-2xl md:text-3xl font-black text-mario-green mt-1 truncate">✅ 正確答案：${correctAnsText}</p>
+                        <div class="text-left overflow-hidden">
+                            <h4 class="text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 leading-snug whitespace-pre-line break-words">${rawQ.question}</h4>
+                            <p class="text-xl md:text-2xl font-black text-mario-green mt-0.5 whitespace-pre-line break-words">✅ 正確答案：${correctAnsText}</p>
                         </div>
                     </div>
-                    <div class="bg-mario-cream px-4 py-2 rounded-2xl border-2 border-mario-brown font-black text-mario-brown text-lg md:text-xl flex-shrink-0">
+                    <div class="bg-mario-cream px-3 py-1.5 rounded-2xl border-2 border-mario-brown font-black text-mario-brown text-base md:text-lg flex-shrink-0">
                         ⏱️ 停留：${item.duration.toFixed(1)} 秒
                     </div>
                 `;
