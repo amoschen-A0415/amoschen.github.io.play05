@@ -1,330 +1,591 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>極限滿版精準對齊水果餐刀時鐘 & 世界風景</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安得烈食物銀行 知識大冒險 🍄</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PeerJS -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <!-- FontAwesome CDN (可愛圖示) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    body {
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background-color: #000;
-      user-select: none;
-    }
-
-    /* 背景圖層與 30 秒平滑淡入淡出 */
-    .bg-layer {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-size: cover;
-      background-position: center;
-      transition: opacity 1.5s ease-in-out;
-      opacity: 0;
-      z-index: 1;
-    }
-
-    .bg-layer.active {
-      opacity: 1;
-    }
-
-    /* 滿版時鐘容器：100% 覆蓋整個視窗，底部完全透明 */
-    .clock-container {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      background: transparent;
-      border: none;
-      box-shadow: none;
-      z-index: 2;
-    }
-
-    /* 時鐘中心固定點 */
-    .center-dot {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 18px;
-      height: 18px;
-      background: #ffffff;
-      border: 3px solid rgba(0, 0, 0, 0.5);
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 10;
-      box-shadow: 0 0 12px rgba(0,0,0,0.6);
-    }
-
-    /* 水果圖示元件 */
-    .fruit-item {
-      position: absolute;
-      width: max(6.5vw, 6.5vh);
-      height: max(6.5vw, 6.5vh);
-      font-size: max(5vw, 5vh);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transform: translate(-50%, -50%);
-      filter: drop-shadow(0px 6px 12px rgba(0, 0, 0, 0.8));
-      z-index: 3;
-    }
-
-    /* 外側貼邊數字 (1-12) */
-    .number-item {
-      position: absolute;
-      width: max(4.5vw, 4.5vh);
-      height: max(4.5vw, 4.5vh);
-      font-size: max(3.5vw, 3.5vh);
-      font-weight: 900;
-      color: #ffffff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transform: translate(-50%, -50%);
-      text-shadow: 0 3px 10px rgba(0,0,0,0.9), 0 0 15px rgba(0,0,0,0.8);
-      z-index: 4;
-    }
-
-    /* 餐刀指針 Container */
-    .hand {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 5;
-      pointer-events: none;
-    }
-
-    /* SVG 刀子圖片的旋轉基準點 */
-    .hand svg {
-      position: absolute;
-      left: 50%;
-      bottom: 50%;
-      transform-origin: 50% 100%;
-      filter: drop-shadow(4px 8px 12px rgba(0,0,0,0.7));
-    }
-
-    /* 時針 - 主餐刀 */
-    .hour-hand svg {
-      width: max(2.8vw, 2.8vh);
-      height: calc(min(100vw, 100vh) * 0.28);
-      margin-left: calc(-1 * max(1.4vw, 1.4vh));
-    }
-
-    /* 分針 - 牛排刀 */
-    .minute-hand svg {
-      width: max(2.4vw, 2.4vh);
-      height: calc(min(100vw, 100vh) * 0.38);
-      margin-left: calc(-1 * max(1.2vw, 1.2vh));
-    }
-
-    /* 秒針 - 紅色水果切刀 */
-    .second-hand svg {
-      width: max(1.8vw, 1.8vh);
-      height: calc(min(100vw, 100vh) * 0.44);
-      margin-left: calc(-1 * max(0.9vw, 0.9vh));
-    }
-  </style>
-</head>
-<body>
-
-  <!-- 背景圖層 -->
-  <div id="bg1" class="bg-layer active"></div>
-  <div id="bg2" class="bg-layer"></div>
-
-  <!-- 全螢幕滿版時鐘 -->
-  <div class="clock-container" id="clock-container">
-    <div class="center-dot"></div>
-    
-    <!-- 水果與數字容器 -->
-    <div id="dial-container"></div>
-
-    <!-- 餐刀造型指針 -->
-    <div id="hour-hand" class="hand hour-hand">
-      <svg viewBox="0 0 30 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M 11,200 L 19,200 L 19,100 L 21,90 C 23,70 23,30 15,0 C 13,30 11,70 11,100 Z" fill="url(#silverGrad)"/>
-        <path d="M 11,200 L 19,200 L 19,120 L 11,120 Z" fill="#111111"/>
-        <circle cx="15" cy="140" r="1.5" fill="#aaa"/>
-        <circle cx="15" cy="170" r="1.5" fill="#aaa"/>
-        <defs>
-          <linearGradient id="silverGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#777777"/>
-            <stop offset="35%" stop-color="#ffffff"/>
-            <stop offset="65%" stop-color="#dddddd"/>
-            <stop offset="100%" stop-color="#555555"/>
-          </linearGradient>
-        </defs>
-      </svg>
-    </div>
-
-    <div id="minute-hand" class="hand minute-hand">
-      <svg viewBox="0 0 24 260" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M 9,260 L 15,260 L 15,110 L 17,95 C 19,65 19,25 12,0 C 10,25 9,65 9,110 Z" fill="url(#silverGrad2)"/>
-        <path d="M 9,260 L 15,260 L 15,140 L 9,140 Z" fill="#222222"/>
-        <circle cx="12" cy="160" r="1.2" fill="#bbb"/>
-        <circle cx="12" cy="220" r="1.2" fill="#bbb"/>
-        <defs>
-          <linearGradient id="silverGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#888"/>
-            <stop offset="40%" stop-color="#fff"/>
-            <stop offset="100%" stop-color="#666"/>
-          </linearGradient>
-        </defs>
-      </svg>
-    </div>
-
-    <div id="second-hand" class="hand second-hand">
-      <svg viewBox="0 0 18 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M 7,300 L 11,300 L 11,120 L 13,90 C 15,50 14,20 9,0 C 7,20 7,50 7,120 Z" fill="#ff3b30"/>
-        <path d="M 7,300 L 11,300 L 11,180 L 7,180 Z" fill="#111111"/>
-      </svg>
-    </div>
-  </div>
-
-  <script>
-    // 1-12 對應的水果 Emoji
-    const fruits = [
-      "🍎", "🍐", "🍊", "🍋", "🍌", "🍉",
-      "🍇", "🍓", "🍒", "🍑", "🍍", "🥝"
-    ];
-
-    // 世界風景圖片庫
-    const landscapeImages = [
-      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80",
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80",
-      "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1920&q=80",
-      "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=1920&q=80",
-      "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1920&q=80",
-      "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1920&q=80",
-      "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1920&q=80"
-    ];
-
-    const dialContainer = document.getElementById("dial-container");
-
-    // 根據角度與螢幕邊界，動態計算精準對齊座標
-    function renderDial() {
-      dialContainer.innerHTML = "";
-      const W = window.innerWidth;
-      const H = window.innerHeight;
-
-      // 數字與水果貼邊保留邊距 (Margin)
-      const numMarginX = Math.max(W * 0.035, 24);
-      const numMarginY = Math.max(H * 0.035, 24);
-      const fruitMarginOffset = Math.min(W, H) * 0.12; 
-
-      fruits.forEach((fruit, index) => {
-        const hourNum = index + 1;
-        // 精確角度 calculation: 12點為 0度/360度
-        const angleDeg = hourNum * 30;
-        const angleRad = (angleDeg - 90) * (Math.PI / 180);
-
-        const cosA = Math.cos(angleRad);
-        const sinA = Math.sin(angleRad);
-
-        // 螢幕半寬與半高
-        const halfW = W / 2 - numMarginX;
-        const halfH = H / 2 - numMarginY;
-
-        // 計算射線與矩形邊界的精準交點
-        let distToEdge;
-        if (Math.abs(cosA) * halfH > Math.abs(sinA) * halfW) {
-          distToEdge = halfW / Math.abs(cosA);
-        } else {
-          distToEdge = halfH / Math.abs(sinA);
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        mario: {
+                            red: '#E52521',
+                            green: '#43B047',
+                            yellow: '#FBD000',
+                            blue: '#00247D',
+                            sky: '#5C94FC',
+                            brick: '#B84418',
+                            brown: '#8C5220',
+                            cream: '#FCE1AC'
+                        }
+                    },
+                    fontFamily: {
+                        game: ['"Comic Sans MS"', '"Chalkboard SE"', '"華康少女文字"', '"Noto Sans TC"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@600;800;900&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #5C94FC; /* 瑪利歐天空藍 */
+            color: #222;
+            user-select: none;
+            overflow: hidden;
         }
 
-        // 數字座標 (最靠近螢幕邊緣)
-        const nx = W / 2 + distToEdge * cosA;
-        const ny = H / 2 + distToEdge * sinA;
+        /* 可愛雲朵飄動背景 */
+        .cloud-bg {
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 20%),
+                radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 25%);
+        }
 
-        // 水果座標 (順著同一條射線往內退)
-        const fx = W / 2 + (distToEdge - fruitMarginOffset) * cosA;
-        const fy = H / 2 + (distToEdge - fruitMarginOffset) * sinA;
+        /* 經典磚塊卡片風格 */
+        .mario-card {
+            background-color: #FCE1AC;
+            border: 4px solid #8C5220;
+            box-shadow: 4px 6px 0px #42210B;
+        }
 
-        // 渲染水果
-        const fruitEl = document.createElement("div");
-        fruitEl.className = "fruit-item";
-        fruitEl.textContent = fruit;
-        fruitEl.style.left = `${fx}px`;
-        fruitEl.style.top = `${fy}px`;
-        dialContainer.appendChild(fruitEl);
+        .mario-btn-red {
+            background-color: #E52521;
+            border: 4px solid #8A0F0D;
+            box-shadow: 0px 6px 0px #520807;
+            color: white;
+        }
+        .mario-btn-red:active {
+            transform: translateY(4px);
+            box-shadow: 0px 2px 0px #520807;
+        }
 
-        // 渲染對應數字
-        const numEl = document.createElement("div");
-        numEl.className = "number-item";
-        numEl.textContent = hourNum;
-        numEl.style.left = `${nx}px`;
-        numEl.style.top = `${ny}px`;
-        dialContainer.appendChild(numEl);
-      });
-    }
+        .mario-btn-green {
+            background-color: #43B047;
+            border: 4px solid #206223;
+            box-shadow: 0px 6px 0px #113B13;
+            color: white;
+        }
+        .mario-btn-green:active {
+            transform: translateY(4px);
+            box-shadow: 0px 2px 0px #113B13;
+        }
 
-    // 縮放視窗時自動重新計算極限對齊位置
-    window.addEventListener("resize", renderDial);
-    renderDial();
+        .mario-btn-yellow {
+            background-color: #FBD000;
+            border: 4px solid #A08300;
+            box-shadow: 0px 6px 0px #635100;
+            color: #42210B;
+        }
+        .mario-btn-yellow:active {
+            transform: translateY(4px);
+            box-shadow: 0px 2px 0px #635100;
+        }
 
-    // 2. 時鐘轉動運算
-    const hourHandSvg = document.querySelector("#hour-hand svg");
-    const minuteHandSvg = document.querySelector("#minute-hand svg");
-    const secondHandSvg = document.querySelector("#second-hand svg");
+        .mario-btn-blue {
+            background-color: #00247D;
+            border: 4px solid #001242;
+            box-shadow: 0px 6px 0px #000924;
+            color: white;
+        }
+        .mario-btn-blue:active {
+            transform: translateY(4px);
+            box-shadow: 0px 2px 0px #000924;
+        }
 
-    function updateClock() {
-      const now = new Date();
-      const seconds = now.getSeconds();
-      const minutes = now.getMinutes();
-      const hours = now.getHours();
+        /* 閃爍動畫 */
+        @keyframes pulse-fast {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .animate-bounce-fast {
+            animation: pulse-fast 0.6s infinite;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col justify-between overflow-hidden cloud-bg">
 
-      const secondsDeg = (seconds / 60) * 360;
-      const minutesDeg = ((minutes + seconds / 60) / 60) * 360;
-      const hoursDeg = (((hours % 12) + minutes / 60) / 12) * 360;
+    <!-- 頂部標題列 -->
+    <header id="main-header" class="w-full px-6 py-3 bg-mario-red border-b-8 border-mario-brown text-white flex justify-between items-center z-10 flex-shrink-0 shadow-lg">
+        <div class="flex items-center space-x-3">
+            <span class="text-4xl animate-bounce">🍄</span>
+            <h1 class="text-2xl md:text-3xl font-black tracking-wider drop-shadow-[0_3px_0_#8A0F0D]">
+                安得烈食物銀行 知識大冒險 ✨
+            </h1>
+        </div>
+        <div id="game-stage-badge" class="px-5 py-1.5 rounded-full text-base md:text-xl font-black bg-mario-yellow text-mario-brown border-4 border-mario-brown shadow">
+            🌟 準備開考！
+        </div>
+    </header>
 
-      secondHandSvg.style.transform = `rotate(${secondsDeg}deg)`;
-      minuteHandSvg.style.transform = `rotate(${minutesDeg}deg)`;
-      hourHandSvg.style.transform = `rotate(${hoursDeg}deg)`;
-    }
+    <!-- 主要內容區 -->
+    <main class="flex-grow flex items-center justify-center p-3 md:p-5 relative overflow-hidden">
 
-    setInterval(updateClock, 1000);
-    updateClock();
+        <!-- 大螢幕 - 控制器待機畫面 (需求 2：移除QR與設定，獨佔主控制器) -->
+        <div id="view-lobby" class="w-full max-w-[96vw] h-full max-h-[88vh] mario-card rounded-3xl p-6 shadow-2xl relative flex flex-col justify-between overflow-hidden">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center h-full">
+                
+                <!-- 左半邊：連線提示資訊 -->
+                <div class="md:col-span-5 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r-4 border-mario-brown pr-0 md:pr-6 text-center h-full">
+                    <div class="text-8xl mb-4 animate-bounce">📱</div>
+                    <h2 class="text-3xl font-black text-mario-blue mb-2">唯一控制台已準備</h2>
+                    <p class="text-xl font-bold text-mario-brown bg-white/80 px-6 py-3 rounded-2xl border-2 border-mario-brown shadow">
+                        請使用主控手機開啟控制器網址！
+                    </p>
+                    <div class="mt-6 text-sm font-bold text-slate-700 bg-mario-yellow/60 p-3 rounded-xl border-2 border-mario-brown">
+                        💡 提示：本遊戲由主控制器全權掌控題目進度與倒數計時喔！
+                    </div>
+                </div>
 
-    // 3. 背景 30 秒自動輪播 (平滑淡入淡出)
-    let currentImageIndex = 0;
-    let activeBgIndex = 1;
-    const bg1 = document.getElementById("bg1");
-    const bg2 = document.getElementById("bg2");
+                <!-- 右半邊：題庫重點提醒 (需求 2) -->
+                <div class="md:col-span-7 flex flex-col justify-between h-full overflow-hidden pl-0 md:pl-2">
+                    <div class="flex-grow flex flex-col overflow-hidden">
+                        <h2 class="text-2xl md:text-3xl font-black text-mario-red mb-3 flex items-center gap-2 border-b-4 border-mario-brown pb-2">
+                            <span>💡 安得烈愛心知識小補帖（重點複習）</span>
+                        </h2>
 
-    bg1.style.backgroundImage = `url('${landscapeImages[0]}')`;
+                        <!-- 重點提醒區塊 -->
+                        <div class="grid grid-cols-1 gap-3 overflow-y-auto max-h-[60vh] pr-2 text-slate-800 font-bold text-base md:text-lg">
+                            <div class="bg-white p-3.5 rounded-2xl border-2 border-mario-brown shadow-sm flex items-start gap-3">
+                                <span class="text-3xl">🍞</span>
+                                <div>
+                                    <span class="text-mario-red font-black">【協會全銜】</span> 社團法人中華安得烈慈善協會（標誌包含麥穗、愛心與魚喔！）。
+                                </div>
+                            </div>
+                            <div class="bg-white p-3.5 rounded-2xl border-2 border-mario-brown shadow-sm flex items-start gap-3">
+                                <span class="text-3xl">📦</span>
+                                <div>
+                                    <span class="text-mario-green font-black">【愛心食物箱】</span> 嬰兒物資箱(0-3歲)、膳糧食物箱(3-15歲)、長青食物箱(65-80歲)、松柏食物箱(80歲以上)。
+                                </div>
+                            </div>
+                            <div class="bg-white p-3.5 rounded-2xl border-2 border-mario-brown shadow-sm flex items-start gap-3">
+                                <span class="text-3xl">🦅</span>
+                                <div>
+                                    <span class="text-mario-blue font-black">【培育計畫】</span> 「培鷹計畫」協助弱勢學子適性發展，每年舉辦「生命成長營」與「全國學藝競賽」。
+                                </div>
+                            </div>
+                            <div class="bg-white p-3.5 rounded-2xl border-2 border-mario-brown shadow-sm flex items-start gap-3">
+                                <span class="text-3xl">🌱</span>
+                                <div>
+                                    <span class="text-amber-600 font-black">【生命教育】</span> 「善果計畫」推廣知福、惜福、感恩、助人、分享與惜食的重要理念！
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-    function changeBackground() {
-      currentImageIndex = (currentImageIndex + 1) % landscapeImages.length;
-      const nextImageUrl = landscapeImages[currentImageIndex];
+            </div>
+        </div>
 
-      if (activeBgIndex === 1) {
-        bg2.style.backgroundImage = `url('${nextImageUrl}')`;
-        bg2.classList.add("active");
-        bg1.classList.remove("active");
-        activeBgIndex = 2;
-      } else {
-        bg1.style.backgroundImage = `url('${nextImageUrl}')`;
-        bg1.classList.add("active");
-        bg2.classList.remove("active");
-        activeBgIndex = 1;
-      }
-    }
+        <!-- 手機端 - 唯一主控制器 (需求 2 & 5) -->
+        <div id="view-host-controller" class="hidden fixed inset-0 z-50 bg-mario-blue p-4 flex-col justify-between overflow-hidden">
+            <!-- 頂部音量控制與狀態 -->
+            <div class="bg-white/90 p-3 rounded-2xl border-4 border-mario-brown flex justify-between items-center shadow-lg">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">👑</span>
+                    <span class="font-black text-mario-blue text-lg">主控制器面板</span>
+                </div>
+                <!-- 音量控制 (需求 5) -->
+                <div class="flex items-center gap-2 bg-mario-cream px-3 py-1.5 rounded-xl border-2 border-mario-brown">
+                    <span class="text-xl">🔊</span>
+                    <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.3" class="w-20 md:w-28 accent-mario-red cursor-pointer">
+                    <span id="volume-text" class="text-xs font-black text-mario-brown w-8">30%</span>
+                </div>
+            </div>
 
-    setInterval(changeBackground, 30000);
-  </script>
+            <!-- 控制器四大面板按鈕 (需求 2) -->
+            <div class="grid grid-cols-1 gap-4 my-auto w-full max-w-md mx-auto">
+                <!-- 1. 開始遊戲 -->
+                <button id="ctrl-btn-start" onclick="controllerStartGame()" class="mario-btn-green py-5 text-2xl font-black rounded-2xl flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-play"></i> 🎮 開始遊戲
+                </button>
+
+                <!-- 2. 下一題 -->
+                <button id="ctrl-btn-next" onclick="controllerNextQuestion()" disabled class="mario-btn-yellow py-5 text-2xl font-black rounded-2xl flex items-center justify-center gap-3 opacity-50 cursor-not-allowed">
+                    <i class="fa-solid fa-forward"></i> ➡️ 下一題
+                </button>
+
+                <!-- 3. 倒數 5 秒 -->
+                <button id="ctrl-btn-countdown" onclick="controllerStartCountdown()" disabled class="mario-btn-blue py-5 text-2xl font-black rounded-2xl flex items-center justify-center gap-3 opacity-50 cursor-not-allowed">
+                    <i class="fa-solid fa-stopwatch"></i> ⏱️ 倒數 5 秒
+                </button>
+
+                <!-- 4. 結束遊戲 -->
+                <button id="ctrl-btn-end" onclick="controllerEndGame()" class="mario-btn-red py-4 text-xl font-black rounded-2xl flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-power-off"></i> 🛑 結束遊戲
+                </button>
+            </div>
+
+            <!-- 狀態提示 -->
+            <div id="ctrl-status-text" class="text-center font-black text-white bg-black/40 p-2 rounded-xl text-base">
+                連線成功！請點擊「開始遊戲」啟動冒險！
+            </div>
+        </div>
+
+        <!-- 防呆確認彈窗 (需求 2) -->
+        <div id="modal-confirm-end" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+            <div class="mario-card p-6 rounded-3xl max-w-sm w-full text-center space-y-4">
+                <span class="text-6xl animate-bounce">⚠️</span>
+                <h3 class="text-2xl font-black text-mario-red">防呆確認</h3>
+                <p class="text-lg font-bold text-slate-800">您確定要立刻結束遊戲嗎？<br>將會直接進行題目回顧喔！</p>
+                <div class="flex gap-3 pt-2">
+                    <button onclick="confirmEndGame(false)" class="w-1/2 py-3 bg-slate-400 border-2 border-slate-700 text-white font-black rounded-xl text-lg">取消</button>
+                    <button onclick="confirmEndGame(true)" class="w-1/2 mario-btn-red py-3 font-black rounded-xl text-lg">確定結束</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 大螢幕 - 遊戲主畫面 (需求 3：三大區塊、二選一、紅綠背景) -->
+        <div id="view-game" class="hidden w-full h-full max-h-[92vh] flex flex-col gap-3 overflow-hidden">
+            
+            <!-- 上面 1/3 畫面：題目區 -->
+            <div class="h-1/3 w-full bg-white border-4 border-mario-brown rounded-3xl p-4 shadow-xl flex flex-col justify-between relative overflow-hidden">
+                <div class="flex justify-between items-center border-b-2 border-slate-200 pb-1">
+                    <span id="question-number" class="text-mario-blue font-black text-xl md:text-2xl">🌟 第 1 題</span>
+                    <span id="timer-text" class="text-2xl md:text-3xl font-black text-mario-red">⏱️ 準備好了嗎？</span>
+                </div>
+                <!-- 題目內容 -->
+                <div class="flex-grow flex items-center justify-center text-center py-2">
+                    <h2 id="question-text" class="text-2xl md:text-4xl lg:text-5xl font-black text-slate-900 leading-tight">
+                        題目載入中...
+                    </h2>
+                </div>
+            </div>
+
+            <!-- 下面 2/3 畫面：左右二選一答案區 (需求 3：左紅底右綠底，二選一) -->
+            <div class="h-2/3 w-full grid grid-cols-2 gap-4">
+                <!-- 左邊：紅底答案 (A) -->
+                <div id="option-btn-0" class="h-full bg-mario-red border-8 border-mario-brown rounded-3xl p-6 shadow-2xl flex flex-col items-center justify-center text-white text-center transition-all duration-300">
+                    <span class="text-3xl md:text-5xl font-black mb-2 bg-white/20 px-6 py-1 rounded-2xl border-2 border-white">🅰️ 選項 A</span>
+                    <span id="option-text-0" class="text-3xl md:text-5xl font-black leading-snug drop-shadow-[0_4px_0_#520807]">選項一內容</span>
+                </div>
+
+                <!-- 右邊：綠底答案 (B) -->
+                <div id="option-btn-1" class="h-full bg-mario-green border-8 border-mario-brown rounded-3xl p-6 shadow-2xl flex flex-col items-center justify-center text-white text-center transition-all duration-300">
+                    <span class="text-3xl md:text-5xl font-black mb-2 bg-white/20 px-6 py-1 rounded-2xl border-2 border-white">🅱️ 選項 B</span>
+                    <span id="option-text-1" class="text-3xl md:text-5xl font-black leading-snug drop-shadow-[0_4px_0_#113B13]">選項二內容</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 大螢幕 - 精典回顧 (需求 4：取消頒獎，顯示停留時間最長的5題) -->
+        <div id="view-review" class="hidden w-full max-w-[96vw] h-full max-h-[88vh] mario-card rounded-3xl p-6 shadow-2xl flex flex-col justify-between overflow-hidden">
+            <div class="text-center border-b-4 border-mario-brown pb-3 flex-shrink-0">
+                <span class="text-5xl animate-bounce inline-block">⭐</span>
+                <h2 class="text-3xl md:text-5xl font-black text-mario-red">精典回顧 TOP 5</h2>
+                <p class="text-lg font-bold text-mario-brown mt-1">這幾題大家思考最久、最有挑戰性喔！一起複習一下吧！</p>
+            </div>
+
+            <!-- 回顧列表 -->
+            <div id="review-list-container" class="flex-grow overflow-y-auto space-y-3 my-3 pr-2">
+                <!-- 動態注入經典 5 題 -->
+            </div>
+
+            <div class="text-center pt-2 border-t-2 border-mario-brown flex-shrink-0">
+                <button onclick="location.reload()" class="mario-btn-yellow px-8 py-3 rounded-2xl text-2xl font-black">
+                    🔄 重頭開始挑戰
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 背景音樂 Audio (需求 5：播放 Two_Coins_Left，不顯示播放器，初始音量 30%) -->
+    <audio id="bgm-player" loop preload="auto">
+        <source src="Two_Coins_Left.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // 全局題庫 (已簡化並新增干擾項，改為可愛的 2 選 1 形式)
+        const fullQuizDatabase = [
+            { question: "安得烈食物銀行的全稱裡面有包含什麼詞？", options: ["中華安得烈慈善協會", "安得烈開心美食俱樂部"], answer: 0 },
+            { question: "安得烈協會的 Logo 標誌中，沒有下列哪一個圖案？", options: ["飛翔的小鷹", "可愛的魚兒"], answer: 0 },
+            { question: "針對「0 至 3 歲」的嬰兒，安得烈會準備什麼箱子？", options: ["嬰兒物資箱", "長青食物箱"], answer: 0 },
+            { question: "針對「3 至 15 歲」的弱勢小朋友，主要提供什麼箱？", options: ["膳糧食物箱", "玩具寶箱"], answer: 0 },
+            { question: "「松柏食物箱」主要是幫助哪一個年齡層的長輩？", options: ["80 歲以上的長者", "20 歲的大學生"], answer: 0 },
+            { question: "安得烈鼓勵弱勢小朋友努力學習、培養專長的計畫叫？", options: ["培鷹計畫", "小鳥飛飛計畫"], answer: 0 },
+            { question: "安得烈每年暑假為國小國中生舉辦的營隊叫做什麼？", options: ["生命成長營", "宇宙冒險營"], answer: 0 },
+            { question: "安得烈在學校推動、教導大家珍惜食物的教育計畫是？", options: ["善果計畫", "水果甜甜計畫"], answer: 0 },
+            { question: "「善果計畫」鼓勵大家要具備什麼良好的觀念？", options: ["感恩、珍惜食物與助人", "搶第一、一定要贏"], answer: 0 },
+            { question: "志工哥哥姊姊在整理食物時，食品保存期限至少要多久以上？", options: ["6 個月以上", "1 天以上"], answer: 0 },
+            { question: "為了大家的健康，哪種食物絕對不會放入安得烈的食物箱？", options: ["高鹽高糖的垃圾食物", "營養營養的白米麵條"], answer: 0 },
+            { question: "安得烈食物箱打包完成後，會透過什麼方式送到需要的家庭？", options: ["郵局與專員親自送到家", "用無人機從天上掉下來"], answer: 0 }
+        ];
+
+        function shuffleArray(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        let quizDatabase = [];
+        let peer = null;
+        let hostConn = null;
+        let isHostController = false;
+
+        let currentQuestionIndex = 0;
+        let questionStartTime = 0;
+        let questionTimeLog = []; // 紀錄每題停留時間 [{ questionIndex, duration }]
+        let countdownInterval = null;
+
+        const bgm = document.getElementById('bgm-player');
+
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isCtrl = urlParams.get('ctrl');
+
+            if (isCtrl) {
+                // 手機端 Controller 模式
+                isHostController = true;
+                document.getElementById('main-header').classList.add('hidden');
+                document.getElementById('view-lobby').style.display = 'none';
+                document.getElementById('view-host-controller').classList.remove('hidden');
+                document.getElementById('view-host-controller').classList.add('flex');
+                
+                initMobileController(urlParams.get('hostId'));
+                setupVolumeControl();
+            } else {
+                // 大螢幕模式
+                initBigScreenHost();
+            }
+        };
+
+        // 背景音樂與音量控制 (需求 5)
+        function setupVolumeControl() {
+            const slider = document.getElementById('volume-slider');
+            const volText = document.getElementById('volume-text');
+
+            slider.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                volText.innerText = Math.round(val * 100) + '%';
+                
+                if (hostConn && hostConn.open) {
+                    hostConn.send({ type: 'SET_VOLUME', volume: val });
+                }
+            });
+        }
+
+        function playBgm() {
+            bgm.volume = 0.3; // 初始音量 30%
+            bgm.play().catch(e => console.log('BGM Autoplay blocked, waiting for interaction'));
+        }
+
+        // 大螢幕 Peer 初始化
+        function initBigScreenHost() {
+            peer = new Peer();
+            peer.on('open', (id) => {
+                // 生成給主控手機開的 URL
+                const ctrlUrl = `${window.location.href.split('?')[0]}?ctrl=true&hostId=${id}`;
+                console.log("主控制器連線網址：", ctrlUrl);
+            });
+
+            peer.on('connection', (conn) => {
+                hostConn = conn;
+                conn.on('data', (data) => {
+                    handleControllerCommand(data);
+                });
+            });
+
+            quizDatabase = shuffleArray(fullQuizDatabase);
+        }
+
+        // 手機端 Peer 初始化
+        function initMobileController(hostId) {
+            peer = new Peer();
+            peer.on('open', () => {
+                hostConn = peer.connect(hostId);
+                hostConn.on('open', () => {
+                    document.getElementById('ctrl-status-text').innerText = '🟢 已成功連接至大螢幕！';
+                });
+            });
+        }
+
+        // 處理手機主控指令 (需求 2)
+        function handleControllerCommand(data) {
+            if (data.type === 'START_GAME') {
+                playBgm();
+                startGame();
+            } else if (data.type === 'NEXT_QUESTION') {
+                nextQuestion();
+            } else if (data.type === 'START_COUNTDOWN') {
+                start5SecCountdown();
+            } else if (data.type === 'END_GAME') {
+                endGameAndShowReview();
+            } else if (data.type === 'SET_VOLUME') {
+                bgm.volume = data.volume;
+            }
+        }
+
+        // 手機控制器動作
+        function controllerStartGame() {
+            if (hostConn && hostConn.open) {
+                hostConn.send({ type: 'START_GAME' });
+                document.getElementById('ctrl-btn-start').disabled = true;
+                document.getElementById('ctrl-btn-start').classList.add('opacity-50');
+                
+                document.getElementById('ctrl-btn-next').disabled = false;
+                document.getElementById('ctrl-btn-next').classList.remove('opacity-50', 'cursor-not-allowed');
+                document.getElementById('ctrl-btn-countdown').disabled = false;
+                document.getElementById('ctrl-btn-countdown').classList.remove('opacity-50', 'cursor-not-allowed');
+                document.getElementById('ctrl-status-text').innerText = '🎮 遊戲進行中，可自由控制題目！';
+            }
+        }
+
+        function controllerNextQuestion() {
+            if (hostConn && hostConn.open) {
+                hostConn.send({ type: 'NEXT_QUESTION' });
+            }
+        }
+
+        function controllerStartCountdown() {
+            if (hostConn && hostConn.open) {
+                hostConn.send({ type: 'START_COUNTDOWN' });
+            }
+        }
+
+        function controllerEndGame() {
+            document.getElementById('modal-confirm-end').classList.remove('hidden');
+        }
+
+        function confirmEndGame(isConfirm) {
+            document.getElementById('modal-confirm-end').classList.add('hidden');
+            if (isConfirm && hostConn && hostConn.open) {
+                hostConn.send({ type: 'END_GAME' });
+            }
+        }
+
+        // 大螢幕邏輯
+        function startGame() {
+            document.getElementById('view-lobby').classList.add('hidden');
+            document.getElementById('view-game').classList.remove('hidden');
+            document.getElementById('view-game').classList.add('flex');
+            
+            currentQuestionIndex = 0;
+            questionTimeLog = [];
+            loadQuestion(currentQuestionIndex);
+        }
+
+        function loadQuestion(index) {
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            if (index >= quizDatabase.length) {
+                endGameAndShowReview();
+                return;
+            }
+
+            const qData = quizDatabase[index];
+            document.getElementById('question-number').innerText = `🌟 第 ${index + 1} / ${quizDatabase.length} 題`;
+            document.getElementById('question-text').innerText = qData.question;
+
+            // 2 選 1 (需求 3)
+            document.getElementById('option-text-0').innerText = qData.options[0];
+            document.getElementById('option-text-1').innerText = qData.options[1];
+
+            document.getElementById('timer-text').innerText = '⏱️ 作答進行中';
+
+            // 紀錄開始時間
+            questionStartTime = Date.now();
+        }
+
+        function nextQuestion() {
+            // 紀錄上一題停留時間
+            if (questionStartTime > 0) {
+                const duration = (Date.now() - questionStartTime) / 1000;
+                questionTimeLog.push({
+                    questionIndex: currentQuestionIndex,
+                    questionData: quizDatabase[currentQuestionIndex],
+                    duration: duration
+                });
+            }
+
+            currentQuestionIndex++;
+            loadQuestion(currentQuestionIndex);
+        }
+
+        // 倒數 5 秒 (需求 2)
+        function start5SecCountdown() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            
+            let count = 5;
+            document.getElementById('timer-text').innerText = `⏱️ 倒數 ${count} 秒！`;
+
+            countdownInterval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    document.getElementById('timer-text').innerText = `⏱️ 倒數 ${count} 秒！`;
+                } else {
+                    clearInterval(countdownInterval);
+                    document.getElementById('timer-text').innerText = `⏰ 時間到！`;
+                }
+            }, 1000);
+        }
+
+        // 結束遊戲與精典回顧 (需求 4)
+        function endGameAndShowReview() {
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            // 紀錄最後一題停留時間
+            if (questionStartTime > 0 && currentQuestionIndex < quizDatabase.length) {
+                const duration = (Date.now() - questionStartTime) / 1000;
+                questionTimeLog.push({
+                    questionIndex: currentQuestionIndex,
+                    questionData: quizDatabase[currentQuestionIndex],
+                    duration: duration
+                });
+            }
+
+            document.getElementById('view-game').classList.add('hidden');
+            document.getElementById('view-review').classList.remove('hidden');
+
+            // 找出停留時間最長的前 5 題 (需求 4)
+            const sortedByTime = [...questionTimeLog].sort((a, b) => b.duration - a.duration).slice(0, 5);
+
+            const container = document.getElementById('review-list-container');
+            container.innerHTML = '';
+
+            if (sortedByTime.length === 0) {
+                container.innerHTML = `<div class="text-center font-bold text-slate-500 py-8">未進行足夠的題目測試！</div>`;
+                return;
+            }
+
+            sortedByTime.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = 'bg-white p-4 rounded-2xl border-4 border-mario-brown shadow flex flex-col md:flex-row justify-between items-center gap-3';
+                
+                const q = item.questionData;
+                const correctAnsText = q.options[q.answer];
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-3 w-full md:w-auto">
+                        <span class="text-2xl font-black bg-mario-yellow text-mario-brown px-3 py-1 rounded-xl border-2 border-mario-brown flex-shrink-0">
+                            TOP ${idx + 1}
+                        </span>
+                        <div class="text-left">
+                            <h4 class="text-xl font-black text-slate-900">${q.question}</h4>
+                            <p class="text-base font-bold text-mario-green mt-0.5">✅ 正確答案：${correctAnsText}</p>
+                        </div>
+                    </div>
+                    <div class="bg-mario-cream px-4 py-2 rounded-xl border-2 border-mario-brown font-black text-mario-brown text-sm flex-shrink-0">
+                        ⏱️ 停留時間：${item.duration.toFixed(1)} 秒
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+    </script>
 </body>
 </html>
